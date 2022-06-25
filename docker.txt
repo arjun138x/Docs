@@ -1,0 +1,39 @@
+DOCKER COMMANDS
+---------------
+  INSTALL
+  ----------
+    > URL :- https://docs.docker.com/engine/install/ubuntu/
+    
+    > Install using the convenience script:-
+      > curl -fsSL https://get.docker.com -o get-docker.sh
+      > sudo sh get-docker.sh
+  
+  
+  > IMAGE :- Image means template
+  > CONTAINER :- instance of Image
+  > sudo docker run hello-world  // to run hello-world docker container 
+  > CONTAINER URL :- https://hub.docker.com/search?type=image&image_filter=official
+  > sudo docker ps // to list existing docker containers in running state. ps stands for “Process Status” 
+  > sudo docker ps -a // 
+  > sudo docker stop <container ID>
+  > sudo docker rm <container ID or NAME>
+  > sudo docker images  // to list existing docker images
+  > sudo docker pull <CONTAINER NAME> // it downloads the container but did not allow to run
+  > sudo docker pull elasticsearch:7.17.1  // if we provide the tags(7.17.1) it pull the particular version
+  > sudo docker run centos sleep 10  // after completion of work sleep 10 seconds
+  > sudo docker container prune // remove all containers
+  
+  > docker exec -it <container> kill 1		// cannot stop container: <containnerId>: permission denied
+
+
+
+
+
+
+
+
+
+
+
+
+

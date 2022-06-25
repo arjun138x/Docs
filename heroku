@@ -1,0 +1,8 @@
+heroku login
+heroku create cryptoccy
+heroku git:remote -a <name= cryptoccy>
+create Procfile file in root level > react-scripts start
+git push heroku master
+
+https://git.heroku.com/cryptoccy.git
+https://cryptoccy.herokuapp.com/ // link like to be this

@@ -1,0 +1,183 @@
+React Fundamentals
+--------------------
+
+  > Environment set-up 
+    > we need to install NodeJS LTS 
+    > Visual Studio Code (code editor)  
+    > npm i create-react-app // without this to we cant create react app
+    > npx create react app <app name> // to create react app
+    > VScode Extensions
+      > Prettier
+      > ES7 React/Redux/GraphQL/React-Native snippets
+    
+
+  > Functional & Class component
+    > jsx = jsx means use js in html
+
+    > const App = () =>{    // Functional component
+        return (
+          <h1>Welcome User</h1>
+        )
+      }
+      export default App;
+
+    > import React from "react";    // Class component
+
+      class App extends React.Component{ 
+        render(){  // in class we cant return directly. we need to use rende  
+          return (
+            <h1> I am from Class</h1>
+          )
+        }
+      }
+      export default App;  
+
+
+  > States & Props 
+    > States means storing the data 
+    > Props means the way we send the data
+    > we can use States & Props in Functional & Class component. but Functional component has more features
+
+
+  > Event handlers 
+    1.onClick event listener
+      > if we want any action by onClick 
+      > The onclick event generally occurs when the user clicks on an element. It allows the programmer to execute a JavaScript's function when an element gets clicked. 
+      
+      > <button onClick={()=> alert("Welcome") }>Click</button>
+
+
+    2.onChange event listener
+      > The onchange event occurs when the value of an element has been changed. For radiobuttons and checkboxes, 
+        the onchange event occurs when the checked state has been changed.
+      
+      > import React, { useState } from 'react'
+
+        const App = () => {
+          const [name,setName] = useState('');
+          return (
+            <div>
+              <center>
+                name:{name} <br />
+                <input type="text" name="name" onChange={(e)=>setName(e.target.value)} />
+              </center>
+            </div>
+          )
+        }
+        export default App
+      
+
+    3.onSubmit event listener
+      > The onsubmit event is an event that occurs when you try to submit a form.
+      > import React, { useState } from 'react'
+
+        const App = () => {
+          const [data,setData] = useState({
+            email:"",
+            password:""
+          });
+          const changeHandler = event =>{
+            setData({...data,[event.target.name]:event.target.value})
+          }
+          const submitHandler = event =>{
+            event.preventDefault();
+            console.log(data);
+          }
+          return (
+            <div>
+              <center>
+                <form onSubmit={submitHandler}>
+                  <label>E-Mail </label> <br />
+                  <input type="text" name="email" onChange={changeHandler} /> <br />
+                  <label>Password </label> <br />
+                  <input type="password" name="password" onChange={changeHandler} /> <br />
+                  <input type="submit" value="Login" /> <br />
+                </form>
+              </center>
+            </div>
+          )
+        }
+        export default App
+
+
+  > Form handling & validation 
+
+  > CSS & Bootstrap styling 
+    > add below link into your <head> before all other stylesheets to load our CSS.
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  > Re-usable components
+
+  > Lifecycle Methods vs Hooks
+
+
+
+React Router v6
+----------------
+  > It is a package by using this we can build multi page applications easily
+  > npm i react-router-dom@6 // version-5 syntax is different so go with version-6
+
+
+
+URL Parameters
+--------------
+  1.Path Params 
+    > we send data in path 
+
+    > <Route path='/dashboard/:name' />
+      <Route path='/dashboard/john' />
+
+    
+  2.Query Params  
+    > <Route path='/dashboard' />
+      <Route path='/dashboard?name=john' />
+
+  > Handle 404 PageNotFound
+
+
+
+HOC
+----
+  > Higher-order component is a function that takes a component and returns a new component.
+  > A higher-order component (HOC) is an advanced technique in React for reusing component logic.
+  > HOC is a pure function with zero side-effects and doesn't modify the input component.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

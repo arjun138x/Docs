@@ -1,0 +1,443 @@
+javaScript Fundamental concepts
+--------------------------------
+  Introduction
+  ------------
+    > javaScript is a scripting language used both on client-side and server-side, that allows you to make web pages intractive. 
+
+    > ONLINE CODEPLAYGROUND :- https://playcode.io
+    
+    > > ONLINE CODEPLAYGROUND :- https://playcode.ioVariable Declaraation
+      > var a=10, let & const introduced in ES6 
+
+    > Data types
+      > 1. number // numaric or decimal
+        2. string
+        3. boolean
+        4. undefiend  these are all the actuval data types
+      > var a=10;
+        console.log(typeof(a)) ==> number
+
+    > Arrays and Objects
+      var data=[1,2,3,4,5] ==> Array
+      var data={"key":"value"} ==> Object
+
+    > Functions
+      function user(a){
+        console.log(a+1)
+      }
+      user(10) ==> 11
+
+    > Conditional Statement
+      > if, else if, else, switch
+      var a=10;
+      if (a>5){
+        console.log(a)
+      }
+
+    > Looping concept
+      > for, while
+      > for( var i=1; i<5;i++){
+          console.log(i)
+        }
+
+      > var a=0;
+        while(a<5){
+          a+=1;
+          console.log(a)
+        }
+
+
+ES5 to ES12 ECMAScript 2021 
+----------------------------
+  
+  ES5 Version
+  -----------
+
+    > Array features
+    -----------------
+      > isArray()
+        > var data = [1,2,3]
+          console.log(Array.isArray(data)) ==> true
+
+      > map()
+        > It is similar to for forEach but forEach does not return Array
+        > var data = [1,2,3]
+          var output = data.map(function(a){  // var output = data.map((a)=>a*a)
+            return a*a
+          })
+          console.log(output)
+
+      > filter()
+        > var data = [1,2,3]
+          var output = data.filter(function(a){   // var output = data.filter((a)=>a>=2)
+            return a>=2
+          })
+          console.log(output)
+
+      > forEach() // It return true or false
+        > var data = [1,2,3]
+          data.forEach((a)=>{
+            console.log(a*a)
+          })
+
+      > every() // It return true or false
+        > var data = [1,2,3]
+          var output = data.every((a)=>a>1)
+          console.log(output) ==> false // All values in the Array should be satisfy the given condition other wise it return false
+
+      > some()  // It return true or false
+        > var data = [1,2,3]
+          var output = data.some((a)=>a>1)
+          console.log(output)  ==> true // Atleast one value of Array need to satisfy the condition
+
+      > indexOf() // it return first index value  
+        > var data = [1,2,3,2]
+          console.log(data.indexOf(2)) 
+
+      > lastIndexOf() // it return last index value  
+        > var data = [1,2,3,2]
+          console.log(data.lastIndexOf(2)) 
+          
+
+    > JSON features
+    -----------------
+      > stringfy() // It converts Object to string
+        var data = {
+          name : 'john',
+          age : 32
+        }
+        var json = JSON.stringify(data)
+        console.log(typeof(json))
+      
+
+    > Date features
+    -----------------
+      > valueOf()
+        var date = new Date();
+        console.log(date)
+        console.log(date.valueOf())
+
+
+  ES6 / ECMAScript 2015
+  ---------------------
+    > let & const
+      > var keyword has global scope but let & const don't
+        {
+          var a=12
+        }
+        console.log(a) 
+
+      > The const keyword specifies that a variable's value is constant and tells the compiler to prevent 
+      the programmer from modifying it. Let & Constants are block-scoped.
+        const a=10;
+        a = 20;
+        console.log(a)
+
+    > Arrow Functions
+      > Arrow function are advanced version of functions
+      > Functions are not going to be changed so all functions we declare by const keyword
+        > Normal Function
+          const user = function(name){
+            console.log(`hi ${name}`)
+          }
+          user("john");
+        
+        > Arrow Function
+          > const user =(name)=>{console.log(`hi ${name}`)}
+            user("john"); 
+
+    > Classes
+      > class User{
+          constructor(pass){
+          this.pass=pass    // this keyword refers to an object or current Object(we can define more then one object for one class)
+        }
+          user(name){
+            console.log(this.pass)
+            console.log(`Hi ${name}`)
+          }
+        }
+        let obj = new User()
+        obj.user('John')
+        let obj2 = new User(9876543)
+        obj2.user('John')
+          
+
+    > For..of // it is similar to for loop
+      > let arr=[1,2,3,4,5,6,7]
+        for(const a of arr){
+          console.log(a)
+        }
+
+    > Default Parameter
+      > function user(name="john"){
+          console.log(name)
+        }
+        user()
+
+    > Rest Operator   // It is used to fetch reamining values 
+      > function user(name, ...x){  // Rest Operator(...) always in last
+          console.log(x)
+        }
+        user('john',123,'john@gmail.com')
+
+    > Spread Operator 
+      > let arr1=[1,2,3]
+        let arr2=[4,5,6]
+        let arr3=[...arr1,...arr2]    // this is not Destructuring
+        console.log(arr3)
+
+    > Destructuring 
+      > let user={
+          name:'john',
+          mail:'john@gmail.com'
+        }
+        const {name,mail}=user
+        console.log(name)
+        console.log(user.name)
+
+
+  ES7 / ECMAScript 2016
+  ---------------------
+    > Exponentiation Operator   // it is all about x power y (x**y)
+      > console.log(2**3)
+
+    > Includes()
+      > let user=[1,2,3,4]
+        console.log(user.includes(2))
+
+
+  ES8 / ECMAScript 2017
+  ---------------------
+    > padStart()
+      > let data="hello"
+        console.log(data.padStart(10,"*"))
+
+    > padEnd()
+      > let data="hello"
+        console.log(data.padEnd(10,"*"))
+
+    > Object.entries // It stores data like arrays of array
+      > let data={
+          name:"john",
+          age:31,
+          mail:"john@gmail.com"
+        }
+        console.log(JSON.stringify(Object.entries(data)))   // [["name","john"],["age",31],["mail","john@gmail.com"]]
+
+    > Object.values   // it return onely values
+      > let data={
+          name:"john",
+          age:31,
+          mail:"john@gmail.com"
+        }
+        console.log(Object.values(data))  // ["john",31,"john@gmail.com"]
+        console.log(Object.keys(data))    // ["name","age","mail"]
+
+    > Async/Await 
+      > Asynchronous is called Non-Blocking
+      > The Async... Await syntax in ES6 use to handle the http promisesrequests.
+
+      > const url="https://playcode.io/new/"
+        const response = fetch(url)
+          .then(response =>{
+            console.log(response.data)
+          })
+        console.log(12) 
+
+
+  ES9 / ECMAScript 2018
+  ---------------------
+    > Regular Expression Improvements
+      let data = 'hello user 1234'
+      console.log(data.match(/llO/i))   // i means ignor the case 
+      console.log(data.match(/[a-z]/g))   // g means global
+      console.log(data.match(/[0-9]/g))   // [0-9] mean it return numbers onely
+      console.log(data.match(/[ ]/g)) 
+      console.log(data.match(/[^0-9 ]/g))   // ^ means not Operator
+
+    > Rest/Spread Properties (arguments can be transferred to a function)
+      > let data = [1,2,3,4,5]
+        console.log(Math.max(...data))
+    
+
+  ES10 / ECMAScript 2019
+  ---------------------
+    > Flat    // nested array convers as flat
+      > let data = [1,2,3,[4,5,[6,7,8]],[9]]
+        console.log(data.flat(1))
+
+    > Function.toString
+      > function user(){
+          console.log(123)
+        }
+        console.log(user.toString())
+
+    > trimStart
+      > let data = "  hello  "
+        console.log(data.trimStart())
+
+    > trimEnd
+      > let data = "  hello  "
+        console.log(data.trimEnd())
+
+    > Object.fromEntries  // converts array into Object
+      > let data = [['name','john'],['age',32]]
+        console.log(Object.fromEntries(data))
+
+
+  ES11 / ECMAScript 2020
+    ---------------------
+      > BigInt (Number.MAX_SAFE_INTEGER)
+        2**53 -1 = 9007199254740991
+
+      > Dynamic Import  // we can import we it needed
+        > async()=>{
+            const module = await import("module.js")
+          }
+
+      > Nullish operator    // ??
+        > let data = null
+          let output=data ?? 'john'   // if data is null then it return 'john'
+          console.log(output)
+
+      > Optional Chaining  
+        > Optional chaining is a safe way to access nested object properties, even if the property does not exist.
+        > let pet ={
+            cat:{
+              name:"neo"
+            }
+          }
+          alert(pet.dog.name)
+          alert(pet.dog?.name)
+          alert(pet.dog && pet.dog.name)  // before Optional Chaining method we write code like this
+
+        > let user ={
+            admin(){
+              console.log('I am from admin method')
+            }
+          }
+          user.admin?.()
+
+
+  ES12 / ECMAScript 2021
+    ---------------------
+    > String.prototype.replaceAll()
+      > let data = 'JavaScript'
+        console.log(data.replaceAll('a','0'))
+
+    > Numeric Separators
+      let data = 10_50_1
+      console.log(data)   // 10501
+
+    > Logical Assingment Operators (&&=, ||=)
+      > let arr1 = 10;
+        let arr2 = 20;
+        arr2 &&= arr1   // && it checks the left side value is true or false. if it is true it execute the right side value 
+        console.log(arr2)
+
+        arr1 = 10;
+        arr2 = 20;
+        arr2 ||= arr1
+        console.log(arr2)
+
+
+JavaScript OOPS
+---------------
+  > Benefits of OOPS
+    > Reuse of code throught inheritance 
+    > Flexibility throught polymorphisum 
+    > Easier to troubleshoot(find errors)
+    > Code maintainability
+
+  > Abstraction 
+    > An abstraction is a way of hiding the implementation details and showing only the functionality to the users. 
+      In other words, it ignores the irrelevant details and shows only the required one.
+      Ex :- ATM( it gives the money but it didn't show the background process)
+    
+    > class Atm{
+        constructor(withdraw){  // A constructor is a special function that creates and initializes an object instance of a class
+          this.balance = 1000
+          this.withdraw= withdraw
+        }
+        getAmount(){
+          let minimum = 500 // user can't modify this. this is abstraction
+          if(this.balance-this.withdraw>=this.minimum){
+            console.log("Transaction successfull")
+          }
+          else{
+            console.log("Transaction failed")
+          }
+        }
+      }
+
+      let obj = new Atm(500)
+      console.log(obj.minimum)
+      obj.getAmount()
+
+
+  > Encapsulation 
+    > Encapsulation in JavaScript is a process of binding the data with the functions which act upon the data. 
+      Encapsulation allows us to control and validate the data
+
+    > It is Mechanisum of bundling data variables and methods togethor & hides them from other classes.
+
+    > class Persion{
+        constructor(name,age,salary){
+          this.name=name
+          this.age=age
+          this.salary=salary
+        }
+        
+        getName(){
+          console.log(this.name)
+        }
+        getAge(){
+          console.log(this.age)
+        }
+        getSalary(){
+          console.log(this.salary)
+        }
+      }
+
+      let obj = new Persion("John",31,30000)
+      obj.getName()
+      obj.getAge()
+      obj.getSalary()
+       
+
+  > Inheritance
+    > Inheritance is the procedure in which one class inherits the attributes and methods of another class
+    > class Parent{
+        getUser(){
+          console.log("user")
+        }
+      }
+      class Child extends Parent{
+
+      }
+
+      let obj = new Child()
+      obj.getUser()
+
+
+  > Polymorphisum
+    > poly(many) + morph(form) = Many Forms 
+    > Polymorphisum allows us to perform a single action in different ways.
+      > class Parent{
+          getMobile(){
+            console.log("mobile 1")
+          }
+        }
+        class Child extends Parent{
+          getMobile(){
+            console.log("mobile 2")
+          }
+        }
+
+        let obj = new Child()
+        obj.getMobile()
+
+
+
+
+

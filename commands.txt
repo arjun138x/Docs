@@ -1,0 +1,96 @@
+> sudo /opt/lampp/lampp start
+> sudo /opt/lampp/manager-linux-x64.run // GUI command
+
+> sudo service apache2 status	// verify that the service is not already running
+> sudo service apache2 stop	// to stop
+
+> http://localhost/phpmyadmin/ 	// DATABASE url
+
+> cd /opt/lampp/
+> ls
+> sudo ./ manager-linux-x64. run
+
+
+
+cd ~/ccbp-ide && docker-compose up -d
+
+ERROR:- Error starting userland proxy: listen tcp4 0.0.0.0:80: bind: address already in use
+SOLUTION :- sudo /etc/init.d/apache2 stop
+
+
+
+sudo systemctl start elasticsearch
+
+
+sudo systemctl start rabbitmq-server
+
+systemctl status rabbitmq-server
+
+sudo systemctl start kafka
+
+sudo systemctl enable zookeeper && sudo systemctl enable kafka
+
+firedm
+
+
+// food app
+https://github.com/techmalli333/food-app.git
+
+
+npm cache verify
+
+pulseaudio --kill && pulseaudio --start
+qpaeq
+
+mplayer <path_to_video_file>
+
+
+
+systemctl --user restart pulseaudio.service
+systemctl --user restart pulseaudio.socket
+
+
+https://downloads.apache.org/kafka/3.2.0/kafka_2.12-3.2.0.tgz
+
+curl "https://downloads.apache.org/kafka/3.2.0/kafka_2.12-3.2.0.tgz" -o ~/Downloads/kafka.tgz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

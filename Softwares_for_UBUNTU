@@ -1,0 +1,238 @@
+
+Softwares Installation Steps
+    
+Visual Studio installation
+sudo snap install --classic code
+code -v
+1.70.1
+
+Node JS:
+sudo apt install nodejs npm
+npm -v
+6.14.4
+node -v
+10.19.0
+
+express : npm install express –save
+
+For Latest Version,
+cd ~
+curl -sL https://deb.nodesource.com/setup_16.x -o /tmp/nodesource_setup.sh
+sudo bash /tmp/nodesource_setup.sh
+sudo apt install nodejs
+node -v
+sudo apt install npm
+
+
+JDK1.8:
+sudo apt-get install openjdk-8-jdk -y
+java -version
+openjdk version "1.8.0_342"
+OpenJDK Runtime Environment (build 1.8.0_342-8u342-b07-0ubuntu1~20.04-b07)
+OpenJDK 64-Bit Server VM (build 25.342-b07, mixed mode)
+
+STS 4.15.2
+Download the STS latest version from Sprion io site
+
+cd Downloads
+sudo mv spring-tool-suite-4-4.15.2.RELEASE-e4.24.0-linux.gtk.x86_64.tar.gz /opt
+cd /opt/
+sudo tar zxvf spring-tool-suite-4-4.15.2.RELEASE-e4.24.0-linux.gtk.x86_64.tar.gz
+sudo ln -s sts-4.15.2.RELEASE/SpringToolSuite4 /usr/local/bin/sts
+sudo gedit /usr/share/applications/stsLauncher.desktop
+
+[Desktop Entry]
+Name=Spring Tool Suite
+Comment=Spring Tool Suite 4.15.2
+Exec=/opt/sts-4.15.2.RELEASE/
+Icon=/opt/sts-4.15.2.RELEASE/icon.xpm
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Development;IDE;Java;
+
+Docker:
+
+sudo apt install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt install docker-ce docker-ce-cli containerd.io
+
+Status Check:
+sudo systemctl status docker
+
+Version Check
+sudo docker info
+v0.9.1-beta3
+
+Notepad++
+sudo snap install notepad-plus-plus
+v8.4.4
+
+File Manager:
+sudo add-apt-repository ppa:gnome3-team/gnome3
+sudo apt-get install nautilus
+
+Adobe Reader:
+sudo dpkg --add-architecture i386
+sudo apt install libxml2:i386 libcanberra-gtk-module:i386 gtk2-engines-murrine:i386 libatk-adaptor:i386
+sudo wget -O ~/adobe.deb ftp://ftp.adobe.com/pub/adobe/reader/unix/9.x/9.5.5/enu/AdbeRdr9.5.5-1_i386linux_enu.deb
+sudo dpkg -i /AdbeRdr9.5.5-1_i386linux_enu.deb
+
+IGIT
+sudo apt update
+sudo apt install git
+git –version
+git version 2.25.1
+
+Putty:
+sudo apt install putty
+
+RedisInsight
+docker run -v redisinsight:/db -p 8001:8001 redislabs/redisinsight:latest
+sudo apt install redis-tools
+redis    -cli -v
+redis-cli 5.0.7
+
+Redis Desktop Manager
+snap install redis-desktop-manager
+
+Conductor
+Download from https://www.conduktor.io/download
+curl -LO https://mirrors.edge.kernel.org/ubuntu/pool/main/libf/libffi/libffi6_3.2.1-8_amd64.deb
+sudo dpkg -i libffi6_3.2.1-8_amd64.deb
+sudo dpkg -i ./Conduktor-2.23.2.deb
+/opt/conduktor/bin/Conduktor
+
+
+
+
+
+Rabbit MQ
+sudo apt-get update
+
+sudo apt-get -y upgrade
+curl http://www.rabbitmq.com/rabbitmq-signing-key-public.asc | sudo apt-key add 
+sudo apt-get install rabbitmq-server
+sudo nano /etc/default/rabbitmq-server
+sudo rabbitmq-plugins enable rabbitmq_management
+http://localhost:15672/
+
+Elastic Search: (Not Working)
+sudo apt install apt-transport-https ca-certificates wget
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo sh -c 'echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" > /etc/apt/sources.list.d/elastic-7.x.list'
+sudo apt install elasticsearch
+sudo systemctl enable --now elasticsearch.service
+curl -X GET "localhost:9200/"
+sudo journalctl -u elasticsearch
+
+Apache Jmeter
+http://jmeter.apache.org/download_jmeter.cgi
+move to /opt folder
+cd apache-jmeter-5.0/bin/
+./jmeter
+
+Apache Maven
+sudo apt install maven
+mvn -version
+
+
+
+RabbitMQ :- 
+    Commands
+# To start the service:
+sudo systemctl start rabbitmq-server.service
+
+# To stop the service:
+sudo systemctl stop rabbitmq-server.service
+
+# To restart the service:
+sudo systemctl restart rabbitmq-server.service
+
+
+# To check the status:
+sudo systemctl status rabbitmq-server.service
+
+https://www.fosslinux.com/6339/how-to-install-rabbitmq-server-on-ubuntu-18-04-lts.htm
+
+rabbitMQ running port :- http://localhost:15672/
+The default Username and Password is “guest”
+
+elasticSearch :- 
+    Commands
+sudo systemctl start elasticsearch.service
+
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-18-04
+sudo apt update
+sudo apt install elasticsearch
+sudo nano /etc/elasticsearch/elasticsearch.yml
+Set network.host = localhost
+. . .
+# ---------------------------------- Network -----------------------------------
+#
+# Set the bind address to a specific IP (IPv4 or IPv6):
+#
+network.host: localhost
+. . .
+
+To save the changes click CTRL+X, followed by Y and then ENTER 
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch
+
+Redis :-  
+    Commands
+sudo systemctl start redis
+sudo systemctl restart redis
+
+
+https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04
+Kafka :- 
+    Commands
+sudo systemctl start zookeeper
+sudo systemctl start kafka
+ https://hevodata.com/blog/how-to-install-kafka-on-ubuntu/
+Conducktor :-  https://docs.conduktor.io/sign-in-section/install/linux#zip-distro
+
+
+Minio :-   https://linuxhint.com/installing_minio_ubuntu/
+
+Postgresql :- 
+https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart
+
+
+
+Uninstall Docker 
+
+docker --version
+sudo apt-get purge docker-engine
+sudo apt-get autoremove --purge docker-engine
+sudo rm -rf /var/lib/docker
+dpkg -| grep -i docker
+sudo apt remove --purge docker-ce docker-ce-cli containerd.io
+sudo rm -rf /var/lib/docker
+sudo rm -rf /var/lib/containerd
+sudo apt autoremove -y
+sudo apt autoclean
+docker --version
+sudo reboot
+
+
+
+
+
+If above commands don't work use this commands:
+Step 1
+dpkg -l | grep -i docker
+
+To identify what installed package you have:
+Step 2
+sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce
+
+The above commands will not remove images, containers, volumes, or user created configuration files on your host. If you wish to delete all images, containers, and volumes run the following commands:
+sudo rm -rf /var/lib/docker /etc/docker sudo rm /etc/apparmor.d/docker sudo groupdel docker sudo rm -rf /var/run/docker.sock
+
+You have removed Docker from the system completely.
+
+

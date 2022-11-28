@@ -504,6 +504,36 @@ JavaScript OOPS
         obj.getMobile()
 
 
+Closure
+-------
+  > Closure is a feature in JavaScript where an inner function has access to the outer function's variables and parameters -- a scope chain
+    > 1. it has access to the it's own scope
+      2. it has access to the outer functions variables
+      3. it has access to the global variables
+  > A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment). 
+  In other words, a closure gives you access to an outer function's scope from an inner function.
+    var x=100
+    function outer() {
+        var y=50
+        var n=500
+        function inner() {
+            var z=10
+            console.log(y+z); // hear we are trying to access "y" it is in another function
+            y++
+            z++
+
+        }
+        return inner
+    }
+    let inner=outer(); // after calling the outer() function the "y" scope will destroye. in below line we are calling (inner). hear we are accessing "y" value. in this place closer come to the picture.
+    console.log(inner()); // 
+    console.dir(inner); //  you can increse the the y value but you can't increse z value. after calling inner() "z" scope will destroye
+    console.log(inner()); // 
+    /* 
+    if u run this in browser. inside [[Scopes]]==> Closure (outer) ==> y : 50 
+    but you didn't get "n" value in Closure. Closure will stores used variables only
+    */
+    
 
 
 

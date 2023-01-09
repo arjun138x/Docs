@@ -6,14 +6,14 @@ javaScript Fundamental concepts
 
     > ONLINE CODEPLAYGROUND :- https://playcode.io
     
-    > > ONLINE CODEPLAYGROUND :- https://playcode.ioVariable Declaraation
+    > > ONLINE CODEPLAYGROUND :- https://playcode.ioVariable Declaration
       > var a=10, let & const introduced in ES6 
 
     > Data types
-      > 1. number // numaric or decimal
+      > 1. number // numeric or decimal
         2. string
         3. boolean
-        4. undefiend  these are all the actuval data types
+        4. undefined  these are all the actual data types
       > var a=10;
         console.log(typeof(a)) ==> number
 
@@ -88,7 +88,7 @@ ES5 to ES12 ECMAScript 2021
       > some()  // It return true or false
         > var data = [1,2,3]
           var output = data.some((a)=>a>1)
-          console.log(output)  ==> true // Atleast one value of Array need to satisfy the condition
+          console.log(output)  ==> true // At least one value of Array need to satisfy the condition
 
       > indexOf() // it return first index value  
         > var data = [1,2,3,2]
@@ -174,7 +174,7 @@ ES5 to ES12 ECMAScript 2021
         }
         user()
 
-    > Rest Operator   // It is used to fetch reamining values 
+    > Rest Operator   // It is used to fetch remaining values 
       > function user(name, ...x){  // Rest Operator(...) always in last
           console.log(x)
         }
@@ -224,7 +224,7 @@ ES5 to ES12 ECMAScript 2021
         }
         console.log(JSON.stringify(Object.entries(data)))   // [["name","john"],["age",31],["mail","john@gmail.com"]]
 
-    > Object.values   // it return onely values
+    > Object.values   // it return only values
       > let data={
           name:"john",
           age:31,
@@ -410,8 +410,8 @@ ES5 to ES12 ECMAScript 2021
 JavaScript OOPS
 ---------------
   > Benefits of OOPS
-    > Reuse of code throught inheritance 
-    > Flexibility throught polymorphisum 
+    > Reuse of code through inheritance 
+    > Flexibility through polymorphism 
     > Easier to troubleshoot(find errors)
     > Code maintainability
 
@@ -428,7 +428,7 @@ JavaScript OOPS
         getAmount(){
           let minimum = 500 // user can't modify this. this is abstraction
           if(this.balance-this.withdraw>=this.minimum){
-            console.log("Transaction successfull")
+            console.log("Transaction successful")
           }
           else{
             console.log("Transaction failed")
@@ -445,9 +445,9 @@ JavaScript OOPS
     > Encapsulation in JavaScript is a process of binding the data with the functions which act upon the data. 
       Encapsulation allows us to control and validate the data
 
-    > It is Mechanisum of bundling data variables and methods togethor & hides them from other classes.
+    > It is Mechanism of bundling data variables and methods together & hides them from other classes.
 
-    > class Persion{
+    > class Person{
         constructor(name,age,salary){
           this.name=name
           this.age=age
@@ -465,7 +465,7 @@ JavaScript OOPS
         }
       }
 
-      let obj = new Persion("John",31,30000)
+      let obj = new Person("John",31,30000)
       obj.getName()
       obj.getAge()
       obj.getSalary()
@@ -486,9 +486,9 @@ JavaScript OOPS
       obj.getUser()
 
 
-  > Polymorphisum
+  > Polymorphism
     > poly(many) + morph(form) = Many Forms 
-    > Polymorphisum allows us to perform a single action in different ways.
+    > Polymorphism allows us to perform a single action in different ways.
       > class Parent{
           getMobile(){
             console.log("mobile 1")

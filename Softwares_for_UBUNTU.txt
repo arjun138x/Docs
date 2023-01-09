@@ -222,6 +222,7 @@ sudo reboot
 
 
 
+
 If above commands don't work use this commands:
 Step 1
 dpkg -l | grep -i docker

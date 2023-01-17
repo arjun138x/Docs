@@ -220,6 +220,9 @@ sudo reboot
 
 
 
+Change swap size in Ubuntu
+https://ploi.io/documentation/server/change-swap-size-in-ubuntu
+
 
 
 

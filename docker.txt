@@ -26,8 +26,34 @@ DOCKER COMMANDS
   > docker exec -it <container> kill 1		// cannot stop container: <containnerId>: permission denied
 
 
+SET RAM LIMIT FOR DOCKER 
+---------------
+  > cd /etc/elasticsearch/jvm.options.d
+  > touch jvm.options
+  > cat jvm.options
+  > nano jvm.options
+      > Add this content
+              -Xms2g
+              -Xmx2g
 
+  > create new file "jvm,options" under jvm.options.d folder
+  > Don't touch jvm.options from root folder
 
+UNINSTALL DOCKER 
+---------------
+
+  docker --version
+  sudo apt-get purge docker-engine
+  sudo apt-get autoremove --purge docker-engine
+  sudo rm -rf /var/lib/docker
+  dpkg -| grep -i docker
+  sudo apt remove --purge docker-ce docker-ce-cli containerd.io
+  sudo rm -rf /var/lib/docker
+  sudo rm -rf /var/lib/containerd
+  sudo apt autoremove -y
+  sudo apt autoclean
+  docker --version
+  sudo reboot
 
 
 

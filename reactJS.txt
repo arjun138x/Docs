@@ -24,7 +24,7 @@ React Fundamentals
     > import React from "react";    // Class component
 
       class App extends React.Component{ 
-        render(){  // in class we cant return directly. we need to use rende  
+        render(){  // in class we cant return directly. we need to use render  
           return (
             <h1> I am from Class</h1>
           )
@@ -42,14 +42,14 @@ React Fundamentals
   > Event handlers 
     1.onClick event listener
       > if we want any action by onClick 
-      > The onclick event generally occurs when the user clicks on an element. It allows the programmer to execute a JavaScript's function when an element gets clicked. 
+      > The onClick event generally occurs when the user clicks on an element. It allows the programmer to execute a JavaScript's function when an element gets clicked. 
       
       > <button onClick={()=> alert("Welcome") }>Click</button>
 
 
     2.onChange event listener
-      > The onchange event occurs when the value of an element has been changed. For radiobuttons and checkboxes, 
-        the onchange event occurs when the checked state has been changed.
+      > The onChange event occurs when the value of an element has been changed. For radio buttons and checkboxes, 
+        the onChange event occurs when the checked state has been changed.
       
       > import React, { useState } from 'react'
 
@@ -68,7 +68,7 @@ React Fundamentals
       
 
     3.onSubmit event listener
-      > The onsubmit event is an event that occurs when you try to submit a form.
+      > The onSubmit event is an event that occurs when you try to submit a form.
       > import React, { useState } from 'react'
 
         const App = () => {

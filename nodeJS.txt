@@ -1,12 +1,63 @@
+Nodejs
+-------
+  Getting Started with Node 
+  -------------------------
+    > Node is a runtime environment for executing JS code.
+    > Essentially, Node is a C++ program that embeds Chrome’s v8 engine, the fastest
+      JS engine in the world.
+    > We use Node to build fast and scalable networking applications. It’s a perfect
+      choice for building RESTful services.
+    > Node applications are single-threaded. That means a single thread is used to
+      serve all clients.
+    > Node applications are asynchronous or non-blocking by default. That means
+      when the application involves I/O operations (eg accessing the file system or the
+      network), the thread doesn’t wait (or block) for the result of the operation. It is
+      released to serve other clients.
+    > This architecture makes Node ideal for building I/O-intensive applications.
+    > You should avoid using Node for CPU-intensive applications, such as a video
+      encoding service. Because while executing these operations, other clients have
+      to wait for the single thread to finish its job and be ready to serve them.
+    > In Node, we don’t have browser environment objects such as window or the
+      document object. Instead, we have other objects that are not available in
+      browsers, such as objects for working with the file system, network, operating
+      system, etc.
+
+  Node Core 
+  ---------
+
+    > We don’t have the window object in Node.
+    > The global object in Node is “global”.
+    > Unlike browser applications, variables we define are not added to the “global”
+      object.
+    > Every file in a Node application is a module. Node automatically wraps the code
+      in each file with an IIFE (Immediately-invoked Function Expression) to create
+      scope. So, variables and functions defined in one file are only scoped to that file
+      and not visible to other files unless explicitly exported.
+        > 
+    > To export a variable or function from a module, you need to add them to
+      module.exports:
+      module.exports.sayHello = sayHello;
+    > To load a module, use the require function. This function returns the
+      module.exports object exported from the target module:
+      const logger = require(‘./logger’);
+    > Node has a few built-in modules that enable us to work with the file system, path
+      objects, network, operating system, etc.
+    > EventEmitter is one of the core classes in Node that allows us to raise (emit) and
+      handle events. Several built-in classes in Node derive from EventEmitter.
+    > To create a class with the ability to raise events, we should extend EventEmitter:
+      class Logger extends EventEmitter {
+      } 
+
+
 javaScript Fundamental concepts
 --------------------------------
   Introduction
   ------------
     > javaScript is a scripting language used both on client-side and server-side, that allows you to make web pages intractive. 
 
-    > ONLINE CODEPLAYGROUND :- https://playcode.io
+    > ONLINE CODEPLAYGROUND :  > https://playcode.io
     
-    > > ONLINE CODEPLAYGROUND :- https://playcode.ioVariable Declaration
+    > ONLINE CODEPLAYGROUND :  > https://playcode.ioVariable Declaration
       > var a=10, let & const introduced in ES6 
 
     > Data types
@@ -235,7 +286,7 @@ ES5 to ES12 ECMAScript 2021
 
     > Async/Await 
       > Asynchronous is called Non-Blocking
-      > The Async... Await syntax in ES6 use to handle the http promisesrequests.
+      > The Async... Await syntax in ES6 use to handle the http promises requests.
 
       > const url="https://playcode.io/new/"
         const response = fetch(url)
@@ -244,7 +295,7 @@ ES5 to ES12 ECMAScript 2021
           })
         console.log(12) 
 
-      > Callbacks, Promises, Async-Await
+    > Callbacks, Promises, Async-Await
         > // Sync code
           function print(string) {
             console.log(string);
@@ -315,9 +366,9 @@ ES5 to ES12 ECMAScript 2021
   ---------------------
     > Regular Expression Improvements
       let data = 'hello user 1234'
-      console.log(data.match(/llO/i))   // i means ignor the case 
+      console.log(data.match(/llO/i))   // i means ignore the case 
       console.log(data.match(/[a-z]/g))   // g means global
-      console.log(data.match(/[0-9]/g))   // [0-9] mean it return numbers onely
+      console.log(data.match(/[0-9]/g))   // [0-9] mean it return numbers oneYly
       console.log(data.match(/[ ]/g)) 
       console.log(data.match(/[^0-9 ]/g))   // ^ means not Operator
 
@@ -328,7 +379,7 @@ ES5 to ES12 ECMAScript 2021
 
   ES10 / ECMAScript 2019
   ---------------------
-    > Flat    // nested array convers as flat
+    > Flat    // nested array converts as flat
       > let data = [1,2,3,[4,5,[6,7,8]],[9]]
         console.log(data.flat(1))
 
@@ -395,7 +446,7 @@ ES5 to ES12 ECMAScript 2021
       let data = 10_50_1
       console.log(data)   // 10501
 
-    > Logical Assingment Operators (&&=, ||=)
+    > Logical Assignment Operators (&&=, ||=)
       > let arr1 = 10;
         let arr2 = 20;
         arr2 &&= arr1   // && it checks the left side value is true or false. if it is true it execute the right side value 
@@ -418,7 +469,7 @@ JavaScript OOPS
   > Abstraction 
     > An abstraction is a way of hiding the implementation details and showing only the functionality to the users. 
       In other words, it ignores the irrelevant details and shows only the required one.
-      Ex :- ATM( it gives the money but it didn't show the background process)
+      Ex :  > ATM( it gives the money but it didn't show the background process)
     
     > class Atm{
         constructor(withdraw){  // A constructor is a special function that creates and initializes an object instance of a class
@@ -506,7 +557,7 @@ JavaScript OOPS
 
 Closure
 -------
-  > Closure is a feature in JavaScript where an inner function has access to the outer function's variables and parameters -- a scope chain
+  > Closure is a feature in JavaScript where an inner function has access to the outer function's variables and parameters     >  > a scope chain
     > 1. it has access to the it's own scope
       2. it has access to the outer functions variables
       3. it has access to the global variables
@@ -525,9 +576,9 @@ Closure
         }
         return inner
     }
-    let inner=outer(); // after calling the outer() function the "y" scope will destroye. in below line we are calling (inner). hear we are accessing "y" value. in this place closer come to the picture.
+    let inner=outer(); // after calling the outer() function the "y" scope will destroy. in below line we are calling (inner). hear we are accessing "y" value. in this place closer come to the picture.
     console.log(inner()); // 
-    console.dir(inner); //  you can increse the the y value but you can't increse z value. after calling inner() "z" scope will destroye
+    console.dir(inner); //  you can increase the the y value but you can't increase z value. after calling inner() "z" scope will destroy
     console.log(inner()); // 
     /* 
     if u run this in browser. inside [[Scopes]]==> Closure (outer) ==> y : 50 

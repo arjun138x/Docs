@@ -1,5 +1,8 @@
 
 Softwares Installation Steps
+
+https://screenrec.com/ ==> forshare screenshot via link 
+
     
 Visual Studio installation
 sudo snap install --classic code

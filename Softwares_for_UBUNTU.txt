@@ -243,3 +243,28 @@ sudo rm -rf /var/lib/docker /etc/docker sudo rm /etc/apparmor.d/docker sudo grou
 You have removed Docker from the system completely.
 
 
+Mongodb
+Install MongoDB-client :  	
+Official Doc : https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-edition
+Digitalocean Doc: https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-20-04
+
+The MongoDB GUI: 
+Download mongodb-compass from below link. 
+https://www.mongodb.com/try/download/compass
+
+
+
+Elasticsearch
+https://www.fosstechnix.com/how-to-install-elasticsearch-8-on-ubuntu/
+
+Change swap size in Ubuntu
+https://ploi.io/documentation/server/change-swap-size-in-ubuntu
+
+
+rabbitMQ
+https://www.vultr.com/docs/install-rabbitmq-server-ubuntu-20-04-lts/?utm_source=performance-max-apac&utm_medium=paidmedia&obility_id=16876059738&utm_adgroup=&utm_campaign=&utm_term=&utm_content=&gclid=Cj0KCQiAm5ycBhCXARIsAPldzoVooQkCgs7PNELjS99ryu-jtdO70J8ozE2ibMA7bggjr78kDjrazagaAsgQEALw_wcB
+
+
+
+
+https://github.com/jassics/security-study-plan/blob/main/common-skills-study-plan.md

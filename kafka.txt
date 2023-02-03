@@ -1,1 +1,30 @@
 
+
+introduction and overview of the apache kafka
+  1. what is apache kafka
+    > apache kafka is a distributed streaming platform. it means two things
+     1. creating real-time data streams (we can create one or more data streams).
+     2. processing real-time data streams
+    > another definition of the apache kafka:apache kafka is a highly scalable, 
+      and distributed platform for creating and processing streams in real-time
+      
+  2. how does it work
+    >  kafka adopts publisher, subscriber messaging architecture 
+          producer ==> messaging broker(kafka) ==> consumer
+
+  3. where does it come from
+    > it was developed by linkedin and open sourced in 2011
+    > it was implemented to solve the data integration problem.
+      > image link  for data integration problem.
+        https://www.google.com/search?q=data+integration+problem&source=lnms&tbm=isch&sa=X&ved=2ahUKEwiZrqHlvPn8AhWWSWwGHY-QByIQ_AUoAXoECAEQAw&biw=1366&bih=636&dpr=1#imgrc=BTAbCzKMFHk5zM
+ 
+  4. how it evolved over time
+    > it evolved with 5 components
+      1. kafka broker - this is a central server system
+      2. kafka client - this is a producer and consumer API library
+      3. kafka connect - it is  addressing the data integration problem
+      4. kafka stream - another library to create real time data streaming applications
+      5. kafka KSQL - it is a DB
+
+  5. where does it fit into an enterprise data ecosystem
+

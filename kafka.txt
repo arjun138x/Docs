@@ -54,6 +54,12 @@ apache kafka core concepts
       This allows multiple consumers to read from a topic in parallel.
     > A Kafka cluster should have a maximum of 200,000 partitions across all brokers when managed by Zookeeper.
   > Offset
-    > 
+    > offset is a unique sequence id of a messages in a partition. it is automatically assigned by the broker.
+    > The offset is an incremental and immutable number, maintained by Kafka.
+    > if want to locate a message in cluster. you must know three things
+      > 1. topic name 2. partition number 3. offset number
   > Consumer groups
+  >  it is a group of consumers. multiple consumer can form a group to share the work load
+    (or)
+    A consumer group is a set of consumers which cooperate to consume data from some topics. 
 

@@ -1,6 +1,7 @@
 
 
 introduction and overview of the apache kafka
+================================================================
   1. what is apache kafka
     > apache kafka is a distributed streaming platform. it means two things
      1. creating real-time data streams (we can create one or more data streams).
@@ -27,4 +28,32 @@ introduction and overview of the apache kafka
       5. kafka KSQL - it is a DB
 
   5. where does it fit into an enterprise data ecosystem
+    > by adopting publisher and subscriber mechanism kafka becomes a data circulating system for our application.
+    > it can fit into all microservices architecture applications
+  
+apache kafka core concepts
+================================================
+  > Producer
+    > Producers write data into topics. These producers are client apps that automatically know which broker and partition to write to.
+  > Consumer
+    > Consumers are applications on the other ends. They read data from the topic, and just like producers. they also know which topic to read from.
+  > Broker
+    >  producer and consumer does not contact directly they use the kafka server as agent(broker) to exchange data(messages)
+  > Cluster
+    > kafka cluster is a group of computers. 
+      (or) 
+      A Kafka cluster is a system that consists of several Brokers, Topics, and Partitions for both.
+  > Topic 
+    > topic like a table in DB.
+    > Kafka topics are the categories used to organize messages. Each topic has a name that is unique across the entire Kafka cluster. 
+      Messages are sent to and read from specific topics. In other words, producers write data to topics, and consumers read data from topics. 
+      Kafka topics are multi-subscriber.
+  > Partitions
+    > Kafka topics are divided into a number of partitions, which contain records in an unchangeable sequence. 
+      Each record in a partition is assigned and identified by its unique offset. A topic can also have multiple partition logs. 
+      This allows multiple consumers to read from a topic in parallel.
+    > A Kafka cluster should have a maximum of 200,000 partitions across all brokers when managed by Zookeeper.
+  > Offset
+    > 
+  > Consumer groups
 

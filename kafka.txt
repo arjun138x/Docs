@@ -63,3 +63,38 @@ apache kafka core concepts
     (or)
     A consumer group is a set of consumers which cooperate to consume data from some topics. 
 
+kafka connect core concepts
+================================================================
+  1. what is kafka connect
+    > kafka connect is a component of kafka for connecting and moving data between kafka and external system.
+    (or)
+     the kafka connect is a system. which we can place in between the data source and the kafka cluster.we no need to write any code just we need to configure.
+    > we have two types of kafka connectors
+      1. source connector
+      2. sink connector
+
+  2. how kafka connect work
+    > kafka developers already build some frame works for us. by using those we can connect easily. 
+      they named it kafka connect framework and it is a open source.
+    > as a developer we need write code for two things
+      1. source connector // sink connector
+      2. source task // sink task
+
+  3. kafka connect scalability
+    > kafka connect itself is a cluster.
+
+  4. kafka connect transformations
+    > kafka connect is designed for a plane copy between third party systems and kafka 
+    > if we want we can transform the each message 
+    > single message transformations - SMTs 
+      > add a new field in your record using static data or metadata 
+      > filter or rename the fields
+      > mask some fields with a null value
+      > change the record key
+      > route the record to a different kafka topic
+
+  5. kafka connect architecture // need to re watch
+    > terminology
+      1. worker 
+      2. connector 
+      3. task

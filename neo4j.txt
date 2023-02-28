@@ -1,1 +1,84 @@
+official site link 
+https://neo4j.com/docs/cypher-manual/current/syntax/
+
+> neo4j is a graph database.
+> it has nodes and relationships
+  > node means a person. a person has some properties like name and age.
+  > relationship means same person has different relationships like the person may be a father, brother, manager.
+> graph DB uses its own query language called cypher query language. which was originally designed for neo4j.
+
+
+Neo4j: GraphDB Foundations with Cypher by louis sayers
+================================================================
+  > what is a graph?
+    > graph is a collection of 'node', 'relationships'
+      > node means a person. a person has some properties like name and age.
+      > relationship means same person has different relationships like the person may be a father, brother, manager.
+  
+  > properties?
+    > properties are key-value pairs on a node/relationship 
+      > name: george
+        location: italy
+    > value types 
+      > boolean: true, false,
+        text: 'string', 
+        numbers: 123, 45.67,  // integer or float
+        lists: ['must', be', 'a','same', 'type'] // must be a same type
+    > neo4j doesn't support nested properties. it only allows simple types.
+      > {
+          name: 'george',
+          movies: {
+            movies1: 'a',
+            movies2: 'b',
+          }
+        }
+
+  
+
+
+
+QUERY'S
+================================================================
+  > DATABASE
+    > CREATE DATABASE <test> // for creating a database
+    > SHOW DATABASE // to get all databases
+    > SHOW DATABASE <test> // to get all one  database
+    > START DATABASE test // to start the database
+    > :use test // Switch to test database
+
+
+  
+  > NODE
+    > CREATE 
+      > CREATE (n:Person) (or) create (:Person) // Create a node with a label
+        > : indicates it is a node
+      > CREATE (n:Person:Swedish) // Create a node with multiple labels
+      > CREATE (a:Person {nam:"arjun", age:27})  //  Create a node with properties 
+
+      > CREATE 
+        (a:Person {nam:"arjun", age:27}),
+        (a)-[:HAS_CAR]->(:Car {name:'tata'})  // create person with relationship
+          > MATCH (a:Person), (b:Person) WHERE a.name = 'A' AND b.name = 'B' CREATE (a)-[r:RELTYPE {name: a.name + '<->' + b.name}]->(b) RETURN type(r)
+
+
+    > UPDATE 
+      > MATCH (n { name: 'arjun' }) SET n.age = toString(n.age) RETURN n // update node property.
+      > MATCH (n:Person {name:'arjun1'}) REMOVE n.age return n // remove node property
+    
+    > DELETE 
+      > MATCH (n:<Person> {name:'arjun1'} ) DELETE n // To delete a single node, use the DELETE clause
+      > MATCH (n:<Person> ) DELETE n // To delete all nodes in one label(Person)
+      > MATCH (n) DELETE n // to delete all node labels
+      > MATCH (n:Person {name:'arjun1'}) DETACH DELETE n // to delete the node with relations. 
+      > MATCH ()-[r:HAS_DOG]-() DELETE r // delete one relationship
+      > MATCH (n) DETACH DELETE n // delete nodes with relationship
+
+    > GET 
+      > MATCH (p:Person) RETURN p // to get data from node 
+      > MATCH (p:Person) WHERE ID(p) = 1 RETURN p // to get data by id 
+      > 
+    
+
+
+
 

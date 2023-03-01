@@ -223,12 +223,6 @@ sudo reboot
 
 
 
-Change swap size in Ubuntu
-https://ploi.io/documentation/server/change-swap-size-in-ubuntu
-
-
-
-
 If above commands don't work use this commands:
 Step 1
 dpkg -l | grep -i docker
@@ -259,6 +253,19 @@ https://www.fosstechnix.com/how-to-install-elasticsearch-8-on-ubuntu/
 
 Change swap size in Ubuntu
 https://ploi.io/documentation/server/change-swap-size-in-ubuntu
+    In a nutshell swap is a piece of storage (used from your harddisk) which can be used as additional RAM. 
+    If you want to change the size of your swap file (which is 1GB by default on Ploi) just follow the following steps.
+
+    1. Turn off all running swap processes: swapoff -a
+    2. Resize swap fallocate -l 1G /swapfile (change 1G to the gigabyte size you want it to be)
+    3. CHMOD swap: chmod 600 /swapfile
+    4. Make file usable as swap mkswap /swapfile
+    5. Active the swap file swapon /swapfile
+
+    Thats it! Some commands may take some time to be executed, just wait patiently for the commands to finish.
+
+    To verify your swap size run the following command and you will see the swap size: free -m
+
 
 
 rabbitMQ

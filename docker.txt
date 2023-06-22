@@ -25,6 +25,8 @@ DOCKER COMMANDS
   
   > docker exec -it <container> kill 1		// cannot stop container: <containnerId>: permission denied
 
+  > sudo systemctl stop docker.service
+  > sudo systemctl stop docker.socket
 
 SET RAM LIMIT FOR DOCKER 
 ---------------

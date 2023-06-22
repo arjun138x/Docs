@@ -257,10 +257,10 @@ https://ploi.io/documentation/server/change-swap-size-in-ubuntu
     If you want to change the size of your swap file (which is 1GB by default on Ploi) just follow the following steps.
 
     1. Turn off all running swap processes: swapoff -a
-    2. Resize swap fallocate -l 1G /swapfile (change 1G to the gigabyte size you want it to be)
+    2. Resize swap: fallocate -l 1G /swapfile (change 1G to the gigabyte size you want it to be)
     3. CHMOD swap: chmod 600 /swapfile
-    4. Make file usable as swap mkswap /swapfile
-    5. Active the swap file swapon /swapfile
+    4. Make file usable as swap: mkswap /swapfile
+    5. Active the swap file: swapon /swapfile
 
     Thats it! Some commands may take some time to be executed, just wait patiently for the commands to finish.
 

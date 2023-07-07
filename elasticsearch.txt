@@ -46,3 +46,29 @@
       They enable you to extract insights and summarize data based on various criteria, such as grouping, filtering, sorting, 
       and calculations.
 
+
+> delete all data in index using sh file
+
+  BASE_URL='http://localhost:9200' # local
+
+  wget --no-check-certificate --quiet \
+    --method POST \
+    --timeout=0 \
+    --header 'Content-Type: application/json' \
+    --body-data '{
+      "query": {
+          "match_all": {}
+      }
+  }' \
+    "${BASE_URL}/<index_name>/_delete_by_query"
+
+
+> delete all data in index using postmen
+
+  > POST http://localhost:9200/<index_name>/_delete_by_query
+    {
+        "query": {
+            "match_all": {}
+        }
+    }
+

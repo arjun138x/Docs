@@ -1,1 +1,48 @@
 
+
+
+
+> Elasticsearch is a powerful and widely used search and analytics engine. It is built on top of the 
+  Apache Lucene library and is known for its distributed nature, scalability, and real-time search capabilities. 
+  Here are some basic terminologies related to Elasticsearch:
+
+
+> Elasticsearch terminologies
+    1.Cluster: A cluster is a collection of one or more Elasticsearch nodes (servers) that work together to 
+      provide distributed indexing and search capabilities. It provides fault tolerance and high availability.
+
+    2.Node: A node is an individual server or instance of Elasticsearch that is part of a cluster. 
+      Each node contributes to the cluster's performance, stores data, and participates 
+      in the distributed indexing and search operations.
+    
+    3.Index: An index is a logical namespace that acts as a container for storing and organizing related data. 
+      It is similar to a database in a relational database management system (RDBMS). 
+      You can have multiple indices within a cluster.
+    
+    4.Document: A document is the basic unit of information in Elasticsearch. It is a JSON (JavaScript Object Notation) object 
+      that contains data. Documents are stored within an index and are uniquely identified by a unique ID.
+    
+    5.Type: In earlier versions of Elasticsearch, an index could have multiple types to differentiate different 
+      types of documents within the index. However, starting from Elasticsearch 6.0, types have been deprecated, 
+      and each index can have only one type called "_doc".
+    
+    6.Shard: Elasticsearch divides an index into multiple shards, which are smaller, self-contained units of data. 
+      Each shard is an independent index in itself and can be distributed across different nodes in a cluster. 
+      Sharding allows Elasticsearch to horizontally scale its data storage and processing capabilities.
+    
+    7.Replica: Elasticsearch provides the ability to create replicas of shards.
+      Replicas are exact copies of the primary shards and serve as backups to ensure data availability and improve read performance. 
+      Replicas can be distributed across different nodes to provide fault tolerance.
+    
+    8.Query: A query is a way to search and retrieve documents from Elasticsearch. Elasticsearch supports a wide range of query types, 
+      including simple match queries, term queries, range queries, full-text queries, and more. Queries can be performed 
+      on individual fields or across multiple fields.
+    
+    9.Mapping: Mapping is the process of defining the schema or structure of the documents within an index. 
+      It specifies the data types of fields, whether they should be indexed or not, and how they should be analyzed for searching. 
+      Elasticsearch can automatically infer mappings, but you can also define custom mappings to have more control over the indexing and searching process.
+    
+    10. Aggregations: Aggregations in Elasticsearch allow you to perform analytics and statistical operations on your data. 
+      They enable you to extract insights and summarize data based on various criteria, such as grouping, filtering, sorting, 
+      and calculations.
+

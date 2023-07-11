@@ -72,3 +72,167 @@
         }
     }
 
+
+
+> To delete an index, use:
+  $ curl -XDELETE 'localhost:9200/logs?pretty'
+
+> To delete all indices (use with extreme caution) use:
+  $ curl -XDELETE 'localhost:9200/_all?pretty'$
+
+
+search Categories:
+  > match : Matches if any one of the search keywords are present in the field (analyzing is done on the search keywords too)
+    Type : full-text
+    Query : "search better"
+    Will Match : 
+      > 1. can I search for better results 
+        2. search better please 
+        3. you know, for SEARCH 
+        4. there is a better place out there
+    Will Not Match : 
+      > 1. sear for the box 
+        2. I won the bet 
+        3. there are some things 
+        4. some people are good at everything
+
+
+  > multi-match : To apply match query to multiple fields
+    Type : full-text
+    Query : key1: "search" key2: "better"
+    Will Match : if key1 has the word "search" OR if key2 has the word "better"	
+    Will Not Match : 
+      > N/A
+
+
+  > match_phrase : search better	
+    Type : full-text
+    Query : search better	
+    Will Match : 
+      > 1. let me search better	
+    Will Not Match : 
+      > 1. can I search for better results
+  
+
+  > term : The query is applied to the generated tokens Since no analysis is performed, the keyword is searched as an exact match	
+    Type : term
+    Query : tasty
+    Will Match : 
+      > 1. the food was tasty	
+    Will Not Match : 
+      > 1. the food was Tasty 
+        2. the food was TASTY
+
+
+  > exists : Returns documents that contain an indexed value for a field
+    Type : term
+    Query : exists:{ "field":"name" }
+    Will Match : 
+      > returns all the documents that have the field called "name"
+    Will Not Match : 
+      > N/A
+    
+
+  > range : returns documents containing values within the specified range specified in the field applied
+    Type : term
+    Query : age:{ "gte": 20, "lte":30 }	
+    Will Match : 
+      > returns all the documents with value of "age" field falling between 20 and 30 (including 20 and 30)	
+    Will Not Match : 
+      > N/A
+        
+
+  > ids : 
+    Type : term
+    Query : returns the documents that has the specified document ids
+    Will Match : 
+      > N/A	
+    Will Not Match : 
+      > N/A	
+             
+
+  > prefix : search for the exact term (including the casing) at the start of a word
+    Type : term
+    Query : Mult
+    Will Match : 
+      > 1. Multi 
+        2. Multiple 
+        3. Multiply 
+        4. Multiplication
+    Will Not Match : 
+      > 1. mult
+
+             
+
+  > wildcard : matches all the terms with the given wild card pattern
+    Type : term
+    Query : c*a	
+    Will Match : 
+      > 1. china 
+        2. canada 
+        3. cambodia	
+    Will Not Match : 
+      > 1. cabbage
+
+             
+
+  > regexp : matches the terms with the given regex pattern	
+    Type : term
+    Query : res[a-z]*	
+    Will Match : 
+      > 1. restaurant 
+        2. research	
+    Will Not Match : 
+      > 1. res123
+
+             
+
+  > fuzzy : returns documents that contain terms similar to that of the search term
+    Type : term
+    Query : Sao Paulo	
+    Will Match : 
+      > São Paulo	
+    Will Not Match : 
+      > Chennai
+             
+
+  > bool : to apply a combination of queries and logical operators	
+    Type : compound	
+    Query : must , key1:"search" should, key2:"better" must_not, key3:"silk"	
+    Will Match : 
+      > 1. search will be better 
+        2. search will be there	
+    Will Not Match : 
+      > 1. search better for silk 
+        2. search for silk
+             
+
+  > function_score: weight : gives higher scores for higher weights	
+    Type : compound	
+    Query : search clause1 - weight 50 search clause 2 - weight 25	
+    Will Match : 
+      > the documents with the search clause 1 gets a higher score than that of search clause 2 matching documents	
+    Will Not Match : 
+      > N/A
+                
+
+  > query_string : multi-purpose query that “can club” the usage of other queries like "match","multi-match","regexp","wildcard" etc. It has strict formatting	
+    Type : full-text		
+    Query : (position:engineer) OR (salary:(>=10000 AND <=52000))	
+    Will Match : 
+      > documents with text 'engineer' in the field ‘position’ OR the documents which have a salary range between 10,000 and 52,000 (including 10,000 and 52,000)	
+    Will Not Match : 
+      > N/A
+
+
+  > simple_query_string	 : same as query_string, but non-strict	
+    Type : full-text		
+    Query : (position:engineer) | (country:china)	
+    Will Match : 
+      > documents with 'engineer' in the field ‘position’ OR china in the field ‘country’	
+    Will Not Match : 
+      > N/A
+        
+             
+
+        

@@ -53,7 +53,7 @@ javaScript Fundamental concepts
 --------------------------------
   Introduction
   ------------
-    > javaScript is a scripting language used both on client-side and server-side, that allows you to make web pages intractive. 
+    > javaScript is a scripting language used both on client-side and server-side, that allows you to make web pages interactive. 
 
     > ONLINE CODEPLAYGROUND :  > https://playcode.io
     
@@ -295,72 +295,6 @@ ES5 to ES12 ECMAScript 2021
           })
         console.log(12) 
 
-    > Callbacks, Promises, Async-Await
-        > // Sync code
-          function print(string) {
-            console.log(string);
-          }
-
-          print("Start");
-          print("Printing something");
-          print("Finish");
-
-          // Async code
-          function print(string) {
-            setTimeout(() => {
-              console.log(string);
-            }, Math.floor(Math.random() * 100));
-          }
-
-          print("Start");
-          print("Printing something");
-          print("Finish");
-
-          // Callback
-          function print(string, callback) {
-            setTimeout(() => {
-              console.log(string);
-              callback();
-            }, Math.floor(Math.random() * 100));
-          }
-
-          print("Start", () => {
-            print("Printing something", () => {
-              print("Finish", () => {});
-            });
-          });
-
-          // Promise   === A Promise has 3 states Pending, Resolve, Reject
-          function print(string) {
-            return new Promise((resolve, reject) => {
-              setTimeout(() => {
-                console.log(string);
-                resolve();
-              }, Math.floor(Math.random() * 100));
-            });
-          }
-
-          print("Start")
-            .then(() => print("Printing something"))
-            .then(() => print("Finish"));
-
-          // Promise   === A Promise has 3 states Pending, Resolve, Reject
-          function print(string) {
-            return new Promise((resolve, reject) => {
-              setTimeout(() => {
-                console.log(string);
-                resolve();
-              }, Math.floor(Math.random() * 100));
-            });
-          }
-
-          async function startAll() {
-            await print("Start");
-            await print("Printing something");
-            await print("Finish");
-          }
-          startAll();
-
 
   ES9 / ECMAScript 2018
   ---------------------
@@ -368,7 +302,7 @@ ES5 to ES12 ECMAScript 2021
       let data = 'hello user 1234'
       console.log(data.match(/llO/i))   // i means ignore the case 
       console.log(data.match(/[a-z]/g))   // g means global
-      console.log(data.match(/[0-9]/g))   // [0-9] mean it return numbers oneYly
+      console.log(data.match(/[0-9]/g))   // [0-9] mean it return numbers only
       console.log(data.match(/[ ]/g)) 
       console.log(data.match(/[^0-9 ]/g))   // ^ means not Operator
 
@@ -403,11 +337,11 @@ ES5 to ES12 ECMAScript 2021
 
 
   ES11 / ECMAScript 2020
-    ---------------------
+  ---------------------
       > BigInt (Number.MAX_SAFE_INTEGER)
         2**53 -1 = 9007199254740991
 
-      > Dynamic Import  // we can import we it needed
+      > Dynamic Import  // we can import if we needed it
         > async()=>{
             const module = await import("module.js")
           }
@@ -434,10 +368,13 @@ ES5 to ES12 ECMAScript 2021
             }
           }
           user.admin?.()
+        
+        > const a = ["value1"];
+          console.log(a?.[1]?.[0]); // undefined 
 
 
   ES12 / ECMAScript 2021
-    ---------------------
+  ---------------------
     > String.prototype.replaceAll()
       > let data = 'JavaScript'
         console.log(data.replaceAll('a','0'))
@@ -456,6 +393,75 @@ ES5 to ES12 ECMAScript 2021
         arr2 = 20;
         arr2 ||= arr1
         console.log(arr2)
+
+
+Callbacks, Promises, Async-Await
+---------------------
+
+  // Sync code
+    function print(string) {
+      console.log(string);
+    }
+
+    print("Start");
+    print("Printing something");
+    print("Finish");
+
+  // Async code
+    function print(string) {
+      setTimeout(() => {
+        console.log(string);
+      }, Math.floor(Math.random() * 100));
+    }
+
+    print("Start");
+    print("Printing something");
+    print("Finish");
+
+  // Callback
+    function print(string, callback) {
+      setTimeout(() => {
+        console.log(string);
+        callback();
+      }, Math.floor(Math.random() * 100));
+    }
+
+    print("Start", () => {
+      print("Printing something", () => {
+        print("Finish", () => {});
+      });
+    });
+
+  // Promise   === A Promise has 3 states Pending, Resolve, Reject
+    function print(string) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          console.log(string);
+          resolve();
+        }, Math.floor(Math.random() * 100));
+      });
+    }
+
+    print("Start")
+      .then(() => print("Printing something"))
+      .then(() => print("Finish"));
+
+  // Promise   === A Promise has 3 states Pending, Resolve, Reject
+    function print(string) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          console.log(string);
+          resolve();
+        }, Math.floor(Math.random() * 100));
+      });
+    }
+
+    async function startAll() {
+      await print("Start");
+      await print("Printing something");
+      await print("Finish");
+    }
+    startAll();
 
 
 JavaScript OOPS
@@ -585,6 +591,190 @@ Closure
     but you didn't get "n" value in Closure. Closure will stores used variables only
     */
     
+
+ Regular expressions
+----------------
+  > Regular expressions are a powerful tool used for pattern matching and manipulation in strings. 
+    There are various types of regular expressions based on the characters and syntax used.
+
+  1. Literal Characters:
+    - Matching specific characters as they appear in the pattern.
+    - Example: `hello` matches the word "hello" in the input text.
+
+    > const text = "The quick brown fox jumps over the lazy dog";
+      const pattern = /fox/;
+
+      const result = pattern.test(text);
+      console.log(result); // Output: true
+
+
+  2. Character Classes:
+    - Matching any one of a set of characters.
+    - Example: `[aeiou]` matches any lowercase vowel.
+
+    > const text = "The quick brown fox jumps over the lazy dog";
+      const pattern = /[aeiou]/g;
+
+      const matches = text.match(pattern);
+      console.log(matches); // Output: [ 'e', 'u', 'i', 'o', 'o', 'u', 'o', 'e', 'a', 'u' ]
+
+
+  3. Negated Character Classes:
+    - Matching any character that is not in a specific set.
+    - Example: `[^0-9]` matches any non-digit character.
+
+    > const text = "The quick brown fox";
+      const pattern = /[^aeiou]/g;
+
+      const matches = text.match(pattern);
+      console.log(matches); // Output: [ 'T', 'h', ' ', 'q', 'c', 'k', ' ', 'b', 'r', 'w', 'n', ' ', 'f', 'x']
+
+
+  4. Ranges:
+    - Matching any character within a specified range.
+    - Example: `[a-z]` matches any lowercase letter.
+
+    > const text = "The quick brown fox";
+      const pattern = /[a-z]/g;
+
+      const matches = text.match(pattern);
+      console.log(matches); // Output: [ 'h', 'e', 'q', 'u', 'i', 'c', 'k', 'b', 'r', 'o', 'w', 'n', 'f', 'o', 'x']
+
+
+  5. Wildcard:
+    - Matching any single character (except newline).
+    - Example: `.` matches any character except a newline.
+
+    > const text = "The quick brown fox jumps over the lazy dog";
+      const pattern = /o./g;
+
+      const matches = text.match(pattern);
+      console.log(matches); // Output: [ 'ow', 'ox', 'ov' ]
+
+
+  6. Quantifiers:
+    - Specifying how many times a character or group should occur.
+    - Examples:
+      - `*`: Matches zero or more occurrences.
+        > const text = "abbcccddddeeeee";
+          const pattern = /b*/g;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'b', '', '', '', '', '' ]
+
+      - `+`: Matches one or more occurrences.
+        > const text = "abbcccddddeeeee";
+          const pattern = /c+/g;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'ccc' ]
+
+      - `?`: Matches zero or one occurrence.
+        > const text = "abbcccddddeeeee";
+          const pattern = /d?/g;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ '', '', '', 'd', '', '', '', '', '' ]
+
+      - `{n}`: Matches exactly n occurrences.
+        > const text = "abbcccddddeeeee";
+          const pattern = /e{3}/g;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'eee' ]
+
+      - `{n,}`: Matches n or more occurrences.
+        > const text = "abbcccddddeeeee";
+          const pattern = /e{3}/g;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'eee' ]
+
+      - `{n,m}`: Matches at least n and at most m occurrences.
+        > const text = "abbcccddddeeeee";
+          const pattern = /d{2,4}/g;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'dddd' ]
+
+
+  7. Anchors:
+    - Specifying the position in the input text where a match should occur.
+    - Examples:
+      - `^`: Matches the start of a line.
+        > const text = "The quick brown fox\njumps over the lazy dog";
+          const pattern = /^The/g;
+
+          const result = pattern.test(text);
+          console.log(result); // Output: true
+
+      - `$`: Matches the end of a line.
+        > const text = "The quick brown fox\njumps over the lazy dog";
+          const pattern = /dog$/g;
+
+          const result = pattern.test(text);
+          console.log(result); // Output: true
+      
+      - Using m flag for multiline matching:
+
+        > const text = "The quick brown fox\njumps over the lazy dog";
+          const pattern = /^The/gm;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'The' ]
+          
+          > In this example, the regular expression /^The/gm matches the word "The" at the start of the first line 
+            because of the m flag (multiline). Without the m flag, it would have only matched 
+            "The" at the start of the whole text, not individual lines.
+
+      - Using m flag to match the end of each line:
+
+        > const text = "The quick brown fox\njumps over the lazy dog";
+          const pattern = /dog$/gm;
+
+          const matches = text.match(pattern);
+          console.log(matches); // Output: [ 'dog' ]
+          
+          > In this example, the regular expression /dog$/gm matches the word "dog" at the end of the last line because of the m flag (multiline).
+
+          > The m flag is used to enable multiline matching, allowing the anchors to work on each line independently.
+
+
+  8. Grouping and Capturing:
+    - Grouping parts of the pattern together.
+    - Capturing and extracting parts of the matched text.
+    - Example: `(\d{2})-(\d{2})-(\d{4})` captures a date pattern like "12-31-2023" as three groups: "12", "31", and "2023".
+
+    > const text = "My phone number is 123-456-7890";
+      const pattern = /(\d{3})-(\d{3})-(\d{4})/;
+
+      const match = pattern.exec(text);
+      console.log(match[0]); // Output: 123-456-7890
+      console.log(match[1]); // Output: 123
+      console.log(match[2]); // Output: 456
+      console.log(match[3]); // Output: 7890
+
+  9. Alternation:
+    - Matching one pattern or another.
+    - Example: `cat|dog` matches either "cat" or "dog" in the input text.
+
+    > const text = "I have a cat and a dog";
+      const pattern = /cat|dog/;
+
+      const matches = text.match(pattern);
+      console.log(matches); // Output: [ 'cat', 'dog' ]
+
+
+  10. Escape Sequences:
+    - Using backslashes to escape special characters and treat them as literal characters.
+    - Example: `\.` matches a literal dot (period) in the input text.
+
+    > const text = "I have a dot: .";
+      const pattern = /\./;
+
+      const result = pattern.test(text);
+      console.log(result); // Output: true
+
 
 
 

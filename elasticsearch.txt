@@ -242,6 +242,7 @@ BACKUP AND RESTORE DATA
   > create one folder <mkdir es_backup>
   > give the permissions to the folder
     > sudo chown -R elasticsearch:elasticsearch /home/agira/Desktop/es_backup/
+    > sudo chmod -R 777 /home/agira/Desktop/es_backup/
   > sudo nano /etc/elasticsearch/elasticsearch.yml
     > add this line in this file
       > path.repo: ["/home/agira/Desktop/es_backup"]

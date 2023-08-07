@@ -1,4 +1,7 @@
-
+LINKS
+------
+  > fuzzy search
+    https://hackernoon.com/how-to-use-fuzzy-query-matches-in-elasticsearch-dh1h3167
 
 
 
@@ -235,4 +238,40 @@ search Categories:
         
              
 
-        
+BACKUP AND RESTORE DATA
+  > create one folder <mkdir es_backup>
+  > give the permissions to the folder
+    > sudo chown -R elasticsearch:elasticsearch /home/agira/Desktop/es_backup/
+  > sudo nano /etc/elasticsearch/elasticsearch.yml
+    > add this line in this file
+      > path.repo: ["/home/agira/Desktop/es_backup"]
+  > sudo systemctl restart elasticsearch
+  > PUT /_snapshot/es_backup_aug07
+    {
+      "type": "fs",
+      "settings": {
+        "compress": true,
+        "location": "/home/agira/Desktop/es_backup"
+      }
+    }
+
+  > Verify the Snapshot
+    > GET /_snapshot/_all
+
+  > Create a Snapshot
+    > PUT /_snapshot/es_backup_aug07/snapshot_1?wait_for_completion=true
+      {
+        "indices": "_all",   
+        "ignore_unavailable": true,
+        "include_global_state": false
+      }
+
+  > Restoring from a Snapshot
+    > POST /_snapshot/es_backup_aug07/snapshot_1/_restore
+      {
+        "indices": "ner,ocr",   
+        "ignore_unavailable": true,
+        "include_global_state": false
+      }
+
+

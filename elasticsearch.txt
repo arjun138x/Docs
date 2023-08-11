@@ -241,18 +241,18 @@ search Categories:
 BACKUP AND RESTORE DATA
   > create one folder <mkdir es_backup>
   > give the permissions to the folder
-    > sudo chown -R elasticsearch:elasticsearch /home/agira/Desktop/es_backup/
-    > sudo chmod -R 777 /home/agira/Desktop/es_backup/
+    > sudo chown -R elasticsearch:elasticsearch /home/Desktop/es_backup/
+    > sudo chmod -R 777 /home/Desktop/es_backup/
   > sudo nano /etc/elasticsearch/elasticsearch.yml
     > add this line in this file
-      > path.repo: ["/home/agira/Desktop/es_backup"]
+      > path.repo: ["/home/Desktop/es_backup"]
   > sudo systemctl restart elasticsearch
   > PUT /_snapshot/es_backup_aug07
     {
       "type": "fs",
       "settings": {
         "compress": true,
-        "location": "/home/agira/Desktop/es_backup"
+        "location": "/home/Desktop/es_backup"
       }
     }
 

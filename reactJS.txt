@@ -13,30 +13,93 @@ React Fundamentals
 
   > Functional & Class component
     > jsx = jsx means use js in html
+    > In React, there are two primary ways to define and create components: 
+      functional components and class components. Both types of components serve the same purpose, 
+      which is to encapsulate and manage the UI and behavior of a specific part of your application. 
+      However, they have different syntax and features. React introduced hooks that allow functional components 
+      to manage state and side effects, blurring the lines between the two types of components. 
+      
 
-    > const App = () =>{    // Functional component
-        return (
-          <h1>Welcome User</h1>
-        )
-      }
-      export default App;
 
-    > import React from "react";    // Class component
+    > Functional Components:
+      > Functional components are essentially JavaScript functions that return JSX (JavaScript XML) 
+        to define the structure and appearance of the component. They are also known as "stateless" or "dumb" components 
+        because they do not manage their own state. Instead, you can pass data to them through props (properties) and 
+        render the component based on those props.
+        > example:
+          > import React from 'react';
 
-      class App extends React.Component{ 
-        render(){  // in class we cant return directly. we need to use render  
-          return (
-            <h1> I am from Class</h1>
-          )
-        }
-      }
-      export default App;  
+            function FunctionalComponent(props) {
+              return (
+                <div>
+                  <h1>Hello, {props.name}!</h1>
+                </div>
+              );
+            }
+
+            export default FunctionalComponent;
+
+
+
+
+    > Class Components:
+      > Class components are defined as JavaScript classes that extend the React.Component base class. 
+        They have a render() method that returns the JSX for the component's UI. Class components can also 
+        manage their own state using the setState() method and handle lifecycle methods such as componentDidMount() 
+        and componentDidUpdate().
+
+        Example :
+          > import React, { Component } from 'react';
+
+            class ClassComponent extends Component {
+              constructor(props) {
+                super(props);
+                this.state = {
+                  count: 0,
+                };
+              }
+
+              componentDidMount() {
+                // Runs after the component is mounted to the DOM
+                console.log('Component mounted.');
+              }
+
+              componentDidUpdate() {
+                // Runs when component updates (e.g., when state changes)
+                console.log('Component updated.');
+              }
+
+              render() {
+                return (
+                  <div>
+                    <h1>Count: {this.state.count}</h1>
+                    <button onClick={() => this.setState({ count: this.state.count + 1 })}>
+                      Increment
+                    </button>
+                  </div>
+                );
+              }
+            }
+
+            export default ClassComponent;
+
+
+          > import React from "react";   
+
+            class App extends React.Component{ 
+              render(){  // in class we cant return directly. we need to use render  
+                return (
+                  <h1> I am from Class</h1>
+                )
+              }
+            }
+            export default App;  
 
 
   > States & Props 
     > States means storing the data 
     > Props means the way we send the data
-    > we can use States & Props in Functional & Class component. but Functional component has more features
+    > we can use States & Props in Functional & Class component. but Functional component has more features then class component
 
 
   > Event handlers 

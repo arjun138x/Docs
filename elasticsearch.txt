@@ -75,7 +75,22 @@ LINKS
         }
     }
 
+> delete all data in index based on condition using postmen
 
+  > POST http://localhost:9200/<index_name>/_delete_by_query
+    {
+      "query": {
+        "bool": {
+          "must_not": [
+            {
+              "term": {
+                "model.id.keyword": "2bfadaa9-8c92-4142-9594-7e783af86258"
+              }
+            }
+          ]
+        }
+      }
+    }
 
 > To delete an index, use:
   $ curl -XDELETE 'localhost:9200/logs?pretty'
@@ -241,23 +256,25 @@ search Categories:
 BACKUP AND RESTORE DATA
   > create one folder <mkdir es_backup>
   > give the permissions to the folder
-    > sudo chown -R elasticsearch:elasticsearch /home/Desktop/es_backup/
-    > sudo chmod -R 777 /home/Desktop/es_backup/
+    > sudo chown -R elasticsearch:elasticsearch /home/arjun/Desktop/es_backup/
+    > sudo chmod -R 777 /home/arjun/Desktop/es_backup/
   > sudo nano /etc/elasticsearch/elasticsearch.yml
     > add this line in this file
-      > path.repo: ["/home/Desktop/es_backup"]
+      > path.repo: ["/home/arjun/Desktop/es_backup"]
   > sudo systemctl restart elasticsearch
   > PUT /_snapshot/es_backup_aug07
     {
       "type": "fs",
       "settings": {
         "compress": true,
-        "location": "/home/Desktop/es_backup"
+        "location": "/home/arjun/Desktop/es_backup"
       }
     }
 
   > Verify the Snapshot
     > GET /_snapshot/_all
+    > to view all backup indices data for one snapshot
+      > curl -XGET "http://localhost:9200/_snapshot/<snapshot name es_backup_aug07>/*?verbose=false"
 
   > Create a Snapshot
     > PUT /_snapshot/es_backup_aug07/snapshot_1?wait_for_completion=true
@@ -271,7 +288,7 @@ BACKUP AND RESTORE DATA
     > NOTE:- create a same snapshot <es_backup_aug07> in restore machine and move restore data into the folder
     > POST /_snapshot/es_backup_aug07/snapshot_1/_restore
       {
-        "indices": "ner,ocr",   
+        "indices": "<index names with "," separated>",   
         "ignore_unavailable": true,
         "include_global_state": false
       }

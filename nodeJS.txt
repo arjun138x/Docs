@@ -397,6 +397,7 @@ ES5 to ES12 ECMAScript 2021
 
 Callbacks, Promises, Async-Await
 ---------------------
+  > in Nodejs we have only callback and promises
 
   // Sync code
     function print(string) {
@@ -592,7 +593,7 @@ Closure
     */
     
 
- Regular expressions
+Regular expressions
 ----------------
   > Regular expressions are a powerful tool used for pattern matching and manipulation in strings. 
     There are various types of regular expressions based on the characters and syntax used.
@@ -774,6 +775,97 @@ Closure
 
       const result = pattern.test(text);
       console.log(result); // Output: true
+
+
+Child process
+---------------
+  > Node.js Child Processes allow you to spawn new processes in your Node.js applications, which can run 
+    independently of the main Node.js process. This is useful for various purposes, such as running 
+    external commands, parallelizing tasks, or executing CPU-intensive operations without blocking the main event loop.
+
+  > There are three main ways to create child processes in Node.js:
+
+    > 1.child_process.spawn(): This method is used to spawn a new process and provides a way to 
+        interact with its input and output streams. It is well-suited for long-running processes 
+        that produce a continuous stream of data.
+
+      > Example 1: Using spawn()
+        > In this example, we use `spawn()` to run the `ls -lh /usr` command and listen for its standard output 
+          and standard error streams.
+
+
+        const { spawn } = require('child_process');
+
+        // Spawn a child process to list files in the current directory
+        const ls = spawn('ls', ['-lh', '/usr']);
+
+        // Listen for data events from the child process
+        ls.stdout.on('data', (data) => {
+          console.log(`stdout: ${data}`);
+        });
+
+        ls.stderr.on('data', (data) => {
+          console.error(`stderr: ${data}`);
+        });
+
+        // Handle the child process exit event
+        ls.on('close', (code) => {
+          console.log(`Child process exited with code ${code}`);
+        });
+
+    
+    > 2.child_process.exec(): This method is used to run a shell command and buffers the command's output for you to use. 
+        It's suitable for simple commands with a small amount of output.
+
+      > Example 1: Using exec()
+        > Here, we use `exec()` to run the `echo` command and capture its output and errors.
+
+        const { exec } = require('child_process');
+
+        // Execute a simple shell command
+        exec('echo "Hello, Node.js"', (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error: ${error.message}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+        ```
+
+
+    > 3.child_process.fork(): This method is a specialized version of `spawn()` designed specifically for 
+        creating new Node.js processes. It allows you to communicate between the parent and child processes 
+        using inter-process communication (IPC).
+
+      > In this example, we use `fork()` to create a child process that runs a separate Node.js script (`child.js`). 
+        The parent and child processes communicate with each other using message passing through the 
+        `process.send()` and `process.on('message', ...)` methods.
+
+      > Example 3: Using `fork()`
+
+        const { fork } = require('child_process');
+
+        // Create a child process using fork
+        const childProcess = fork('child.js');
+
+        // Send a message to the child process
+        childProcess.send({ message: 'Hello from the parent process!' });
+
+        // Listen for messages from the child process
+        childProcess.on('message', (message) => {
+          console.log(`Parent received message: ${JSON.stringify(message)}`);
+        });
+
+      > Child Process (`child.js`):
+
+        // Listen for messages from the parent process
+        process.on('message', (message) => {
+          console.log(`Child received message: ${JSON.stringify(message)}`);
+
+          // Send a message back to the parent process
+          process.send({ message: 'Hello from the child process!' });
+        });
 
 
 

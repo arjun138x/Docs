@@ -275,6 +275,7 @@ BACKUP AND RESTORE DATA
     > GET /_snapshot/_all
     > to view all backup indices data for one snapshot
       > curl -XGET "http://localhost:9200/_snapshot/<snapshot name es_backup_aug07>/*?verbose=false"
+    > GET _snapshot/es_backup_sep12/*?verbose=false
 
   > Create a Snapshot
     > PUT /_snapshot/es_backup_aug07/snapshot_1?wait_for_completion=true

@@ -397,6 +397,7 @@ ES5 to ES12 ECMAScript 2021
 
 Callbacks, Promises, Async-Await
 ---------------------
+  > in Nodejs we have only callback and promises
 
   // Sync code
     function print(string) {
@@ -592,7 +593,7 @@ Closure
     */
     
 
- Regular expressions
+Regular expressions
 ----------------
   > Regular expressions are a powerful tool used for pattern matching and manipulation in strings. 
     There are various types of regular expressions based on the characters and syntax used.
@@ -776,6 +777,151 @@ Closure
       console.log(result); // Output: true
 
 
+Child process
+---------------
+  > Node.js Child Processes allow you to spawn new processes in your Node.js applications, which can run 
+    independently of the main Node.js process. This is useful for various purposes, such as running 
+    external commands, parallelizing tasks, or executing CPU-intensive operations without blocking the main event loop.
+
+  > There are three main ways to create child processes in Node.js:
+
+    > 1.child_process.spawn(): This method is used to spawn a new process and provides a way to 
+        interact with its input and output streams. It is well-suited for long-running processes 
+        that produce a continuous stream of data.
+
+      > Example 1: Using spawn()
+        > In this example, we use `spawn()` to run the `ls -lh /usr` command and listen for its standard output 
+          and standard error streams.
+
+
+        const { spawn } = require('child_process');
+
+        // Spawn a child process to list files in the current directory
+        const ls = spawn('ls', ['-lh', '/usr']);
+
+        // Listen for data events from the child process
+        ls.stdout.on('data', (data) => {
+          console.log(`stdout: ${data}`);
+        });
+
+        ls.stderr.on('data', (data) => {
+          console.error(`stderr: ${data}`);
+        });
+
+        // Handle the child process exit event
+        ls.on('close', (code) => {
+          console.log(`Child process exited with code ${code}`);
+        });
+
+    
+    > 2.child_process.exec(): This method is used to run a shell command and buffers the command's output for you to use. 
+        It's suitable for simple commands with a small amount of output.
+
+      > Example 1: Using exec()
+        > Here, we use `exec()` to run the `echo` command and capture its output and errors.
+
+        const { exec } = require('child_process');
+
+        // Execute a simple shell command
+        exec('echo "Hello, Node.js"', (error, stdout, stderr) => {
+          if (error) {
+            console.error(`Error: ${error.message}`);
+            return;
+          }
+          console.log(`stdout: ${stdout}`);
+          console.error(`stderr: ${stderr}`);
+        });
+        ```
+
+
+    > 3.child_process.fork(): This method is a specialized version of `spawn()` designed specifically for 
+        creating new Node.js processes. It allows you to communicate between the parent and child processes 
+        using inter-process communication (IPC).
+
+      > In this example, we use `fork()` to create a child process that runs a separate Node.js script (`child.js`). 
+        The parent and child processes communicate with each other using message passing through the 
+        `process.send()` and `process.on('message', ...)` methods.
+
+      > Example 3: Using `fork()`
+
+        const { fork } = require('child_process');
+
+        // Create a child process using fork
+        const childProcess = fork('child.js');
+
+        // Send a message to the child process
+        childProcess.send({ message: 'Hello from the parent process!' });
+
+        // Listen for messages from the child process
+        childProcess.on('message', (message) => {
+          console.log(`Parent received message: ${JSON.stringify(message)}`);
+        });
+
+      > Child Process (`child.js`):
+
+        // Listen for messages from the parent process
+        process.on('message', (message) => {
+          console.log(`Child received message: ${JSON.stringify(message)}`);
+
+          // Send a message back to the parent process
+          process.send({ message: 'Hello from the child process!' });
+        });
+
+
+built-in node modules in nodejs
+---------------------------------
+  > Node.js provides a set of built-in modules that are available for use in your JavaScript applications. 
+    These modules cover a wide range of functionality, from file system operations to networking and more. 
+    here are some of the commonly used built-in Node.js modules:
+
+    1. fs (File System): This module allows you to work with the file system, including reading and writing files, 
+      creating and deleting directories, and more.
+
+    2. http/https: These modules enable you to create HTTP and HTTPS servers and make HTTP requests. 
+      They are fundamental for building web applications and APIs.
+
+    3. url: The `url` module provides utilities for URL parsing and formatting, making it easier to work with URLs.
+
+    4. path: This module offers utilities for working with file and directory paths. 
+      It's particularly useful for ensuring cross-platform compatibility when dealing with file paths.
+
+    5. events: The `events` module allows you to create and handle custom events, 
+      which is crucial for building event-driven applications.
+
+    6. util: The `util` module provides various utility functions and objects that can be helpful 
+      in various scenarios, such as working with objects and inheritance.
+
+    7. os (Operating System): This module provides information about the host operating system, 
+      including CPU architecture, network interfaces, and more.
+
+    8. querystring: The `querystring` module is used for parsing and formatting URL query strings.
+
+    9. crypto: This module offers cryptographic functionality, including hashing, encryption, and decryption.
+
+    10. child_process: This module allows you to create and interact with child processes, 
+      which can be used for running external commands or parallelizing tasks.
+
+    11. stream: The `stream` module provides a way to work with streams of data, allowing you to read and write data efficiently.
+
+    12. zlib: This module provides compression and decompression capabilities, which can be useful when working with compressed data.
+
+    13. events: The `events` module is used to create and handle custom events in your Node.js applications.
+
+    14. assert: The `assert` module provides functions for performing assertions, which are useful for testing and debugging your code.
+
+    15. os: The `os` module provides information about the operating system on which your Node.js application is running.
+
+    16. process: The `process` module allows you to interact with the current Node.js process and control its behavior.
+
+    17. url: The `url` module provides utilities for working with URLs, including parsing and formatting.
+
+    18. querystring: The `querystring` module is used for parsing and formatting URL query strings.
+
+    19. timers: This module contains functions for scheduling and executing code at specific intervals using timers.
+
+    20. util: The `util` module provides various utility functions, such as formatting strings and working with objects.
+
+ 
 
 
 ---------------

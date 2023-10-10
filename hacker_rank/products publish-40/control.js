@@ -2,16 +2,15 @@ const Products = require("../models/products");
 
 module.exports = {
   create: async (req, res) => {
-    const { name, price, mrp, stock } = req.body;
+    const { body } = req;
     try {
+      const all_products = await Products.findAll({});
       const product = await Products.create({
-        name,
-        price,
-        mrp,
-        stock,
+        ...body,
+        id: all_products.length + 1,
         isPublished: false,
       });
-      res.status(201).send(product);
+      res.status(201).json(product);
     } catch (error) {
       res.status(404).send(error);
     }
@@ -19,37 +18,37 @@ module.exports = {
 
   getAll: async (req, res) => {
     try {
-      const products = await Products.findAll();
-      res.status(200).send(products);
+      const products = await Products.findAll({});
+      res.status(200).json(products);
     } catch (error) {
       res.status(404).send(error);
     }
   },
 
   patch: async (req, res) => {
-    const id = req.params.id;
-    const { isPublished = true } = req.body;
+    const { id } = req.params;
+    const { body } = req;
 
     try {
       const product = await Products.findOne({
         where: { id },
       });
       let err = [];
-      if (product) {
-        if (product.mrp >= product.price) {
-          err.push("MRP should not be less than equal to the Price");
-        }
-        if (product.stock <= 0) {
-          err.push("Stock count is 0");
-        }
-        if (err.length > 0) {
-          res.status(422).send([...err]);
-        } else {
-          // await product.update({ isPublished });
-          res.status(204).send();
-        }
+
+      if (!product) {
+        return res.status(404).send("Product not found");
+      }
+
+      const { mrp, price } = product;
+      if (mrp < price && stock == 0) {
+        err.push("MRP should not be less than equal to the Price");
+      } else if (mrp < price) {
+        err.push("Stock count is 0");
+      } else if (stock == 0) {
+        res.status(422).send([...err]);
       } else {
-        res.status(404).send("Product not found");
+        await product.update({ isPublished: true }, { where: { id } });
+        res.status(204).send();
       }
     } catch (error) {
       res.status(404).send(error);
@@ -57,6 +56,6 @@ module.exports = {
   },
 
   methodNotAllowed: (req, res) => {
-    res.status(405).send("Method Not Allowed");
+    res.status(405).json("Method Not Allowed");
   },
 };

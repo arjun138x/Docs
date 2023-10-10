@@ -868,6 +868,60 @@ Child process
         });
 
 
+built-in node modules in nodejs
+---------------------------------
+  > Node.js provides a set of built-in modules that are available for use in your JavaScript applications. 
+    These modules cover a wide range of functionality, from file system operations to networking and more. 
+    here are some of the commonly used built-in Node.js modules:
+
+    1. fs (File System): This module allows you to work with the file system, including reading and writing files, 
+      creating and deleting directories, and more.
+
+    2. http/https: These modules enable you to create HTTP and HTTPS servers and make HTTP requests. 
+      They are fundamental for building web applications and APIs.
+
+    3. url: The `url` module provides utilities for URL parsing and formatting, making it easier to work with URLs.
+
+    4. path: This module offers utilities for working with file and directory paths. 
+      It's particularly useful for ensuring cross-platform compatibility when dealing with file paths.
+
+    5. events: The `events` module allows you to create and handle custom events, 
+      which is crucial for building event-driven applications.
+
+    6. util: The `util` module provides various utility functions and objects that can be helpful 
+      in various scenarios, such as working with objects and inheritance.
+
+    7. os (Operating System): This module provides information about the host operating system, 
+      including CPU architecture, network interfaces, and more.
+
+    8. querystring: The `querystring` module is used for parsing and formatting URL query strings.
+
+    9. crypto: This module offers cryptographic functionality, including hashing, encryption, and decryption.
+
+    10. child_process: This module allows you to create and interact with child processes, 
+      which can be used for running external commands or parallelizing tasks.
+
+    11. stream: The `stream` module provides a way to work with streams of data, allowing you to read and write data efficiently.
+
+    12. zlib: This module provides compression and decompression capabilities, which can be useful when working with compressed data.
+
+    13. events: The `events` module is used to create and handle custom events in your Node.js applications.
+
+    14. assert: The `assert` module provides functions for performing assertions, which are useful for testing and debugging your code.
+
+    15. os: The `os` module provides information about the operating system on which your Node.js application is running.
+
+    16. process: The `process` module allows you to interact with the current Node.js process and control its behavior.
+
+    17. url: The `url` module provides utilities for working with URLs, including parsing and formatting.
+
+    18. querystring: The `querystring` module is used for parsing and formatting URL query strings.
+
+    19. timers: This module contains functions for scheduling and executing code at specific intervals using timers.
+
+    20. util: The `util` module provides various utility functions, such as formatting strings and working with objects.
+
+ 
 
 
 ---------------

@@ -923,6 +923,44 @@ built-in node modules in nodejs
 
  
 
+Data types in nodejs
+---------------------
+  1. Number: Represents both integer and floating-point numbers. You can perform mathematical operations with numbers.
+
+  2. String: A sequence of characters, which can be enclosed in single or double quotes. Strings are used to represent text data.
+
+  3. Boolean: Represents a binary value, which can be either `true` or `false`. Booleans are often used for making conditional decisions.
+
+  4. Object: Objects in Node.js are collections of key-value pairs. Objects can contain various data types, including other objects, arrays, functions, and more.
+
+  5. Array: An ordered list of values that can be of any data type. Arrays are used to store and manipulate collections of data.
+
+  6. Function: Functions are first-class citizens in Node.js, just like in JavaScript. They can be assigned to variables, passed as arguments, and returned from other functions.
+
+  7. Null: Represents the intentional absence of any object or value. It is a keyword used to indicate that a variable or property has no value.
+
+  8. Undefined: Represents a variable or property that has been declared but has not been assigned a value.
+
+  9. Date: Represents dates and times in Node.js. It provides methods for working with dates and times.
+
+  10. RegExp: Regular expressions are used for pattern matching and manipulating strings. You can create regular expressions to match and manipulate text data.
+
+  11. Buffer: In Node.js, the `Buffer` data type is used to work with binary data directly. It's particularly useful for reading and writing data to streams or working with binary protocols.
+
+  12. Map and Set: ES6 introduced `Map` and `Set` data structures for more complex data manipulation. They are often used to store key-value pairs and unique values, respectively.
+
+  13. Symbol: Symbols are unique and immutable data types introduced in ES6. They are often used to create property keys that are guaranteed to be unique.
+
+  14. BigInt: Introduced in ES11, BigInt allows you to represent arbitrarily large integers that can't be represented by the Number data type.
+
+  15. Error: Represents errors in Node.js. There are built-in error objects like `SyntaxError`, `ReferenceError`, and custom error objects you can create.
+
+  16. Promises: Promises are used for asynchronous operations in Node.js. They represent a value that might be available now, or in the future, or never.
+
+  17. Function Constructor: You can create your own data types using constructor functions and prototypes.
+
+
+
 
 ---------------
 INTERMEDIATE JS

@@ -296,3 +296,22 @@ BACKUP AND RESTORE DATA
 
 
 
+> get Aggregations documents query
+  {
+    "size": 0,
+    "aggs": {
+      "group_by_key": {
+        "terms": {
+          "field": "name.keyword",
+          "size": 
+        },
+        "aggs": {
+          "top_documents": {
+            "top_hits": {
+              "size": 10
+            }
+          }
+        }
+      }
+    }
+  }

@@ -303,7 +303,7 @@ BACKUP AND RESTORE DATA
       "group_by_key": {
         "terms": {
           "field": "name.keyword",
-          "size": 
+          "size": 5
         },
         "aggs": {
           "top_documents": {

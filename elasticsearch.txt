@@ -315,3 +315,27 @@ BACKUP AND RESTORE DATA
       }
     }
   }
+
+
+> mapping to define the "data" field as nested ==> (data=[{}]) // data is a arry of obj.
+  PUT claim_number
+  {
+    "mappings": {
+      "properties": {
+        "data": {
+          "type": "nested", // Define the "data" field as a nested type
+          "properties": {
+            "fullText": {
+              "type": "text"
+            }
+            // Define other properties within the "data" field as needed
+          }
+        }
+        // Define other properties in your mapping as needed
+      }
+    }
+  }
+  }
+
+
+

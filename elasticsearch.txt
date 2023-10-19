@@ -296,3 +296,46 @@ BACKUP AND RESTORE DATA
 
 
 
+> get Aggregations documents query
+  {
+    "size": 0,
+    "aggs": {
+      "group_by_key": {
+        "terms": {
+          "field": "name.keyword",
+          "size": 5
+        },
+        "aggs": {
+          "top_documents": {
+            "top_hits": {
+              "size": 10
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+> mapping to define the "data" field as nested ==> (data=[{}]) // data is a arry of obj.
+  PUT claim_number
+  {
+    "mappings": {
+      "properties": {
+        "data": {
+          "type": "nested", // Define the "data" field as a nested type
+          "properties": {
+            "fullText": {
+              "type": "text"
+            }
+            // Define other properties within the "data" field as needed
+          }
+        }
+        // Define other properties in your mapping as needed
+      }
+    }
+  }
+  }
+
+
+

@@ -1,1 +1,51 @@
 
+INTRODUCTION
+=============
+  > NestJS is a popular open-source web application framework for building scalable and maintainable server-side applications 
+    in TypeScript or JavaScript. It is often used for developing server-side applications, particularly in the context of 
+    building web APIs and microservices. NestJS is built on top of Express.js, one of the most popular Node.js web frameworks, 
+    but it also provides a more structured and opinionated approach to building applications.
+
+  > NestJS combines element of object-oriented programming, functional programming, and reactive programming.
+  > NestJS makes use of robust HTTP server frameworks (default: Express.js)
+
+  > the philosophy behind NestJS
+    > the rise of popular web technologies such as Angular, React and Vue has massively improved the development experience.
+    > however, while Node.js (for the server-side) has plenty of great libraries, none of them effectively solves the main problem of architecture.
+    > NestJS provides an out-of-the-box application architecture which allows developers and teams to create highly testable, scalable, 
+      loosely coupled and easy-to-maintain applications.
+
+  Key features and concepts of NestJS include:
+
+    > TypeScript: NestJS is built using TypeScript, which is a statically typed superset of JavaScript. This allows for strong typing, 
+      better code quality, and improved developer tooling.
+
+    > Modular architecture: NestJS encourages a modular and organized code structure. Applications are divided into modules, 
+      and each module encapsulates a specific part of the application's functionality.
+
+    > Dependency injection: It uses a dependency injection system, making it easy to manage and inject dependencies into various components, 
+      improving code maintainability and testability.
+
+    > Decorators: NestJS utilizes decorators to define various components and configurations, such as controllers, routes, services, 
+      and middleware, in a more intuitive way.
+
+    > Middleware support: Middleware can be used to intercept and process incoming requests before they reach the route handlers.
+
+    > Controllers and routes: NestJS follows a controller-based approach to handling incoming HTTP requests. 
+      Controllers define routes and request handling logic.
+
+    > Data persistence: While NestJS doesn't prescribe a specific database or ORM, it can work with various databases 
+      and data access libraries, making it flexible for data storage.
+
+    > Built-in testing: NestJS provides tools and utilities for testing applications, including unit and end-to-end testing.
+
+    > WebSocket support: NestJS has built-in support for WebSockets, allowing you to build real-time applications.
+
+    > Built-in support for GraphQL: NestJS offers native support for building GraphQL APIs, in addition to RESTful APIs.
+
+    > Interceptors and guards: You can use interceptors to transform or manipulate the data flow, and guards to implement 
+      authentication and authorization logic.
+
+    > NestJS has gained popularity in the Node.js community due to its well-structured and organized approach to building applications. 
+      It is often chosen for projects that require a high degree of maintainability, testability, and scalability.
+      

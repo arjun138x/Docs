@@ -49,3 +49,63 @@ INTRODUCTION
     > NestJS has gained popularity in the Node.js community due to its well-structured and organized approach to building applications. 
       It is often chosen for projects that require a high degree of maintainability, testability, and scalability.
       
+
+MODULES
+======== 
+
+  > In NestJS, modules are a fundamental building block of the application structure. They help you organize your code into 
+    cohesive and reusable units. Modules encapsulate related components, controllers, providers, and other features of your application.
+
+  > Creating a Module:
+    > To create a module, you can use the Nest CLI by running `nest generate module module-name` or manually create a TypeScript file 
+      for the module and define a class decorated with `@Module()`.
+
+    > import { Module } from '@nestjs/common';
+
+      @Module({
+        controllers: [/* Controllers */],
+        providers: [/* Services/Providers */],
+      })
+      export class MyModule {}
+
+  > Controllers: Controllers handle incoming HTTP requests and define the routes and endpoints of your application. 
+    You can associate controllers with a module by adding them to the `controllers` property of the `@Module()` decorator.
+
+  > Providers: Providers are used to define services, repositories, or other objects that can be injected into controllers or other providers. 
+    They are declared in the `providers` property of the `@Module()` decorator.
+
+  4. Imports: You can import other modules to make their controllers and providers available in your module. 
+    Use the `imports` property to include other modules in your module.
+
+    > @Module({
+        imports: [OtherModule],
+        controllers: [/* Controllers */],
+        providers: [/* Services/Providers */],
+      })
+      export class MyModule {}
+
+  5. Exports: If you want to make certain components of your module available for use in other modules, you can use the `exports` property.
+
+    > @Module({
+        exports: [/* Exported Providers or Modules */],
+        controllers: [/* Controllers */],
+        providers: [/* Services/Providers */],
+      })
+      export class MyModule {}
+
+  > Dynamic Modules: NestJS also supports dynamic modules that allow you to configure a module based on runtime values. 
+    You can create dynamic modules using the `register()` method.
+
+  > Global Scopes: Modules have different scopes, including module scope, global scope, and dynamic scope. 
+    Global scope modules are registered globally and can be used by the entire application.
+
+  > Feature Modules: You can create feature modules that encapsulate related functionality and then import these modules into the root module.
+
+  > Shared Modules: Shared modules contain common providers and can be used across multiple feature modules.
+
+  > Lazy Loading: NestJS supports lazy loading of modules when using a modular router like the `@nestjs/passport` module.
+
+  > Overall, modules in NestJS help you structure your application in a modular and maintainable way, making it easier 
+    to manage and scale your codebase. They promote a clean separation of concerns and facilitate reusability.
+
+

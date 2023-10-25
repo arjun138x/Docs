@@ -253,6 +253,14 @@ search Categories:
         
              
 
+Set Elasticsearch max memory size
+  > sudo nano /etc/elasticsearch/jvm.options
+  > uncomment the following line or add the line
+
+  -Xms4g 
+  -Xmx4g 
+
+
 BACKUP AND RESTORE DATA
   > create one folder <mkdir es_backup>
   > give the permissions to the folder

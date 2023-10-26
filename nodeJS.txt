@@ -960,6 +960,62 @@ Data types in nodejs
   17. Function Constructor: You can create your own data types using constructor functions and prototypes.
 
 
+Call Stack & Event Loop
+=======================
+  > The event loop and call stack are fundamental concepts that play a crucial role in how asynchronous 
+    and non-blocking code is executed. 
+
+  > Event Loop:
+    > The event loop is a core part of Node.js's architecture and is responsible for managing and executing 
+      asynchronous operations.
+    > Node.js is single-threaded, which means it has only one main execution thread for JavaScript code. 
+      The event loop allows Node.js to perform non-blocking operations efficiently.
+    > It constantly checks the message queue for pending messages (events) and processes them one at a time.
+
+  2. Call Stack:
+    - The call stack is a data structure that keeps track of the currently executing functions or tasks in a program.
+    - When you call a function in your Node.js code, it's added to the call stack, and execution starts within that function.
+    - As functions complete, they are removed from the call stack, allowing the next function to run.
+    - If a function contains asynchronous operations (e.g., I/O operations, timers), it is moved off the call stack and handled by the event loop.
+
+  Here's how they work together in Node.js:
+
+  > When an asynchronous operation is initiated, such as reading a file, making an HTTP request, 
+    or setting a timer, Node.js doesn't block the main thread of execution. Instead, it offloads this operation 
+    to the underlying system and registers a callback to be executed when the operation is complete.
+
+  > The JavaScript code continues to run, and the call stack remains unblocked.
+
+  > When the asynchronous operation is finished, a message is placed in the event queue (also known as the "message queue" or "task queue").
+
+  > The event loop continually checks the event queue. If there are messages waiting in the queue, 
+    the event loop moves them to the call stack for execution.
+
+  > The corresponding callback function is executed in the call stack, and any additional code within that 
+    callback function is executed.
+
+  > This process continues, allowing Node.js to efficiently manage multiple concurrent I/O operations without blocking the main thread.
+
+  Here's a simplified example:
+
+  > In this example, the event loop ensures that "Start" and "End" are printed to the console before 
+    the file content is read and displayed, thanks to the asynchronous nature of the file reading operation. 
+    The file reading operation is offloaded to the event loop, allowing the main thread to continue without blocking. 
+    When the file reading is complete, the callback is invoked and its code is executed.
+    
+    const fs = require('fs');
+
+    console.log('Start');
+
+    fs.readFile('example.txt', 'utf8', (err, data) => {
+      if (err) throw err;
+      console.log(data);
+    });
+
+    console.log('End');
+
+
+
 
 
 ---------------

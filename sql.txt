@@ -13,3 +13,24 @@
 >
 >
 >
+
+----------
+typeOrm
+----------
+  >OneToMany relation
+
+    > each bill has multiple pdf's. in bill table we have billNumber and in pdf table we have billNumber.
+    
+    // Bill table
+    @OneToMany(() => Pdf, (document) => document.bill)
+    documents: Pdf[];
+
+    // Pdf table
+    @ManyToOne(() => Bill, (bill) => bill.documents)
+    @JoinColumn({ name: 'billNumber', referencedColumnName: 'billNumber' })
+    bill: Bill;
+
+
+
+
+

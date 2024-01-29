@@ -465,38 +465,19 @@ Callbacks, Promises, Async-Await
     startAll();
 
 
-JavaScript OOPS
+JavaScript OOPS/ Classes
 ---------------
+Classes
+----------
+
+  > The four pillars of object-oriented programming (OOP) in JavaScript are 
+    Encapsulation, Abstraction, Inheritance, Polymorphism
+
   > Benefits of OOPS
     > Reuse of code through inheritance 
     > Flexibility through polymorphism 
     > Easier to troubleshoot(find errors)
     > Code maintainability
-
-  > Abstraction 
-    > An abstraction is a way of hiding the implementation details and showing only the functionality to the users. 
-      In other words, it ignores the irrelevant details and shows only the required one.
-      Ex :  > ATM( it gives the money but it didn't show the background process)
-    
-    > class Atm{
-        constructor(withdraw){  // A constructor is a special function that creates and initializes an object instance of a class
-          this.balance = 1000
-          this.withdraw= withdraw
-        }
-        getAmount(){
-          let minimum = 500 // user can't modify this. this is abstraction
-          if(this.balance-this.withdraw>=this.minimum){
-            console.log("Transaction successful")
-          }
-          else{
-            console.log("Transaction failed")
-          }
-        }
-      }
-
-      let obj = new Atm(500)
-      console.log(obj.minimum)
-      obj.getAmount()
 
 
   > Encapsulation 
@@ -505,32 +486,58 @@ JavaScript OOPS
 
     > It is Mechanism of bundling data variables and methods together & hides them from other classes.
 
-    > class Person{
-        constructor(name,age,salary){
-          this.name=name
-          this.age=age
-          this.salary=salary
+    > Bundling data and methods together into a single unit (object) to protect the data from unauthorized access 
+      and manipulation. This promotes data integrity and makes the code more maintainable.
+
+    > code example
+    
+      class BankAccount {
+        constructor(initialBalance) {
+          this._balance = initialBalance; // private property using underscore prefix convention
         }
-        
-        getName(){
-          console.log(this.name)
+
+        deposit(amount) {
+          this._balance += amount;
         }
-        getAge(){
-          console.log(this.age)
+
+        withdraw(amount) {
+          if (amount > this._balance) {
+            throw new Error("Insufficient funds");
+          }
+          this._balance -= amount;
         }
-        getSalary(){
-          console.log(this.salary)
+
+        get balance() { // public getter method to access balance indirectly
+          return this._balance;
         }
       }
 
-      let obj = new Person("John",31,30000)
-      obj.getName()
-      obj.getAge()
-      obj.getSalary()
-       
+      const account = new BankAccount(100);
+      account.deposit(50);
+      console.log(account.balance); // Output: 150
+
+      // Trying to directly access the balance property will throw an error:
+      // account._balance = 1000; // Error: Cannot assign to a read-only private property
+    
+
+  > Abstraction 
+    > An abstraction is a way of hiding the implementation details and showing only the functionality to the users. 
+      In other words, it ignores the irrelevant details and shows only the required one.
+      Ex :  > ATM( it gives the money but it didn't show the background process)
+    
+    > Focusing on the essential aspects of an object and hiding its internal details. 
+      This simplifies the code and makes it easier to understand and use.
+
+    > For example, the `BankAccount` class above only exposes methods for depositing and withdrawing money, 
+      hiding the implementation details of how the balance is stored and updated.
+   
 
   > Inheritance
     > Inheritance is the procedure in which one class inherits the attributes and methods of another class
+
+    > Creating new classes from existing ones (parent classes) to reuse code and extend functionality. 
+      This promotes code reusability and reduces redundancy.
+
     > class Parent{
         getUser(){
           console.log("user")
@@ -547,6 +554,21 @@ JavaScript OOPS
   > Polymorphism
     > poly(many) + morph(form) = Many Forms 
     > Polymorphism allows us to perform a single action in different ways.
+
+    > The ability of objects to take on different forms and respond to the same message in different ways. 
+      This allows for flexible and dynamic code.
+
+    > example of polymorphism in JavaScript is using the `toString()` method on different objects. 
+      Each object can define its own `toString()` method to specify how it should be represented as a string.
+
+      const account = new BankAccount(100);
+      const message = "Account balance: " + account;
+      console.log(message); // Output: Account balance: [object Object]
+
+      const person = { name: "John Doe" };
+      console.log(person.toString()); // Output: { name: 'John Doe' }
+
+    > example two
       > class Parent{
           getMobile(){
             console.log("mobile 1")
@@ -869,7 +891,7 @@ Child process
 
 
 Performance optimization in Node.js
-===================================
+-----------------------------------
 
   > Performance optimization in Node.js is crucial for ensuring that your applications run efficiently and can handle a large number of requests. 
     Here are some strategies and best practices to optimize performance in Node.js:

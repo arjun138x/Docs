@@ -87,3 +87,12 @@ for (let i = 0; i < array.length; i++) {
 }
 
 console.log(uniqueValues);
+
+//  factorial of a given number.
+function factorial(number) {
+  if (number <= 1) return 1;
+  return number * factorial(number - 1);
+}
+
+var fact = factorial(5);
+console.log({ fact });

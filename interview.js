@@ -71,3 +71,19 @@ function customFlatArray(arr) {
 }
 
 console.log(customFlatArray([1, 2, [3, 4], [5, [6, 7, [8, [9]]]]]));
+
+// remove duplicate with one iteration
+var array = [1, 2, 1, 3, 5, 1, true, undefined, false, "aa", true, "aa"];
+
+const uniqueValues = [];
+const seen = new Map();
+
+for (let i = 0; i < array.length; i++) {
+  const value = array[i];
+  if (!seen.has(value)) {
+    uniqueValues.push(value);
+    seen.set(value, true);
+  }
+}
+
+console.log(uniqueValues);

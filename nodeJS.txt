@@ -1200,6 +1200,46 @@ INTERMEDIATE JS
 
 
 
+Differentiate between process.nextTick() and setImmediate(). 
+-------------------------------------------------------------
+  > process.nextTick() and setImmediate() are both used in Node.js for scheduling asynchronous operations, 
+    but they behave slightly differently in terms of when the callback is executed.
+
+  1. process.nextTick():
+    - process.nextTick() is used to schedule a callback to be invoked in the next iteration 
+      of the event loop, immediately after the current operation completes.
+    - Callbacks scheduled with process.nextTick() will be executed before any I/O operations or timers.
+    - It helps in deferring the execution of a callback until the current operation is completed, 
+      which makes it efficient for operations that need to be done asynchronously but also need to be prioritized.
+
+
+  2. setImmediate():
+    - setImmediate() is used to schedule a callback to be invoked during the next iteration of the event loop, 
+      after I/O events and before any timers.
+    - It allows the I/O event callbacks to complete before executing, which can help prevent blocking I/O operations.
+    - It's typically used when you want to execute a callback asynchronously but without delaying I/O operations.
+
+  > Example:
+
+    console.log('Start');
+    setImmediate(() => {
+      console.log('setImmediate() callback');
+    });
+    process.nextTick(() => {
+        console.log('process.nextTick() callback');
+    });
+    console.log('End');
+
+    Output:
+    Start
+    End
+    process.nextTick() callback
+    setImmediate() callback
+
+
+  > both process.nextTick() and setImmediate() allow scheduling asynchronous operations, 
+    the main difference lies in their timing within the event loop. process.nextTick() 
+    callbacks execute before I/O operations, while setImmediate() callbacks execute after I/O operations.
 
 
 

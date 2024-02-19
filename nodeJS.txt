@@ -1243,6 +1243,42 @@ Differentiate between process.nextTick() and setImmediate().
 
 
 
+How does the threadpool work and which library in Node.js takes care of it?
+---------------------------------------------------------------------------
+  > In Node.js, the thread pool is managed by libuv, which is a multi-platform support library with a focus on asynchronous I/O. 
+    The thread pool is used to offload certain types of work that might block the event loop, such as file system operations, 
+    network requests, and crypto operations, to native operating system threads. This allows Node.js to handle 
+    multiple I/O operations concurrently without blocking the event loop.
+
+    Here's how the thread pool generally works in Node.js:
+
+    1. Offloading Blocking Operations:
+      When a blocking operation is encountered in Node.js, such as reading from a file or making a network request, 
+      instead of performing the operation synchronously in the event loop (which would block other operations), 
+      Node.js offloads the operation to the thread pool.
+
+    2. Native Threads:
+      libuv manages a pool of native threads, which are separate from the main event loop thread. 
+      These native threads handle the blocking operations asynchronously.
+
+    3. Asynchronous Callbacks:
+      Once the native thread completes the blocking operation, it posts a message back to the event loop, 
+      indicating that the operation has finished. This triggers the execution of the callback associated with the operation.
+
+    4. Event Loop Handling:
+      When the event loop detects that a callback associated with a completed operation is ready to be executed, 
+      it schedules the callback to run in the event loop.
+
+    5. Non-Blocking Nature:
+      The use of the thread pool ensures that the event loop remains non-blocking, allowing it to continue processing 
+      other events and callbacks while the blocking operations are being performed in separate threads.
+
+  > The thread pool management is abstracted away from the Node.js developer and is handled internally by libuv. 
+    Developers typically interact with asynchronous APIs provided by Node.js, such as fs.readFile(), http.get(), 
+    or crypto.randomBytes(), without needing to manage threads directly.
+
+  > By purpose of the thread pool, Node.js can efficiently handle I/O-bound tasks and maintain its non-blocking nature, 
+    which is crucial for building scalable and performant applications.
 
 
 

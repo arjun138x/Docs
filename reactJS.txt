@@ -425,8 +425,38 @@ React Fundamentals
       so we can get some free space
 
 
-    
 
+> Lazy loading
+---------------
+  > Lazy loading in ReactJS refers to the technique of delaying the loading of certain components or 
+    resources until they are needed. This can help improve the initial loading time of your application 
+    and reduce the amount of resources loaded upfront, especially in large applications with many components.
+
+  > React.lazy() with Suspense:
+      > With React 16.6 and later, React introduced a new feature called React.lazy() 
+        which allows you to dynamically import a component. 
+      > You can use React.lazy() to lazily load a component and then use the Suspense component to handle the loading state.
+      > Here's a basic example:
+
+      import React, { Suspense } from 'react';
+
+      const LazyComponent = React.lazy(() => import('./LazyComponent'));
+
+      function App() {
+        return (
+          <Suspense fallback={<div>Loading...</div>}>
+            <LazyComponent />
+          </Suspense>
+        );
+      }
+
+      export default App;
+      
+
+  > Lazy loading is particularly useful for optimizing performance in large React applications, 
+    where loading all components upfront may lead to longer initial load times. It allows you to 
+    prioritize the loading of critical components and defer the loading of non-essential components 
+    until they are needed, improving the perceived performance and user experience of your application.
 
 
 

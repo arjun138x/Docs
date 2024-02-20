@@ -1,6 +1,6 @@
 import logo from "./logo.svg";
 import "./App.css";
-import ProgressBar from "./component1/ProgressBar";
+import ProgressBar from "./progressBar/ProgressBar";
 
 function App() {
   return (

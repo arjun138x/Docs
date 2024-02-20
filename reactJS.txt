@@ -459,35 +459,35 @@ React Fundamentals
 
 
 > SSR and CSR 
---------------
+--------------  
+  > SSR (Server-Side Rendering) and CSR (Client-Side Rendering) are two different approaches to rendering web applications, 
+    including those built with ReactJS.
 
-> SSR (Server-Side Rendering) and CSR (Client-Side Rendering) are two different approaches to rendering web applications, 
-  including those built with ReactJS.
+  > Server-Side Rendering (SSR):
+    > SSR involves rendering the React components on the server and sending the fully rendered HTML to the client.
+    > In SSR, when a user requests a page, the server fetches the data, renders the React components, 
+      and sends back a fully populated HTML page to the client.
+    > Once the initial HTML is received, the client's browser loads JavaScript and enables interactive features.
+    > SSR is beneficial for improving SEO since search engines can crawl and index the content more easily.
+    > It can also enhance initial page load performance, especially for users on slower devices or connections, 
+      as they can see content sooner.
 
-> Server-Side Rendering (SSR):
-  > SSR involves rendering the React components on the server and sending the fully rendered HTML to the client.
-  > In SSR, when a user requests a page, the server fetches the data, renders the React components, 
-    and sends back a fully populated HTML page to the client.
-  > Once the initial HTML is received, the client's browser loads JavaScript and enables interactive features.
-  > SSR is beneficial for improving SEO since search engines can crawl and index the content more easily.
-  > It can also enhance initial page load performance, especially for users on slower devices or connections, 
-    as they can see content sooner.
+  > Client-Side Rendering (CSR):
+    > CSR, on the other hand, involves sending a minimal HTML document to the client, 
+      typically containing just the shell of the application and a JavaScript bundle.
+    > Once the JavaScript bundle is downloaded and executed by the client's browser, 
+      it dynamically generates and updates the content of the page.
+    > In CSR, the initial page load may be faster since only the minimal HTML and JavaScript need to be transferred.
+    > However, CSR applications may suffer from slower initial rendering times, 
+      which can impact perceived performance, especially on slower devices or connections.
+    > CSR can be advantageous for highly interactive applications where the initial load time is less critical, 
+      and the user experience relies heavily on dynamic updates and interactions.
 
-> Client-Side Rendering (CSR):
-  > CSR, on the other hand, involves sending a minimal HTML document to the client, 
-    typically containing just the shell of the application and a JavaScript bundle.
-  > Once the JavaScript bundle is downloaded and executed by the client's browser, 
-    it dynamically generates and updates the content of the page.
-  > In CSR, the initial page load may be faster since only the minimal HTML and JavaScript need to be transferred.
-  > However, CSR applications may suffer from slower initial rendering times, 
-    which can impact perceived performance, especially on slower devices or connections.
-  > CSR can be advantageous for highly interactive applications where the initial load time is less critical, 
-    and the user experience relies heavily on dynamic updates and interactions.
+  > In summary, SSR and CSR each have their own advantages and trade-offs. The choice between SSR and CSR depends on factors 
+    such as performance requirements, SEO considerations, and the nature of the application itself. In some cases, 
+    a hybrid approach called "Server-Side Rendering with Client-Side Hydration" can be used, combining the benefits of both 
+    SSR and CSR for optimal performance and user experience.
 
-> In summary, SSR and CSR each have their own advantages and trade-offs. The choice between SSR and CSR depends on factors 
-  such as performance requirements, SEO considerations, and the nature of the application itself. In some cases, 
-  a hybrid approach called "Server-Side Rendering with Client-Side Hydration" can be used, combining the benefits of both 
-  SSR and CSR for optimal performance and user experience.
 
 
 

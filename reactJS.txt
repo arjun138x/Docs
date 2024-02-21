@@ -490,6 +490,81 @@ React Fundamentals
 
 
 
+difference between useEffect and useLayoutEffect
+--------------------------------------------------
+
+  > useEffect and useLayoutEffect are both hooks provided by React for managing side effects in functional components. 
+    They are similar in many ways but differ in terms of when they are executed in the component lifecycle.
+  > useLayoutEffect will be called before the user can see the visual changes in that render whereas 
+    useEffect will be called after a user is able to see the visual changes in that render.
+
+  useEffect
+  ----------
+    useEffect is used to perform side effects in function components. It runs after the render is committed to the screen. 
+    This means it doesn't block painting the UI and it runs asynchronously. It's often used for data fetching, 
+    subscriptions, or manually changing the DOM in response to props or state changes.
+
+
+    import React, { useEffect, useState } from 'react';
+
+    function Example() {
+      const [count, setCount] = useState(0);
+
+      useEffect(() => {
+        document.title = You clicked ${count} times;
+      }, [count]); // Only re-run the effect if count changes
+
+      return (
+        <div>
+          <p>You clicked {count} times</p>
+          <button onClick={() => setCount(count + 1)}>
+            Click me
+          </button>
+        </div>
+      );
+    }
+
+
+  useLayoutEffect
+  ---------------
+    useLayoutEffect is similar to useEffect, but it fires synchronously after all DOM mutations. 
+    This means it runs before the browser has painted the screen, allowing you to make DOM updates and read layout from the DOM. 
+    It's similar to componentDidMount and componentDidUpdate in class components.
+
+
+    import React, { useLayoutEffect, useState } from 'react';
+
+    function Example() {
+      const [width, setWidth] = useState(window.innerWidth);
+
+      useLayoutEffect(() => {
+        const handleResize = () => {
+          setWidth(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Cleanup function
+        return () => {
+          window.removeEventListener('resize', handleResize);
+        };
+      }, []); // No dependencies, only run once after initial render
+
+      return (
+        <div>
+          <p>Window width: {width}</p>
+        </div>
+      );
+    }
+
+
+  > Key Differences
+    > Timing: useEffect runs after the render is committed to the screen, 
+      while useLayoutEffect runs synchronously after all DOM mutations.
+    > Blocking: useEffect doesn't block painting, while useLayoutEffect does.
+    > Use Cases: Use useEffect for most side effects, especially those that don't require immediate layout or don't block rendering. 
+      Use useLayoutEffect when you need to read from the DOM or perform an effect synchronously that requires DOM mutations 
+      before the browser paints.
 
 
 

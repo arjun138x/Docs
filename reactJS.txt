@@ -425,7 +425,7 @@ React Fundamentals
       so we can get some free space
 
 
-> Lazy loading
+Lazy loading
 ---------------
   > Lazy loading in ReactJS refers to the technique of delaying the loading of certain components or 
     resources until they are needed. This can help improve the initial loading time of your application 
@@ -458,7 +458,7 @@ React Fundamentals
     until they are needed, improving the perceived performance and user experience of your application.
 
 
-> SSR and CSR 
+SSR and CSR 
 --------------  
   > SSR (Server-Side Rendering) and CSR (Client-Side Rendering) are two different approaches to rendering web applications, 
     including those built with ReactJS.
@@ -566,6 +566,96 @@ difference between useEffect and useLayoutEffect
       Use useLayoutEffect when you need to read from the DOM or perform an effect synchronously that requires DOM mutations 
       before the browser paints.
 
+
+useRef, useMemo, and useCallback
+---------------------------------
+
+  > In React.js, useRef, useMemo, and useCallback are hooks used to optimize and manage state, memoize values, 
+    and handle function references respectively.
+
+  useRef
+  -------
+    > useRef is primarily used to persist values across renders without causing re-renders. 
+      It returns a mutable ref object whose .current property is initialized to the passed argument (initialValue). 
+      The value of the .current property will persist between renders.
+
+    > import React, { useRef } from 'react';
+
+      function MyComponent() {
+        const inputRef = useRef(null);
+
+        const focusInput = () => {
+          inputRef.current.focus();
+        };
+
+        return (
+          <div>
+            <input ref={inputRef} type="text" />
+            <button onClick={focusInput}>Focus Input</button>
+          </div>
+        );
+      }
+
+    > In this example, inputRef is used to store a reference to the input element, allowing the focusInput 
+      function to focus on the input element when the button is clicked without causing re-renders.
+
+  useMemo
+  --------
+    > useMemo is used to memoize the result of a computation and recompute it only when its dependencies change. 
+      It accepts a function and an array of dependencies. The value returned by the function is memoized 
+      and will only be recomputed when one of the dependencies changes.
+
+    > import React, { useMemo, useState } from 'react';
+
+      function MyComponent() {
+        const [count, setCount] = useState(0);
+        
+        const squaredCount = useMemo(() => {
+          return count ** 2;
+        }, [count]);
+
+        return (
+          <div>
+            <p>Count: {count}</p>
+            <p>Count squared: {squaredCount}</p>
+            <button onClick={() => setCount(count + 1)}>Increment</button>
+          </div>
+        );
+      }
+
+    > In this example, squaredCount is memoized using useMemo. It will only recompute when the count state changes.
+    > eg: If your in home page assume the home page has analytics(multiple API's are calling). if u change the theme light to dark 
+      all the components will re-render and api calls was happend it take more time. by using we can prevent this
+
+  useCallback
+  -----------
+    > useCallback is used to memoize functions so that they aren't recreated on every render unless their dependencies change. 
+      It's particularly useful when passing callbacks to child components that rely on reference equality to avoid unnecessary renders.
+
+    > import React, { useState, useCallback } from 'react';
+
+      function ChildComponent({ onClick }) {
+        return <button onClick={onClick}>Click Me</button>;
+      }
+
+      function ParentComponent() {
+        const [count, setCount] = useState(0);
+
+        const handleClick = useCallback(() => {
+          setCount(count + 1);
+        }, [count]);
+
+        return (
+          <div>
+            <p>Count: {count}</p>
+            <ChildComponent onClick={handleClick} />
+          </div>
+        );
+      }
+
+
+    > In this example, handleClick is memoized using useCallback. It will only be recreated if the count state changes, 
+      ensuring that the reference passed to ChildComponent remains stable.
 
 
 

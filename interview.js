@@ -158,11 +158,23 @@ for (var i = 0; i < 3; i++) {
   fn(i);
 }
 
+//  find sum of array without using for loop
+function sumArray(arr) {
+  if (arr.length === 1) {
+    return arr[0];
+  } else {
+    return arr[0] + sumArray(arr.slice(1));
+  }
+}
+
+const array = [1, 2, 3, 4, 5];
+const sum = sumArray(array);
+console.log(sum); // Output: 15
+
 // output of the following code
 let counter = 0;
 for (var i = 1; i <= 10; i++) {
   counter += i;
 }
 console.log(counter); // 55
-console.log(i);
-11;
+console.log(i); //11

@@ -1,0 +1,86 @@
+
+// code examples for all questions
+
+> What is TypeScript, and how does it relate to JavaScript?
+  > TypeScript is a statically typed superset of JavaScript that compiles to plain JavaScript. 
+    It enhances JavaScript with static typing, interfaces, enums, and other features.
+
+> What are the benefits of using TypeScript over JavaScript?
+  > Benefits include static typing for error detection, better code maintainability, improved IDE support with IntelliSense, 
+    and the ability to catch common errors during development.
+
+> How do you declare variables in TypeScript?
+  > Variables are declared using the `let`, `const`, or `var` keywords, optionally followed by a colon (:) and the type annotation.
+
+> What are type annotations in TypeScript?
+  > Type annotations are used to explicitly specify the type of a variable, parameter, or return value. 
+    They help enforce type safety and provide clarity in code.
+
+> What is the difference between interfaces and classes in TypeScript?
+  > Interfaces define contracts for objects by specifying their structure. Classes, on the other hand, 
+    are blueprints for creating objects that can have properties and methods.
+
+> How do you create custom types in TypeScript?
+  > Custom types can be created using interfaces, type aliases, enums, and classes. 
+    Interfaces are commonly used to define object shapes, while type aliases provide a way to name complex types.
+
+> Explain the concept of type inference in TypeScript.
+  > Type inference is TypeScript's ability to automatically deduce the type of a variable based on its initialization value. 
+    This helps reduce the need for explicit type annotations.
+
+> What are generics in TypeScript, and how do you use them?
+  > Generics allow writing reusable code that works with multiple types. 
+    They enable the creation of flexible and type-safe functions, classes, and interfaces.
+
+> How does TypeScript handle the concept of null and undefined?
+  > TypeScript has strict null checking by default, meaning variables cannot be assigned 
+    null or undefined unless explicitly allowed using the `strictNullChecks` compiler option.
+
+> What is the "any" type in TypeScript, and when should you use it?
+   > The `any` type in TypeScript represents values of any type. It's often used when working with dynamic data 
+    or when interfacing with JavaScript libraries that don't have type definitions.
+
+
+> How do you handle asynchronous operations in TypeScript?
+  > Asynchronous operations in TypeScript can be handled using Promises, async/await syntax, or callback functions. 
+    Promises offer a clean way to handle asynchronous code, while async/await provides a more readable and synchronous-like syntax.
+
+> Explain the differences between "interface" and "type" in TypeScript.
+  > Interfaces are mainly used for object shapes and contract definitions, while type aliases can represent any type, 
+    including primitives, unions, intersections, and more. Interfaces can be extended and merged, 
+    whereas type aliases are more flexible and support complex types.
+
+> How do you compile TypeScript code to JavaScript?
+  > TypeScript code is compiled to JavaScript using the TypeScript compiler (`tsc`). You can compile TypeScript files 
+    individually or configure the compiler to watch for changes and compile the entire project.
+
+> What are decorators in TypeScript, and how do you use them?
+  > Decorators are a feature of TypeScript used to add metadata or modify the behavior of classes, methods, properties, 
+  or parameters at design time. They are declared using the `@decoratorName` syntax and can be applied to various targets.
+
+> How does TypeScript support ECMAScript features, such as async/await and arrow functions?
+  > TypeScript supports ECMAScript features such as async/await and arrow functions by compiling them to 
+    equivalent ECMAScript code that can run in modern JavaScript environments.
+
+> What is the "readonly" keyword in TypeScript, and how is it used?
+  > The `readonly` keyword is used in TypeScript to make properties immutable after initialization. 
+    It ensures that properties cannot be reassigned after they are initially set.
+
+> How does TypeScript support modules, and what module formats does it allow?
+  > TypeScript supports modules using various module formats, including CommonJS, AMD, UMD, SystemJS, and ES6 modules. 
+    It allows developers to organize code into reusable and maintainable modules.
+
+> Can you explain the concept of union and intersection types in TypeScript?
+  > Union types allow a value to be of multiple types, while intersection types combine multiple types into a single type. 
+    Union types are denoted using the `|` operator, and intersection types are denoted using the `&` operator.
+
+> How do you configure TypeScript compiler options?
+  > TypeScript compiler options can be configured using a `tsconfig.json` file or passed as command-line arguments 
+    to the TypeScript compiler (`tsc`). Options include specifying target ECMAScript version, 
+    module format, output directory, and strictness level.
+
+> What is the "strict" mode in TypeScript, and why is it recommended?
+  > The "strict" mode in TypeScript enables a set of strict type-checking options, including `strictNullChecks`, 
+    `strictFunctionTypes`, `strictPropertyInitialization`, and others. It helps catch common programming errors 
+    and promotes writing safer and more predictable code.
+

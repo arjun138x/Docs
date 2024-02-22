@@ -84,3 +84,82 @@
     `strictFunctionTypes`, `strictPropertyInitialization`, and others. It helps catch common programming errors 
     and promotes writing safer and more predictable code.
 
+
+
+TypeScript data types and related concepts:
+--------------------------------------------
+
+  1. Primitive Types:
+  
+  // String, Number, Boolean
+  let str: string = 'Hello';
+  let num: number = 42;
+  let bool: boolean = true;
+
+  // Any
+  let anyValue: any = 'Any value';
+  anyValue = 42; // No type error. JavaScript feature. not recommended type in TS.
+  
+
+  2. Complex Types:
+  
+  // Objects
+  let obj: { name: string, age: number } = { name: 'John', age: 30 };
+
+  // Arrays
+  let arr: number[] = [1, 2, 3];
+  let strArr: string[] = ['a', 'b', 'c'];
+
+  // Void (Function returning nothing)
+  function logMessage(): void {
+      console.log('Message logged');
+  }
+
+  // Null and Undefined
+  let n: null = null;
+  let u: undefined = undefined;
+
+  // Tuples
+  let tuple: [string, number] = ['John', 30];
+
+  // Enums
+  enum Direction {
+      Up,
+      Down,
+      Left,
+      Right
+  }
+  let userDirection: Direction = Direction.Up;
+
+  // Generics
+  function identity<T>(arg: T): T {
+      return arg;
+  }
+  let output = identity<string>('hello');
+
+  // Interfaces
+  interface Person {
+      name: string;
+      age: number;
+  }
+  let person: Person = { name: 'John', age: 30 };
+
+  // Custom Types (Type alias)
+  type Point = {
+      x: number;
+      y: number;
+  };
+  let point: Point = { x: 10, y: 20 };
+  
+
+  
+
+
+
+
+
+
+
+
+
+

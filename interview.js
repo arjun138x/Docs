@@ -144,3 +144,16 @@ obj.method(fn, 1, 2);
   );
   console.log(4);
 })();
+
+// print 1 2 3. without changing the var
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i)), 1000;
+}
+
+// by using closer we can archive this
+for (var i = 0; i < 3; i++) {
+  function fn(i) {
+    setTimeout(() => console.log(i)), 1000;
+  }
+  fn(i);
+}

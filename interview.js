@@ -157,3 +157,12 @@ for (var i = 0; i < 3; i++) {
   }
   fn(i);
 }
+
+// output of the following code
+let counter = 0;
+for (var i = 1; i <= 10; i++) {
+  counter += i;
+}
+console.log(counter); // 55
+console.log(i);
+11;

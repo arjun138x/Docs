@@ -96,3 +96,51 @@ function factorial(number) {
 
 var fact = factorial(5);
 console.log({ fact });
+
+//  gassing the output
+
+var length = 10;
+function fn() {
+  console.log(this.length);
+}
+
+var obj = {
+  length: 5,
+  method: function (fn) {
+    /* *
+     * run this in browser.
+     * we are calling the fn() the output is 10
+     * we are calling outside function so that function scope is applied.
+     * in this case we are calling function in global scope so this refers to the window object.
+     * */
+    fn(); //
+
+    /* *
+     * run this in browser.
+     * in this case this is referred to arguments
+     * */
+    arguments[0](); // calling fn() output = 3
+  },
+};
+
+obj.method(fn, 1, 2);
+
+// what is the output
+(function () {
+  console.log(1);
+  setTimeout(function () {
+    console.log(2);
+  }, 1000);
+
+  /* * it will print 1 3 and through the error.
+   * the IIFE will execute immediately and the callback function is undefined. it through the error
+   * TypeError [ERR_INVALID_ARG_TYPE]: The "callback" argument must be of type function. Received undefined
+   */
+  setTimeout(
+    (function () {
+      console.log(3);
+    })(), // IIFE
+    3000
+  );
+  console.log(4);
+})();

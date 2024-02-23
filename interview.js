@@ -181,3 +181,35 @@ for (var i = 1; i <= 10; i++) {
 }
 console.log(counter); // 55
 console.log(i); //11
+
+
+
+function binarySearch(arr, target) {
+  let left = 0;
+  let right = arr.length - 1;
+
+  while (left <= right) {
+    let mid = Math.floor((left + right) / 2);
+
+    if (arr[mid] === target) {
+      return mid; // element found, return its index
+    } else if (arr[mid] < target) {
+      left = mid + 1; // continue searching on the right side
+    } else {
+      right = mid - 1; // continue searching on the left side
+    }
+  }
+
+  return -1; // element not found
+}
+
+// Example usage:
+const sortedArray = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+const target = 13;
+
+const resultIndex = binarySearch(sortedArray, target);
+if (resultIndex !== -1) {
+  console.log(`Element ${target} found at index ${resultIndex}`);
+} else {
+  console.log(`Element ${target} not found in the array`);
+}

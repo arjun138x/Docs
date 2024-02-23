@@ -72,6 +72,35 @@ function customFlatArray(arr) {
 
 console.log(customFlatArray([1, 2, [3, 4], [5, [6, 7, [8, [9]]]]]));
 
+// find the sum of numbers
+obj = {
+  a: 2,
+  b: { x: 4, y: { foo: 3, z: { bar: 2 } } },
+  c: { p: { h: 2, r: 5 }, q: "ball", r: 5 },
+  d: 1,
+  e: { nn: { lil: 2 }, mm: "car" },
+};
+
+function sumOfNumbers(obj) {
+  var sum = 0;
+
+  function supportFunction(obj) {
+    for (let key in obj) {
+      if (typeof obj[key] === "number") {
+        sum += obj[key];
+      } else if (typeof obj[key] === "object") {
+        supportFunction(obj[key]);
+      }
+    }
+  }
+
+  supportFunction(obj);
+
+  return sum;
+}
+
+console.log(sumOfNumbers(obj));
+
 // remove duplicate with one iteration
 var array = [1, 2, 1, 3, 5, 1, true, undefined, false, "aa", true, "aa"];
 
@@ -171,7 +200,7 @@ function sumArray(arr) {
 }
 
 const array = [1, 2, 3, 4, 5];
-const sum = sumArray(array);
+var sum = sumArray(array);
 console.log(sum); // Output: 15
 
 // output of the following code
@@ -181,8 +210,6 @@ for (var i = 1; i <= 10; i++) {
 }
 console.log(counter); // 55
 console.log(i); //11
-
-
 
 function binarySearch(arr, target) {
   let left = 0;

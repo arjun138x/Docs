@@ -89,6 +89,171 @@
 TypeScript data types and related concepts:
 --------------------------------------------
 
+  > String :- The `string` type represents textual data.
+    let message: string = "Hello, TypeScript!";
+
+  > Number :- The `number` type represents numeric data, both integers and floating-point numbers.
+    let count: number = 10;
+
+  > Boolean :- The `boolean` type represents a logical value indicating true or false.
+    let isValid: boolean = true;
+
+  > Any :- The `any` type allows assigning values of any type, useful for when the type of a variable is not known in advance.
+    let variable: any = 10;
+    variable = "Hello";
+    variable = true;
+    
+  > Arrays :- Arrays allow storing multiple values of the same type.
+    let numbers: number[] = [1, 2, 3, 4, 5];
+    
+  > Tuples :- Tuples are arrays with fixed lengths and fixed types for each element.
+    let tuple: [string, number] = ["John", 25];
+    
+  > Union :- Union types allow variables to have more than one type.
+    let value: string | number;
+    value = "Hello";
+    value = 10;
+    
+  > Enum :- Enums allow defining a set of named constants.
+    enum Color {
+        Red,
+        Green,
+        Blue
+    }
+    let color: Color = Color.Red;
+
+  > Objects :- In TypeScript, objects are key-value pairs. Each value in the object 
+    has a corresponding key, and the key can be used to access the value.
+
+    let person: { name: string, age: number } = {
+        name: "John",
+        age: 30
+    };
+
+    > In the above example, `person` is an object with two properties: `name` and `age`. 
+      The properties have specified types (`string` for `name` and `number` for `age`).
+
+  > Type Assertion :- Type assertion is a way to tell the TypeScript compiler to treat a variable as a specific type, 
+    even if the compiler can't infer it automatically.
+
+    let message: any = "Hello, TypeScript!";
+    let strLength: number = (message as string).length;
+
+    > Here, we're telling TypeScript that `message` should be treated as a `string`, so we can access its `length` property. 
+      Type assertions can be done using the `as` keyword or angle brackets (`<>`).
+
+  > null and undefined :- `null` and `undefined` are values in TypeScript that represent the absence of a value.
+    > null: Represents the intentional absence of any object value. 
+      It is a value that can be assigned to a variable to signify that the variable has no value.
+    > undefined: Represents a variable that has been declared but has not been assigned a value. It also indicates the absence of a value.
+
+    let data: number | null | undefined;
+
+    > In the above example, `data` can hold a value of type `number`, `null`, or `undefined`. 
+      This is useful for scenarios where a variable might not always have a value.
+    > In TypeScript, `null` and `undefined` are both subtypes of all other types, which means you can 
+      assign them to variables of any type (unless strict null checks are enabled).
+
+    let numberValue: number = null; // This works if strictNullChecks is disabled
+    let stringValue: string = undefined; // This works if strictNullChecks is disabled
+
+    > However, if `strictNullChecks` is enabled in the TypeScript configuration, you can't assign `null` or `undefined` 
+      to variables unless explicitly allowed through union types or type assertion.
+
+    let numberValue: number | null = null; // Allowed with union types
+    let stringValue: string = undefined as string; // Allowed with type assertion
+
+  > Functions, Parameters, Optional Parameters, Return Type, Return Void, Never
+    > Functions perform a task or calculate a value. Parameters are variables declared in the function's signature. 
+      Optional parameters are parameters that may or may not be provided. Return type specifies the type of value returned by the function. 
+      Functions returning `void` don't return a value. Functions returning `never` never produce a return value.
+
+    function greet(name: string): string {
+        return "Hello, " + name;
+    }
+
+    function log(message: string): void {
+        console.log(message);
+    }
+
+    function throwError(message: string): never {
+        throw new Error(message);
+    }
+
+    function sum(a: number, b?: number): number {
+        return b ? a + b : a;
+    }
+
+  > Interfaces vs Custom Types :- Interfaces define a contract for objects. Custom types (using `type`) define aliases for other types.
+
+    interface Person {
+        name: string;
+        age: number;
+    }
+
+    type PersonType = {
+        name: string;
+        age: number;
+    };
+    
+  > Unknown vs Any :- `unknown` is the type-safe counterpart of `any`. Values of type `unknown` can't be 
+    assigned to other types without type assertion or type narrowing.
+
+    let userInput: unknown;
+    let userName: string;
+
+    userInput = 5;
+    userInput = 'Max';
+
+    // This will result in an error
+    // userName = userInput; 
+
+    if (typeof userInput === 'string') {
+        userName = userInput;
+    }
+    
+  > Classes, Access Modifiers, Encapsulation, Interfaces to Class, Inheritance, Generics
+    > Classes provide a blueprint for creating objects. Access modifiers (`private`, `public`, `protected`) control the visibility 
+      of class members. Encapsulation refers to bundling the data and methods that operate on the data within a single unit. 
+      Interfaces can be implemented by classes. Inheritance allows a class to inherit properties and methods from another class. 
+      Generics enable writing reusable and type-safe components.
+
+
+    class Animal {
+        private name: string;
+        
+        constructor(name: string) {
+            this.name = name;
+        }
+
+        public move(distance: number): void {
+            console.log(`${this.name} moved ${distance}m.`);
+        }
+    }
+
+    interface Flyable {
+        fly(): void;
+    }
+
+    class Bird extends Animal implements Flyable {
+        fly(): void {
+            console.log(`${this.name} is flying.`);
+        }
+    }
+
+    class Box<T> {
+        private item: T;
+
+        constructor(item: T) {
+            this.item = item;
+        }
+
+        getItem(): T {
+            return this.item;
+        }
+    }
+
+    
   1. Primitive Types:
   
   // String, Number, Boolean

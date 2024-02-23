@@ -107,13 +107,16 @@ function fn() {
 var obj = {
   length: 5,
   method: function (fn) {
-    /* *
+    /**
      * run this in browser.
      * we are calling the fn() the output is 10
      * we are calling outside function so that function scope is applied.
      * in this case we are calling function in global scope so this refers to the window object.
-     * */
+     */
     fn(); //
+
+    /** to manipulate this we can use call(), apply(), bind() methods */
+    fn.call(this);
 
     /* *
      * run this in browser.

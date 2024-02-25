@@ -240,3 +240,11 @@ if (resultIndex !== -1) {
 } else {
   console.log(`Element ${target} not found in the array`);
 }
+
+// reverse the string
+var name = "fruit";
+var reverse = "";
+for (let c in name) {
+  reverse += name[name.length - c - 1];
+}
+console.log({ reverse });

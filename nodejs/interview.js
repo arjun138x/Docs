@@ -10,15 +10,21 @@
 // pm2 ia a package - nodejs is single threaded. by using cluster we can create instances of node
 
 //  count of array of numbers
-let arr_1 = [2, 3, 4, 5, 4, 3, 2, 6, 7, 7, 7];
-const count = {};
+var arr = [2, 3, 4, 5, 4, 3, 2, 6, 7, 7, 7];
+// method 1
+var result = {};
+arr?.forEach((n) => {
+  result[n] = result[n] || 0;
+  result[n]++;
+});
+console.log({ result });
 
-for (let i = 0; i < arr_1.length; i++) {
-  count[arr_1[i]] = count[arr_1[i]] || 0;
-  count[arr_1[i]]++;
-}
-
-console.log({ count });
+// method 2
+var result = new Map();
+arr?.forEach((n) => {
+  result.get(n) ? result.set(n, result.get(n) + 1) : result.set(n, 1);
+});
+console.log({ result });
 
 // sort given array. odd numbers in left and even numbers in right ascending order
 const a = [3, 5, 2, 1, 6, 8];

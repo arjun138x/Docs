@@ -254,3 +254,22 @@ for (let c in name) {
   reverse += name[name.length - c - 1];
 }
 console.log({ reverse });
+
+// find coins count for amount
+const coins = [1, 2, 5, 10, 20, 50, 100, 200, 500].reverse();
+const value = [179, 1059, 42, 80, 542];
+
+const output = []; // [6, 6, 3, 3, 4];
+
+for (let amount of value) {
+  let count = 0;
+  for (const coin of coins) {
+    if (amount >= coin) {
+      count += Math.floor(amount / coin);
+      amount = amount % coin;
+    }
+  }
+  output.push(count);
+}
+
+console.log({ output });

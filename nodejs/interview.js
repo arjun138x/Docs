@@ -273,3 +273,25 @@ for (let amount of value) {
 }
 
 console.log({ output });
+
+// How can I schedule a series of calendar events in Node.js to execute after specific intervals of time? For instance:
+// Schedule book a movie, then  wait for a 5-second delay.
+// Schedule a coffee break reminder then wait for a 6-second delay.
+// Schedule a grocery shopping reminder and wait for 7-second delay.
+// Schedule a car wash reminder and wait for 8-second delay.
+// Schedule - means just console.log the task name
+
+(async () => {
+  async function scheduleEvent(eventName, delay) {
+    // Create a promise that resolves after the specified delay
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    // Log the event name after the delay
+    console.log(eventName);
+  }
+
+  // Schedule events
+  await scheduleEvent("Book a movie", 3000);
+  await scheduleEvent("Coffee break reminder", 3000);
+  await scheduleEvent("Grocery shopping reminder", 3000);
+  await scheduleEvent("Car wash reminder", 3000);
+})();

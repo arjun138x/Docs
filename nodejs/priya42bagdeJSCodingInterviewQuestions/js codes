@@ -19,6 +19,26 @@ function removeDuplicateCharacters() {
   return result;
 }
 console.log(removeDuplicateCharacters());
+-----------------------------------------------------
+// without using inbuilt functions
+function removeDuplicateCharacters() {
+  var string = "priya riya supriya";
+  let result = "";
+
+  for (const i in string) {
+    for (const j in string) {
+      // check characters are same
+      if (string[i] === string[j]) {
+        // check index is same or not
+        if (i === j) result += string[i];
+        break;
+      }
+    }
+  }
+  console.log({ result });
+}
+removeDuplicateCharacters();
+
 ================================================================================================================================================================================
 Code 2: Remove Duplicate characters from array of element and find the count of an elements using set object
 var arr = [55, 44, 55,67,67,67,67,8,8,8,8,8,65,1,2,3,3,34,5];
@@ -118,6 +138,8 @@ let b=20;
    a=a-b //20
 console.log (a,b)
 ================================================================================================================================================================================
+
+
 Code 11: To check the string or number is palindrome or not( ex: 121,madam,anna) using reverse method
 function checkPalindrome(){
   const string = "anmna"

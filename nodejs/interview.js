@@ -295,3 +295,29 @@ console.log({ output });
   await scheduleEvent("Grocery shopping reminder", 3000);
   await scheduleEvent("Car wash reminder", 3000);
 })();
+
+// filter the duplicates by fName & lName
+let data = [
+  { fName: "a", lName: "b", age: 21 },
+  { fName: "ay", lName: "b", age: 22 },
+  { fName: "a", lName: "bc", age: 23 },
+  { fName: "a", lName: "b", age: 24 },
+  { fName: "a", lName: "bc", age: 25 },
+  { fName: "ac", lName: "b", age: 23 },
+  { fName: "ab", lName: "c", age: 26 },
+  { lName: "c", fName: "ab", age: 26 },
+];
+
+var result = [data[0]];
+for (let i = 1; i < data.length; i++) {
+  const { fName, lName, age } = data[i];
+  let exist = false;
+  for (const res of result)
+    if (res?.fName === fName && res?.lName === lName) {
+      exist = true;
+      break;
+    }
+  if (!exist) result.push(data[i]);
+}
+
+console.log({ result });

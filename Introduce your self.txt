@@ -1,0 +1,44 @@
+Introduce your self
+  > structure:
+      name 
+      place 
+      graduation 
+      experience
+      projects
+
+  > My name is 
+
+  > Hello, I'm Mallikarjuna from Guntur, Andhra Pradesh, and I'm thrilled to be here today. I have 3+ years of experience in Fullstack development.
+    I worked on medical, E-Commerce, Insurance sector with different technologies.
+
+
+
+strength & weakness
+  > strength : I am so much intrusted to learn new technical. not only learning i will thick how that technology will help to my project 
+  > weakness : i am a shy person will take some time to open up my self.
+
+
+projects:
+  > structure:
+    introduction
+    purpose
+    key features/ highlights
+    role in project
+    my learning  
+
+  > tell about latest project 
+  > project structure 
+    introduction 
+    purpose 
+    key features/ highlights 
+    role in project 
+    my learning 
+
+
+introduction : my recent project is related to the insurance tech. my client has 12+ applications i worked on 3 applications.
+purpose : made claim process is paperless and digitalization.
+key features/ highlights : we used latest techstack like nestjs, reactjs, elasticsearch
+role in project : i am fullstack developer
+my learning  : LDAP integration, refresh token mechanism, elasticsearch 
+
+notable achievements: i am main developer for one project

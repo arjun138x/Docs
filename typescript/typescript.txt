@@ -23,6 +23,13 @@
 > How do you create custom types in TypeScript?
   > Custom types can be created using interfaces, type aliases, enums, and classes. 
     Interfaces are commonly used to define object shapes, while type aliases provide a way to name complex types.
+  > // Defining a custom type for a person
+    type Person = {
+      name: string;
+      age: number;
+      email?: string; // Optional property
+    };
+    const person: Person = { name: 'John', age: 30 };
 
 > Explain the concept of type inference in TypeScript.
   > Type inference is TypeScript's ability to automatically deduce the type of a variable based on its initialization value. 
@@ -32,6 +39,15 @@
   > Generics allow writing reusable code that works with multiple types. 
     They enable the creation of flexible and type-safe functions, classes, and interfaces.
 
+  > // A simple generic function that echoes the input
+    function echo<T>(arg: T): T {
+        return arg;
+    }
+
+    // Testing the echo function with different types
+    let resultString: string = echo("Hello, world!");
+    let resultNumber: number = echo(42);
+
 > How does TypeScript handle the concept of null and undefined?
   > TypeScript has strict null checking by default, meaning variables cannot be assigned 
     null or undefined unless explicitly allowed using the `strictNullChecks` compiler option.
@@ -40,15 +56,35 @@
    > The `any` type in TypeScript represents values of any type. It's often used when working with dynamic data 
     or when interfacing with JavaScript libraries that don't have type definitions.
 
-
 > How do you handle asynchronous operations in TypeScript?
   > Asynchronous operations in TypeScript can be handled using Promises, async/await syntax, or callback functions. 
     Promises offer a clean way to handle asynchronous code, while async/await provides a more readable and synchronous-like syntax.
 
 > Explain the differences between "interface" and "type" in TypeScript.
-  > Interfaces are mainly used for object shapes and contract definitions, while type aliases can represent any type, 
-    including primitives, unions, intersections, and more. Interfaces can be extended and merged, 
-    whereas type aliases are more flexible and support complex types.
+  > Interfaces are mainly used for defining object shapes and contracts. They are open for extension, 
+    meaning you can add new properties or methods later.
+    > interface Person {
+        firstName: string;
+        age: number;
+        greet: () => void;
+      }
+
+      const person: Person = {
+        firstName: "John",
+        age: 30,
+        greet() {
+          console.log(`Hello, I'm ${this.firstName} ${this.lastName}`);
+        }
+      };
+  > Types are used for creating aliases for existing types, including primitive types, union types, tuple types, and more.
+  > Types can represent any shape, including object shapes, but they're not limited to just objects.
+  > Types can be used to create calculated or mapped types.
+    > type Point = {
+        x: number;
+        y: number;
+      };
+      const point: Point = { x: 10, y: 20 };
+
 
 > How do you compile TypeScript code to JavaScript?
   > TypeScript code is compiled to JavaScript using the TypeScript compiler (`tsc`). You can compile TypeScript files 
@@ -73,6 +109,35 @@
 > Can you explain the concept of union and intersection types in TypeScript?
   > Union types allow a value to be of multiple types, while intersection types combine multiple types into a single type. 
     Union types are denoted using the `|` operator, and intersection types are denoted using the `&` operator.
+
+  > // Union Type: A variable that can hold values of multiple types
+    let myVar: string | number;
+    myVar = "Hello"; // Valid
+    myVar = 123; // Valid
+    // myVar = true; // Invalid, as boolean is not part of the defined types
+
+  > // Intersection Type: A combination of multiple types
+      interface Car {
+        brand: string;
+        model: string;
+      }
+
+      interface Electric {
+        batteryLife: number;
+      }
+
+      // A type that represents a car with electric features
+      type ElectricCar = Car & Electric;
+
+      const myCar: ElectricCar = {
+        brand: "Tesla",
+        model: "Model S",
+        batteryLife: 300, // Additional property from the Electric interface
+        // year: 2022, // Invalid, as year is not part of ElectricCar type
+      };
+
+      console.log(myCar); // { brand: 'Tesla', model: 'Model S', batteryLife: 300 }
+
 
 > How do you configure TypeScript compiler options?
   > TypeScript compiler options can be configured using a `tsconfig.json` file or passed as command-line arguments 

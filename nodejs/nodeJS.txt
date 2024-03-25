@@ -396,7 +396,7 @@ ES5 to ES12 ECMAScript 2021
 
 
 Callbacks, Promises, Async-Await
----------------------
+--------------------------------
   > in Nodejs we have only callback and promises
 
   // Sync code
@@ -463,6 +463,126 @@ Callbacks, Promises, Async-Await
       await print("Finish");
     }
     startAll();
+
+
+Promises
+--------
+  > Promises in JavaScript are used for asynchronous programming. They represent a value that may be available now, or in the future, or never. 
+    They provide a way to handle asynchronous operations such as fetching data from a server, reading a file, or executing long-running computations.
+
+  > Creating a Promise
+
+    const myPromise = new Promise((resolve, reject) => {
+      // Asynchronous operation
+      setTimeout(() => {
+        const randomNumber = Math.random();
+        if (randomNumber < 0.5) {
+          resolve(randomNumber); // Resolve if successful
+        } else {
+          reject(new Error('Random number is too large')); // Reject if failed
+        }
+      }, 1000);
+    });
+
+
+  > Promise Methods 
+
+    > then(): Invoked when a promise is fulfilled (resolved).
+
+      myPromise.then((result) => {
+        console.log('Resolved:', result);
+      }).catch((error) => {
+        console.error('Rejected:', error);
+      });
+
+
+    > catch(): Invoked when a promise is rejected.
+
+      myPromise.catch((error) => {
+        console.error('Rejected:', error);
+      });
+
+
+    > finally(): Invoked regardless of whether the promise is fulfilled or rejected.
+
+      myPromise.finally(() => {
+        console.log('Promise settled');
+      });
+
+
+    > Promise.all(): Combines multiple promises into a single promise that resolves when all of the input promises have resolved 
+      or when any of the input promises is rejected.
+      > if any promise was rejected then Promise.all() will through the error
+
+      const promise1 = Promise.resolve(3);
+      const promise2 = 42;
+      const promise3 = new Promise((resolve, reject) => {
+        setTimeout(resolve, 100, 'foo');
+      });
+
+      Promise.all([promise1, promise2, promise3]).then((values) => {
+        console.log(values); // [3, 42, 'foo']
+      });
+
+
+    > Promise.allSettled(): Returns a promise that resolves after all of the given promises have either resolved or rejected, 
+      with an array of objects that each describe the outcome of each promise.
+
+      const promise1 = Promise.resolve(3);
+      const promise2 = new Promise((resolve, reject) => setTimeout(reject, 100, 'Error'));
+
+      Promise.allSettled([promise1, promise2]).then((results) => {
+        console.log(results);
+        /*
+          [
+            { status: 'fulfilled', value: 3 },
+            { status: 'rejected', reason: 'Error' }
+          ]
+        */
+      });
+
+
+    > Promise.race(): Returns a promise that resolves or rejects as soon as one of the promises in the iterable resolves or rejects, 
+      with the value or reason from that promise.
+
+      const promise1 = new Promise((resolve, reject) => {
+        setTimeout(resolve, 100, 'one');
+      });
+
+      const promise2 = new Promise((resolve, reject) => {
+        setTimeout(resolve, 200, 'two');
+      });
+
+      Promise.race([promise1, promise2]).then((value) => {
+        console.log(value); // Prints 'one' as it resolves first
+      });
+
+
+    > Promise.any(): Takes an iterable of Promise objects and, as soon as one of the promises in the iterable fulfills, 
+      returns a single promise that resolves with the value from that promise.
+
+      const promise1 = new Promise((resolve) => setTimeout(resolve, 1000, 'First'));
+      const promise2 = new Promise((resolve, reject) => setTimeout(reject, 500, 'Second'));
+      const promise3 = new Promise((resolve) => setTimeout(resolve, 1500, 'Third'));
+
+      Promise.any([promise1, promise2, promise3]).then((value) => {
+        console.log(value); // 'Second' as it resolves first
+      });
+
+    > Promise.resolve(): Returns a Promise object that is resolved with a given value.
+
+      const resolvedPromise = Promise.resolve('Resolved value');
+      resolvedPromise.then((value) => {
+        console.log(value); // 'Resolved value'
+      });
+
+
+    > Promise.reject(): Returns a Promise object that is rejected with a given reason.
+
+      const rejectedPromise = Promise.reject(new Error('Promise rejected'));
+      rejectedPromise.catch((error) => {
+        console.error(error.message); // 'Promise rejected'
+      });
 
 
 JavaScript OOPS/ Classes
@@ -1056,7 +1176,7 @@ Data types in nodejs
 
 
 Call Stack & Event Loop
-=======================
+------------------------
   > The event loop and call stack are fundamental concepts that play a crucial role in how asynchronous 
     and non-blocking code is executed. 
 

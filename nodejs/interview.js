@@ -321,3 +321,116 @@ for (let i = 1; i < data.length; i++) {
 }
 
 console.log({ result });
+
+// guess the output
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.getName = function () {
+  return this.name;
+};
+
+var john = new Person("John");
+console.log(john.getName());
+
+// guess the output
+// promise(micro task queue) has high priority then the timeIntervals(macro task queue)
+console.log("Start");
+setTimeout(function () {
+  console.log("Timeout");
+}, 0);
+Promise.resolve().then(function () {
+  console.log("Promise");
+});
+console.log("End");
+
+// guess the output
+console.log("Start");
+setTimeout(() => console.log("First timeout"), 0);
+setTimeout(() => console.log("Second timeout"), 100);
+setTimeout(() => console.log("Third timeout"));
+console.log("End");
+// Start
+// End
+// First timeout
+// Third timeout
+// Second timeout
+
+// guess the output
+/**
+ * The code starts with a self-executing function enclosed in parentheses ((function() { ... })();).
+ * It creates a private scope, meaning variables and functions declared within it are not accessible from outside.
+ * It executes immediately, producing a value that's assigned to CalculatorModule.
+ * This pattern creates a module-like construct with controlled access to certain parts.
+ * It's a way to organize code with private data and public methods.
+ * The underscore prefix (_) is a convention to indicate private members, but JavaScript doesn't have true private variables.
+ */
+const CalculatorModule = (function () {
+  let _data = 0; // private member
+
+  function add(input) {
+    _data += input;
+    return _data;
+  }
+
+  function subtract(input) {
+    _data -= input;
+    return _data;
+  }
+
+  return {
+    add,
+    subtract,
+  };
+})();
+console.log(CalculatorModule.add(5)); // 5
+console.log(CalculatorModule.subtract(2)); // 3
+
+// guess the output
+class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.map = new Map();
+  }
+
+  // no change
+  get(key) {
+    // if key not exit return -1
+    if (!this.map.has(key)) {
+      return -1;
+    }
+    const value = this.map.get(key);
+    this.map.delete(key);
+    this.map.set(key, value);
+    return value;
+  }
+
+  put(key, value) {
+    if (this.map.has(key)) {
+      this.map.delete(key);
+    }
+    this.map.set(key, value); // 1,1
+    if (this.map.size > this.capacity) {
+      /**
+       * map.keys(): This returns an iterator object that contains the keys of the Map in insertion order.
+       * next(): This method of the iterator moves the iterator to the next key in the Map and returns an object with two properties: value, which is the next key, and done, which is a boolean indicating whether all keys have been iterated through.
+       * next().value: This accesses the value property of the object returned by next(), which represents the next key in the Map.
+       */
+      const firstKey = this.map.keys().next().value;
+      this.map.delete(firstKey);
+    }
+  }
+}
+const cache = new LRUCache(2);
+cache.put(1, 1);
+cache.put(2, 2);
+console.log(cache.get(1)); // 1
+
+cache.put(3, 3);
+console.log(cache.get(2)); // -1
+
+cache.put(4, 4);
+console.log(cache.get(1)); // -1
+console.log(cache.get(3)); // 3
+console.log(cache.get(4)); // 4

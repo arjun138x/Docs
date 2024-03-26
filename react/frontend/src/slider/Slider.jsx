@@ -8,7 +8,7 @@ const images = [
   "https://wallpapers.com/images/high/hd-video-game-league-of-legends-06bw92xwt28qqbkl.webp",
 ];
 
-const SideBar = () => {
+const Slider = () => {
   const [count, setCount] = useState(0);
   function nextOnClick() {
     count >= images.length - 1 ? setCount(0) : setCount(count + 1);
@@ -24,7 +24,26 @@ const SideBar = () => {
       >
         Previous
       </button>
-      <img src={images[count]} className="mx-4 w-96 h-70" alt="img" />
+      {/* each onclick image will fetch. performance issues will come. to resole this go with CSS hide and show */}
+      {/* <img
+        src={images[count]}
+        className="mx-4 w-[700px] h-[400px] object-contain"
+        alt="img"
+      /> */}
+
+      {/* THIS METHOD WILL IMPROVE THE PERFORMANCE */}
+      {images.map((url, index) => (
+        // key is mandatory for map items. index is not recommended as key
+        <img
+          src={url}
+          className={
+            "mx-4 w-[700px] h-[400px] object-contain " +
+            (count === index ? "block" : "hidden")
+          }
+          alt="img"
+          key={url}
+        />
+      ))}
       <button
         className="bg-blue-500 h-10 px-4 py-2 rounded-lg text-white font-bold hover:bg-blue-700"
         onClick={() => nextOnClick()}
@@ -35,4 +54,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default Slider;

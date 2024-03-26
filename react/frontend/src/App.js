@@ -2,7 +2,8 @@ import "./App.css";
 import ProgressBar from "./progressBar/ProgressBar";
 import FetchData from "./fetchData/FetchData";
 import { Cart } from "./cart/Cart";
-import SideBar from "./sideBar/SideBar";
+import SliderAuto from "./slider/SliderAuto";
+// import Slider from "./slider/Slider";
 
 function App() {
   return (
@@ -10,7 +11,7 @@ function App() {
       {/* <ProgressBar /> */}
       {/* <FetchData /> */}
       {/* <Cart /> */}
-      <SideBar />
+      <SliderAuto />
     </div>
   );
 }

@@ -94,6 +94,15 @@ function Reverse(){
 }
 console.log(Reverse())
 output = "yrtnuoc ym si aidnI"
+
+Method 2
+------------------------------------------
+function reverse(paragraph) {
+  let result = "";
+  for (const i in paragraph) result += paragraph[paragraph.length - 1 - i];
+  return result;
+}
+console.log(reverse("India is my country"));
 ================================================================================================================================================================================
 Code 7: Find factorial of user input number
 const number = parseInt(prompt('Enter a positive integer: '));
@@ -138,8 +147,6 @@ let b=20;
    a=a-b //20
 console.log (a,b)
 ================================================================================================================================================================================
-
-
 Code 11: To check the string or number is palindrome or not( ex: 121,madam,anna) using reverse method
 function checkPalindrome(){
   const string = "anmna"
@@ -209,6 +216,19 @@ function findLongestWord() {
      console.log(longestWord[0].length); 
 }
 findLongestWord();
+
+Use Reducer to find the longest word
+----------------------------------------------------------------
+function findLongestWord() {
+  var str = "Priya is a goog girl and having hardworking longestwordintheworld";
+  var longestWord = str.split(" ").reduce((a, c) => {
+    if (c.length > a.length) a = c;
+    return a;
+  }, "");
+  console.log(longestWord);
+}
+findLongestWord();
+
 ================================================================================================================================================================================
 Code 15: To find longest word from a string using custom code
 function longest() {
@@ -225,43 +245,51 @@ function longest() {
 }
 longest();
 ================================================================================================================================================================================
-Code 16: To find longest common string from array of strings
-function longestCommonString(){
-  array=["go","google","gosh"]
-  var arr = array.sort()
-  var i=0;
-  while(arr[0].length>0 && arr[0].charAt(i)===arr[arr.length-1].charAt(i)){
-    i++;
-  }
-  console.log(arr[0].substring(0,i)) // "go"
-  return arr[0].substring(0,i)
-}
-longestCommonString() 
---------------------------------------------------------------------
-function longestCommonString(){
-  array=["got","google","gosh"]
-  var arr = array.sort()
-  var i=0;
-  while(arr[0].length>0 && arr[0][i]===arr[arr.length-1][i]){
-    i++;
-  }
-  console.log(arr[0].slice(0,i))
-}
-longestCommonString() 
---------------------------------------------------------------------
-function longestCommonString(){
- let array=["go","google","gosh"]
-  var arr = array.sort((a,b)=>a.length-b.length)
-  let result =""
-  for(let i=0; i<arr[0].length; i++){
-    if(arr[0][i]===arr[arr.length-1][i]){
-      result+=arr[0][i]
+Code 16: To find longest common sub string from array of strings
+
+function longestCommonSubstring(strings) {
+  /**
+   * Find the shortest string in the array. This is necessary because the longest common substring cannot be longer than the shortest string.
+   * Iterate through each character of the shortest string.
+   * For each character, check if it appears in the same position in all other strings.
+   * If it does, start checking subsequent characters to see if they also match across all strings.
+   * Keep track of the longest common substring found.
+   */
+
+  if (!strings?.length) return "";
+
+  // Find the shortest string in the array
+  const shortestString = strings.sort((a, b) => a.length - b.length)[0];
+
+  // const shortestString = strings.reduce(
+  //   (shortest, current) =>
+  //     current.length < shortest.length ? current : shortest,
+  //   strings[0]
+  // );
+
+  let longestSubstring = "";
+  for (let i = 0; i < shortestString.length; i++) {
+    for (let j = i + 1; j <= shortestString.length; j++) {
+      const substring = shortestString.slice(i, j);
+      let isCommon = true;
+      // check substring is in each string
+      for (const str of strings) {
+        if (!str.includes(substring)) {
+          isCommon = false;
+          break;
+        }
+      }
+      if (isCommon && substring.length > longestSubstring.length)
+        longestSubstring = substring;
     }
   }
-  return result
+  return longestSubstring;
 }
-console.log(longestCommonString())
-================================================================================================================================================================================
+
+// Example usage:
+const strings = ["gaaao", "goaaaogle", "aaah"];
+console.log(longestCommonSubstring(strings)); // Output: "aaa"
+======================================================================================================================================
 Code 17: To find vowels and its count in a given string
 function vowelCounts(){
   vowels=["a","i","e","o","u"]
@@ -279,9 +307,31 @@ function vowelCounts(){
   return count
 }
 vowelCounts()
+
+Method 2
+------------------------------------
+function vowelCounts() {
+  const vowels = new Map([
+    ["a", 0],
+    ["e", 0],
+    ["i", 0],
+    ["o", 0],
+    ["u", 0],
+  ]);
+
+  var str = "eiouaeoi";
+
+  for (const char of str)
+    if (vowels.has(char)) vowels.set(char, vowels.get(char) + 1);
+
+  console.log({ vowels });
+}
+vowelCounts();
+
+
 ================================================================================================================================================================================
-Code 18:To find character occurance fro the string
-function characterOccurance(str,letter){
+Code 18:To find character occurrence fro the string
+function characterOccurrence(str,letter){
    let count =0;
   for(var i=0; i<str.length-1; i++){
     if(str.charAt(i)===letter)
@@ -295,37 +345,16 @@ function characterOccurance(str,letter){
 characterOccurance("priyapri", "p")
 ================================================================================================================================================================================
 Code 19: To find a first pair whose sum is zero
-function getSumPairZero(array)
-{
-  for(let number of array)
-  {
-     for(let i=1; i<array.length; i++)
-     {
-         if(number+array[i]===0)
-         {
-            return [number, array[i]]
-         }
-     }
+function getSumPairZero(array) {
+  for (let j = 0; j < array.length - 1; j++) {
+    for (let i = j; i < array.length; i++) {
+      if (array[j] + array[i] === 0) return [array[j], array[i]];
+    }
   }
 }
-const result = getSumPairZero([-5,-4,-3,-2,-1,0,1,2,3,4,5])
-console.log(result)
-------------------------------------------------
-function getSumPairZero(array)
-{
-  for(let j=0; j<array.length;j++)
-  {
-     for(let i=1; i<array.length; i++)
-     {
-         if(array[j]+array[i]===0)
-         {
-            return [array[j], array[i]]
-         }
-     }
-  }
-}
-const result = getSumPairZero([-5,-4,-3,-2,-1,0,1,2,3,4,5])
-console.log(result)
+const result = getSumPairZero([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]);
+console.log(result);
+
 ================================================================================================================================================================================
 Code 20: To find a first pair whose sum is zero using indexing //Firstly do a sort here
 function getSumPairZero(array)
@@ -461,7 +490,16 @@ function isPrime(num) {
     if( num % k == 0){ return false}
   }
   return true;
-}
+}Mern Stack Developer
+Connect Infosoft Tech Pvt Ltd
+4.8
+2 Reviews
+2-4 Yrs
+Not disclosed
+Faridabad, Haryana, Delhi / NCR
+Should have experience in Laravel node.js and react.js and mongo db Should have a good ...
+Mern StackExpressTypescriptNode.JsLaravelVue.JsMean StackMeteor
+13 Days Ago
 console.log(isPrime(17)) //true
 ================================================================================================================================================================================
 Code 31: To print all the numbers from 2 to 100

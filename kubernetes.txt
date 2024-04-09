@@ -1,0 +1,30 @@
+> Cluster: A set of nodes that run containerized applications, managed by Kubernetes.
+
+> Node: A worker machine in Kubernetes, part of a cluster, where containers are deployed. Also known as a minion.
+
+> Pod: The smallest unit in Kubernetes, representing one or more containers that are scheduled together on the same host.
+
+> Deployment: A Kubernetes resource that manages a replicated application, ensuring a specified number of pod replicas are running at all times.
+
+> Service: An abstraction that defines a logical set of pods and a policy by which to access them. Services enable network access to a set of pods.
+
+> Namespace: A way to divide cluster resources into virtual clusters, allowing multiple teams or projects to share a physical cluster while maintaining isolation.
+
+> Label: A key-value pair attached to objects like pods and services, used for identification, grouping, and selecting subsets of objects.
+
+> Selector: A way to identify a set of objects in Kubernetes using labels, often used in conjunction with services and deployments.
+
+> Container: A lightweight, standalone, executable software package that includes everything needed to run a piece of software, including the code, runtime, libraries, and dependencies.
+
+> Volume: A directory that is accessible to all containers running in a pod, providing a way for containers to store and share data.
+
+> Secret: An object used to store sensitive information, such as passwords, OAuth tokens, and SSH keys, in Kubernetes.
+
+> ConfigMap: A Kubernetes resource used to store non-sensitive configuration data in key-value pairs, which can be consumed by pods or used to configure other resources.
+
+> Ingress: A Kubernetes resource that manages external access to services within a cluster, typically acting as a reverse proxy to route traffic to the appropriate services.
+
+> PersistentVolume: A storage resource in Kubernetes that persists beyond the lifetime of individual pods, allowing data to be preserved across container restarts and rescheduling.
+
+> PersistentVolumeClaim: A request for storage by a pod in Kubernetes, used to dynamically provision and bind PersistentVolumes to pods.
+

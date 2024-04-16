@@ -322,6 +322,25 @@ for (let i = 1; i < data.length; i++) {
 
 console.log({ result });
 
+// filter the duplicates with order of n
+function removerDuplicateObjectsInSingleIteration() {
+  const users = [
+    { name: "arjun", age: 25 },
+    { name: "arjun", age: 25 },
+  ];
+
+  const seen = new Set();
+
+  const result = users.filter((user) => {
+    const exist = seen.has(user.name + user.age);
+    seen.add(user.name + user.age);
+    if (!exist) return user;
+  });
+
+  console.log(result);
+}
+removerDuplicateObjectsInSingleIteration();
+
 // guess the output
 function Person(name) {
   this.name = name;

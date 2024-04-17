@@ -453,3 +453,46 @@ cache.put(4, 4);
 console.log(cache.get(1)); // -1
 console.log(cache.get(3)); // 3
 console.log(cache.get(4)); // 4
+
+function creteActiveAndInactiveUsers() {
+  let data = [
+    { name: "devin", id: "1234" },
+    { name: "alex", id: "1235" },
+    { name: "sam", id: "1236" },
+    { name: "jordan", id: "1237" },
+    { name: "taylor", id: "1238" },
+    { name: "morgan", id: "1239" },
+    { name: "casey", id: "1240" },
+    { name: "jamie", id: "1241" },
+    { name: "pat", id: "1242" },
+    { name: "drew", id: "1243" },
+  ];
+
+  let statusData = [
+    { id: "1234" },
+    { id: "1236" },
+    { id: "1238" },
+    { id: "1240" },
+  ];
+
+  /* 
+StatusData contains the id's of user which are currently active, we have to create two arrays 
+one is activeUsers and another for nonActiveUsers also include one more key of active:true/false
+
+Example
+activeUsers = [{ name: 'devin', id: '1234', active: true },.......]
+nonActiveUsers = [{name: 'alex', id: '1235', active: false},......]
+*/
+
+  const newStatusData = new Set(statusData.map(({ id }) => id));
+  const activeUsers = [];
+  const nonActiveUsers = [];
+
+  for (const user of data) {
+    newStatusData.has(user.id)
+      ? activeUsers.push({ ...user, active: true })
+      : nonActiveUsers.push({ ...user, active: false });
+  }
+
+  console.log({ activeUsers, nonActiveUsers });
+}

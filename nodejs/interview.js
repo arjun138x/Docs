@@ -496,3 +496,30 @@ nonActiveUsers = [{name: 'alex', id: '1235', active: false},......]
 
   console.log({ activeUsers, nonActiveUsers });
 }
+
+function secondAndThirdIndexAreMultipleOfTwo(params) {
+  const input = [1, 2, 3];
+
+  // output = [ [ 1, 2, 3 ], [ 4, 6, 8 ], [ 6, 8, 10 ] ]
+  // second and third will be multiple of 2
+
+  const len = 3;
+
+  const test = [];
+
+  for (let i = 0; i < len; i++) {
+    const result = [];
+
+    //   logic 1
+    //   for (let j = 0; j < input.length; j++)
+    //     result[j] = i === 0 ? input[j] : test[i - 1][j] * 2;
+
+    //   logic 2
+    for (let j = 0; j < input.length; j++)
+      result[j] = i === 0 ? input[j] : (input[j] + i) * 2;
+
+    test.push(result);
+  }
+
+  console.log(test);
+}

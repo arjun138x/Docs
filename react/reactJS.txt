@@ -567,7 +567,7 @@ difference between useEffect and useLayoutEffect
       before the browser paints.
 
 
-useRef, useMemo, and useCallback
+useRef, useMemo, useCallback, React.memo
 ---------------------------------
 
   > In React.js, useRef, useMemo, and useCallback are hooks used to optimize and manage state, memoize values, 
@@ -657,6 +657,41 @@ useRef, useMemo, and useCallback
     > In this example, handleClick is memoized using useCallback. It will only be recreated if the count state changes, 
       ensuring that the reference passed to ChildComponent remains stable.
 
+  React.memo // CODE IS NOT WORKING
+  -----------
+    > React.memo is a higher-order component provided by React that's used for optimizing functional components by memoizing them. 
+      This means it prevents unnecessary re-renders of a component by memoizing the result based on its props. 
+      If the component receives the same props, React will reuse the memoized version instead of rendering it again.
+
+
+    > Let's say we have a functional component that simply displays a person's name:
+
+      import React from 'react';
+
+      const Person = ({ name }) => {
+        console.log('Rendering Person component:', name);
+        return <div>{name}</div>;
+      };
+
+      export default Person;
+
+    > Now, we can use React.memo to wrap this component:
+
+      import React from 'react';
+
+      const Person = ({ name }) => {
+        console.log('Rendering Person component:', name);
+        return <div>{name}</div>;
+      };
+
+      export default React.memo(Person);
+
+
+    > In this example:
+
+      - Initially, when Person renders for the first time, you'll see a log statement.
+      - If Person re-renders with the same name prop, the log statement won't appear because React.memo will reuse the previous result.
+      - If Person re-renders with a different name prop, the log statement will appear, indicating a new render.
 
 
 

@@ -500,6 +500,17 @@ difference between useEffect and useLayoutEffect
 
   useEffect
   ----------
+
+    - ******* IMPORTANT
+      - if we didn't pass any dependency array to the useEffect it will call on every render of component.
+        - useEffect(() => {
+            console.log("useEffect called");
+          }); 
+      - if we pass empty array as a dependency to the useEffect it will call only initial render of component.
+        - useEffect(() => {
+            console.log("useEffect called");
+          },[]); 
+
     useEffect is used to perform side effects in function components. It runs after the render is committed to the screen. 
     This means it doesn't block painting the UI and it runs asynchronously. It's often used for data fetching, 
     subscriptions, or manually changing the DOM in response to props or state changes.

@@ -1,4 +1,11 @@
-
+- structure of testing
+  - AAA principles:
+    - arrange
+    - act 
+    - assert 
+  - setup
+  - teardown
+  
 - What is Jest.js?
   - Jest.js is an open-source JavaScript testing framework developed by Facebook. 
     It's known for its simplicity, speed, and built-in features like test runners, assertions, and mocks.

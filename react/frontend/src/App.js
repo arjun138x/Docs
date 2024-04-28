@@ -11,7 +11,7 @@ import Timer from "./timer/Timer";
 function App() {
   return (
     <div>
-      <Timer />
+      <Test />
     </div>
   );
 }

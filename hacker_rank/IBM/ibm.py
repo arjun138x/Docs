@@ -63,3 +63,59 @@ def calculateMaximumProfit(cost, x):
 cost = [3, 4, 1]
 x = 8
 print(calculateMaximumProfit(cost, x))
+
+
+
+
+def min_removals_almost_sorted(arr):
+    # Write your code here
+    
+    print(arr)
+    n = len(arr)
+    count = 0
+    
+    for i in range(1, n):
+        if arr[i] < arr[i - 1]:
+            count += 1
+
+    # If all elements are in place or only one element is out of place, return 0 or 1 respectively
+    if count <= 1:
+        return count
+    
+    # Otherwise, check all possible removal combinations
+    min_removal = float('inf')
+    for i in range(n):
+        removed = arr[:i] + arr[i+1:]
+        sorted_removed = sorted(removed)
+        diff = sum(1 for a, b in zip(arr, sorted_removed) if a != b)
+        min_removal = min(min_removal, diff)
+    
+    return min_removal
+
+# Example usage
+arr = [3, 4, 2, 5, 1]
+min_removals = min_removals_almost_sorted(arr)
+print("Minimum removals for almost sorted:", min_removals)  # Output: 1
+
+    
+def get_min_operations(n):
+    rlt = 0
+    cnt = 0
+    while n:
+        if n & 1:
+            cnt += 1
+        elif cnt:
+            rlt += 1
+            cnt = 0 if cnt == 1 else 1
+        n >>= 1
+    if cnt == 1:
+        rlt += 1
+    elif cnt > 1:
+        rlt += 2
+    return rlt
+
+# Test the function
+n = int(input("Enter a positive integer: "))
+min_ops = get_min_operations(n)
+print("Minimum number of operations to convert", n, "to 0:", min_ops)
+

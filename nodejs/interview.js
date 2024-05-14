@@ -511,12 +511,8 @@ function secondAndThirdIndexAreMultipleOfTwo(params) {
     const result = [];
 
     //   logic 1
-    //   for (let j = 0; j < input.length; j++)
-    //     result[j] = i === 0 ? input[j] : test[i - 1][j] * 2;
-
-    //   logic 2
     for (let j = 0; j < input.length; j++)
-      result[j] = i === 0 ? input[j] : (input[j] + i) * 2;
+      result[j] = i === 0 ? input[j] : test[i - 1][j] * 2;
 
     test.push(result);
   }

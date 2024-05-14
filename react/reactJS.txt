@@ -68,11 +68,11 @@ Don't overwhelm to learn ReactJS,🙄 ReactJS is only this much👇😊
       •  connect Function (React-Redux)
     16.Forms
       •  Handling Form Data
-      •  Controlled Components
+      •  Controlled Components ==> controlling child state from parent component
       •  Uncontrolled Components
     17.Side Effects
-      •  useEffect for Data Fetching
-      •  useEffect Cleanup
+      •  useEffect for Data Fetching ==> create dataFetch function and call it inside the useEffect
+      •  useEffect Cleanup ==> write code on return block 
     18.AJAX Requests
       •  Fetch API
       •  Axios Library
@@ -612,6 +612,35 @@ useRef, useMemo, useCallback, React.memo
 
     > In this example, inputRef is used to store a reference to the input element, allowing the focusInput 
       function to focus on the input element when the button is clicked without causing re-renders.
+
+
+    > *** To focus on the username input when the component mounts we can use useRef.
+      
+      import React, { useEffect, useRef } from 'react';
+
+      function LoginPage() {
+        const usernameInputRef = useRef(null);
+
+        useEffect(() => {
+          usernameInputRef.current.focus();
+        }, []);
+
+        return (
+          <div>
+            <h2>Login</h2>
+            <form>
+              <label htmlFor="username">Username:</label>
+              <input type="text" id="username" name="username" ref={usernameInputRef} /><br /><br />
+              <label htmlFor="password">Password:</label>
+              <input type="password" id="password" name="password" /><br /><br />
+              <input type="submit" value="Login" />
+            </form>
+          </div>
+        );
+      }
+
+      export default LoginPage;
+
 
   useMemo
   --------

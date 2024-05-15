@@ -700,6 +700,33 @@ useRef, useMemo, useCallback, React.memo
     > In this example, handleClick is memoized using useCallback. It will only be recreated if the count state changes, 
       ensuring that the reference passed to ChildComponent remains stable.
 
+    - To prevent the page from reloading when the user clicks the dark and light mode toggle button, 
+      we can use the useCallback hook to memoize the event handler function passed to the onClick prop of the button. 
+      This ensures that the function reference remains stable across renders, preventing unnecessary re-renders 
+      and thus avoiding any potential unwanted side effects like API calls.
+
+      > import React, { useState, useCallback } from 'react';
+
+        const App = () => {
+          const [darkMode, setDarkMode] = useState(false);
+
+          // Memoize the event handler function using useCallback
+          const handleToggleMode = useCallback(() => {
+            setDarkMode(prevMode => !prevMode);
+          }, []); // No dependencies needed as this function doesn't rely on external variables or props
+
+          return (
+            <div className={darkMode ? 'dark-mode' : 'light-mode'}>
+              <button onClick={handleToggleMode}>Toggle Mode</button>
+              {/* Other content of your app */}
+            </div>
+          );
+        };
+
+        export default App;
+
+
+
   React.memo // CODE IS NOT WORKING
   -----------
     > React.memo is a higher-order component provided by React that's used for optimizing functional components by memoizing them. 

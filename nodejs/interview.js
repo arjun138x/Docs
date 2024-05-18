@@ -524,26 +524,30 @@ function findSubsets(array, targetSum) {
   const result = [];
 
   function support(i = 0, sum = 0, t = []) {
-    // If the current sum equals the target sum, add the path to the result
+    // If the current sum equals the target sum, add the current subset (t) to the result
     if (sum === targetSum) {
       result.push(t);
       return;
     }
+    // If we've reached the end of the array, return as there are no more elements to consider
     if (i === array.length) return;
 
+    // If adding the current element does not exceed the target sum
     if (sum + array[i] <= targetSum) {
-      // shout circuit for positive numbers only
+      // Include the current element in the subset and move to the next element
       support(i + 1, sum + array[i], t.concat(array[i]));
     }
+
+    // Exclude the current element from the subset and move to the next element
     support(i + 1, sum, t);
   }
 
   support();
   return result;
 }
-const arr = [1, 3, 5, 4, 2]; // Given array
-const targetSum = 6; // Target sum
 
-// Find and log all subsets that sum to the target sum
+// Example usage
+const arr = [1, 3, 5, 4, 2];
+const targetSum = 5;
 const subsets = findSubsets(arr, targetSum);
 console.log(subsets);

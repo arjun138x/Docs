@@ -1,0 +1,607 @@
+
+- What is SQL?
+  - SQL (Structured Query Language) is a standardized language used to manage and manipulate databases.
+
+- What are the different types of SQL commands?
+  - DDL (Data Definition Language): CREATE, ALTER, DROP
+  - DML (Data Manipulation Language): SELECT, INSERT, UPDATE, DELETE
+  - DCL (Data Control Language): GRANT, REVOKE
+  - TCL (Transaction Control Language): COMMIT, ROLLBACK, SAVEPOINT
+
+- What is a primary key?
+  - A primary key is a unique identifier for a record in a table, ensuring each record is unique and not null.
+
+- What is a foreign key?
+  - A foreign key is a field in one table that uniquely identifies a row in another table, establishing a relationship between the two tables.
+
+- What is a unique key?
+  - A unique key ensures all values in a column are unique. Unlike primary keys, they can accept null values.
+
+- What is normalization?
+  - Normalization is the process of organizing data to reduce redundancy and improve data integrity.
+
+- What is denormalization?
+  - Denormalization involves combining tables to improve read performance by reducing the number of joins.
+
+- What are indexes?
+  - Indexes are special lookup tables that the database search engine uses to speed up data retrieval.
+
+- What is a view?
+  - A view is a virtual table based on the result set of an SQL query.
+
+
+- Explain ACID properties.
+    - Atomicity, Consistency, Isolation, Durability ensure reliable processing of database transactions.
+
+- What is a subquery?
+  - A subquery is a query nested inside another query. It is used to perform operations that would be complex or impossible with a single query. 
+    Subqueries can be used in various SQL clauses including `SELECT`, `FROM`, `WHERE`, and `HAVING`.
+
+  - Example Usage
+
+    1. Subquery in SELECT clause:- This type of subquery is used to fetch a value to be used in the main query's column list.
+      
+      SELECT employee_id, 
+        (SELECT department_name 
+        FROM departments 
+        WHERE departments.id = employees.department_id) AS department_name
+      FROM employees;
+      
+
+    2. Subquery in FROM clause:- This type of subquery provides a result set that can be used as a table in the main query.
+      
+      SELECT sub.employee_id, sub.total_sales
+      FROM (SELECT employee_id, SUM(sales) AS total_sales 
+            FROM sales 
+            GROUP BY employee_id) AS sub;
+      
+
+    3. Subquery in WHERE clause:- This type of subquery is used to filter rows based on the result of the subquery.
+      
+      SELECT employee_id, name 
+      FROM employees 
+      WHERE department_id = (SELECT id 
+                              FROM departments 
+                              WHERE department_name = 'HR');
+      
+
+    4. Subquery in HAVING clause:- This type of subquery is used to filter groups based on aggregate function results.
+      
+      SELECT department_id, COUNT(*) AS employee_count
+      FROM employees
+      GROUP BY department_id
+      HAVING COUNT(*) > (SELECT AVG(employee_count)
+                          FROM (SELECT COUNT(*) AS employee_count 
+                                FROM employees 
+                                GROUP BY department_id) AS dept_counts);
+      
+
+  - Types of Subqueries
+    1. Single-row subquery: Returns a single row.
+    2. Multiple-row subquery: Returns multiple rows.
+    3. Multiple-column subquery: Returns multiple columns.
+
+    - Example Usage
+
+      1. Single-row subquery: Find employees who earn more than the average salary.
+
+        SELECT name
+        FROM employees
+        WHERE salary > (SELECT AVG(salary) FROM employees);
+
+
+      2. Multiple-row subquery: Find the names of employees who work in the same department as employee 'John'.
+
+        SELECT name
+        FROM employees
+        WHERE department_id = (SELECT department_id 
+                              FROM employees 
+                              WHERE name = 'John');
+
+
+      3. Multiple-column subquery: Retrieve the names and departments of employees who have a salary greater than the highest salary in the 'HR' department.
+
+        SELECT name, department_id
+        FROM employees
+        WHERE salary > (SELECT MAX(salary) 
+                        FROM employees 
+                        WHERE department_id = (SELECT id 
+                                              FROM departments 
+                                              WHERE department_name = 'HR'));
+ 
+- What is a correlated subquery?
+  - A correlated subquery is a subquery that refers to a column from the outer query. 
+    It is evaluated once for each row processed by the outer query.
+
+  - Example of Correlated Subquery:
+    - Find employees who earn more than the average salary in their respective departments.
+
+      SELECT name, salary
+      FROM employees e1
+      WHERE salary > (SELECT AVG(salary) 
+                      FROM employees e2 
+                      WHERE e1.department_id = e2.department_id);
+
+
+    - In this example, the subquery `(SELECT AVG(salary) FROM employees e2 WHERE e1.department_id = e2.department_id)` is correlated 
+      because it references `e1.department_id` from the outer query. This ensures the subquery is executed for each employee in the outer query.
+
+- What is a stored procedure?
+    - A stored procedure is a precompiled collection of SQL statements that perform a specific task or set of tasks. 
+      It is stored in the database and can be executed by calling its name. Stored procedures can accept parameters, 
+      execute SQL statements, control flow logic, and return results.
+
+    - Stored procedures offer several benefits:
+      - Code reusability: Once created, stored procedures can be called from various parts of an application.
+      - Performance: Stored procedures are precompiled and optimized, leading to faster execution times.
+      - Security: Stored procedures can be granted execute permissions, allowing controlled access to database functionality.
+
+    - Here's a simple example of a stored procedure in SQL Server:
+
+      CREATE PROCEDURE GetEmployeeByID
+          @EmployeeID INT
+      AS
+      BEGIN
+          SELECT * FROM Employees WHERE EmployeeID = @EmployeeID;
+      END;
+
+
+      In this example:
+      - `CREATE PROCEDURE` is the statement used to create a stored procedure.
+      - `GetEmployeeByID` is the name of the stored procedure.
+      - `@EmployeeID` is a parameter that the stored procedure accepts.
+      - `AS` begins the body of the stored procedure.
+      - `SELECT * FROM Employees WHERE EmployeeID = @EmployeeID;` is the SQL statement executed by the stored procedure.
+
+      - Once the stored procedure is created, it can be executed by calling its name and passing the required parameters:
+          EXEC GetEmployeeByID @EmployeeID = 123;
+
+- What is a trigger?
+  - A trigger is a special type of stored procedure that automatically executes in response to certain events on a particular table or view in a database. 
+    Triggers can be used to enforce business rules, validate data, maintain audit trails, and perform various automated tasks.
+
+  - Triggers are commonly used for:
+    - Enforcing referential integrity.
+    - Auditing changes to data.
+    - Synchronizing tables.
+    - Implementing complex business rules.
+
+  - Types of Triggers
+    1. BEFORE Trigger: Executes before an insert, update, or delete operation.
+    2. AFTER Trigger: Executes after an insert, update, or delete operation.
+    3. INSTEAD OF Trigger: Executes in place of an insert, update, or delete operation.
+
+  - Here are examples of triggers in SQL Server:
+
+    - create a table
+      CREATE TABLE EmployeeAudit (
+          AuditID INT IDENTITY(1,1) PRIMARY KEY,
+          EmployeeID INT,
+          AuditAction VARCHAR(50),
+          AuditTimestamp DATETIME DEFAULT GETDATE()
+      );
+
+    1. AFTER INSERT Trigger:- This trigger logs every insert operation into an `Employees` table into a separate `EmployeeAudit` table
+
+      CREATE TRIGGER trgAfterInsert
+      ON Employees
+      AFTER INSERT
+      AS
+      BEGIN
+          INSERT INTO EmployeeAudit (EmployeeID, AuditAction)
+          SELECT EmployeeID, 'INSERT' FROM inserted;
+      END;
+
+
+    2. AFTER UPDATE Trigger:- This trigger logs every update operation into the `EmployeeAudit` table.
+
+      CREATE TRIGGER trgAfterUpdate
+      ON Employees
+      AFTER UPDATE
+      AS
+      BEGIN
+          INSERT INTO EmployeeAudit (EmployeeID, AuditAction)
+          SELECT EmployeeID, 'UPDATE' FROM inserted;
+      END;
+
+
+    3. AFTER DELETE Trigger:- This trigger logs every delete operation into the `EmployeeAudit` table.
+
+      CREATE TRIGGER trgAfterDelete
+      ON Employees
+      AFTER DELETE
+      AS
+      BEGIN
+          INSERT INTO EmployeeAudit (EmployeeID, AuditAction)
+          SELECT EmployeeID, 'DELETE' FROM deleted;
+      END;
+
+
+    - Explanation
+      - `CREATE TABLE EmployeeAudit`: Creates an audit table to store logs.
+      - `CREATE TRIGGER trgAfterInsert`: Defines a trigger named `trgAfterInsert` on the `Employees` table that fires after an insert operation.
+      - `AFTER INSERT`: Specifies the trigger type and event.
+      - `AS BEGIN ... END;`: Contains the SQL statements that the trigger will execute.
+      - `INSERT INTO EmployeeAudit ... SELECT EmployeeID, 'INSERT' FROM inserted;`: Inserts a log entry into the `EmployeeAudit` table. The `inserted` table is a special table in SQL Server that holds the new rows being inserted.
+
+    - Execution
+      - When a new row is inserted into the `Employees` table, the `trgAfterInsert` trigger automatically fires, inserting a log entry into the `EmployeeAudit` table.
+      - When a row in the `Employees` table is updated, the `trgAfterUpdate` trigger fires, inserting an update log entry.
+      - When a row in the `Employees` table is deleted, the `trgAfterDelete` trigger fires, inserting a delete log entry.
+
+- What is a cursor?
+  - A cursor in SQL is a database object used to retrieve, manipulate, and navigate through a result set row by row. 
+    Cursors are useful when you need to perform operations on each row individually rather than performing set-based operations.
+
+  - Types of Cursors
+    1. Static Cursor: The result set is fixed when the cursor is opened.
+    2. Dynamic Cursor: Reflects changes made to the rows in the result set while the cursor is open.
+    3. Forward-only Cursor: Can only fetch rows sequentially from the first to the last.
+    4. Keyset-driven Cursor: The set of keys is fixed when the cursor is opened, but data values are updated.
+
+  - Cursor Lifecycle
+    1. Declare: Define the cursor with the SQL query.
+    2. Open: Allocate resources and populate the cursor with data.
+    3. Fetch: Retrieve each row from the cursor one at a time.
+    4. Close: Release the cursor resources.
+    5. Deallocate: Remove the cursor definition.
+
+  - Here’s an example of how to use a cursor in SQL Server to iterate over a result set and print employee names and salaries.
+
+
+    -- Declare variables to hold the data from the cursor
+    DECLARE @EmployeeID INT;
+    DECLARE @EmployeeName NVARCHAR(100);
+    DECLARE @Salary DECIMAL(10, 2);
+
+    -- Declare the cursor
+    DECLARE employee_cursor CURSOR FOR
+    SELECT EmployeeID, EmployeeName, Salary
+    FROM Employees;
+
+    -- Open the cursor
+    OPEN employee_cursor;
+
+    -- Fetch the first row from the cursor
+    FETCH NEXT FROM employee_cursor INTO @EmployeeID, @EmployeeName, @Salary;
+
+    -- Loop through the result set
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        -- Print the employee details
+        PRINT 'Employee ID: ' + CAST(@EmployeeID AS NVARCHAR) + 
+            ', Name: ' + @EmployeeName + 
+            ', Salary: ' + CAST(@Salary AS NVARCHAR);
+
+        -- Fetch the next row from the cursor
+        FETCH NEXT FROM employee_cursor INTO @EmployeeID, @EmployeeName, @Salary;
+    END;
+
+    -- Close the cursor
+    CLOSE employee_cursor;
+
+    -- Deallocate the cursor
+    DEALLOCATE employee_cursor;
+
+
+    - Explanation
+      - `DECLARE`: Variables `@EmployeeID`, `@EmployeeName`, and `@Salary` are declared to hold data fetched from the cursor.
+      - `DECLARE employee_cursor CURSOR FOR`: Defines the cursor `employee_cursor` with a SQL query that selects `EmployeeID`, `EmployeeName`, and `Salary` from the `Employees` table.
+      - `OPEN employee_cursor`: Opens the cursor, allocating resources and populating it with the result set of the query.
+      - `FETCH NEXT FROM employee_cursor INTO`: Retrieves the next row from the cursor and stores the column values into the variables.
+      - `WHILE @@FETCH_STATUS = 0`: Loops through the result set as long as there are rows to fetch.
+      - `PRINT`: Outputs the employee details for each row.
+      - `CLOSE employee_cursor`: Closes the cursor, releasing the associated resources.
+      - `DEALLOCATE employee_cursor`: Removes the cursor definition from memory.
+
+  - When to Use Cursors
+    - When you need to perform row-by-row processing.
+    - When set-based operations are not feasible due to complex business logic.
+    - When you need to perform operations involving multiple steps that cannot be achieved with a single SQL statement.
+
+  - When to Avoid Cursors
+    - Cursors can be slow and resource-intensive compared to set-based operations. It's best to avoid them when possible and use set-based queries instead for better performance.
+
+- Explain the difference between `DELETE` and `TRUNCATE`.
+    - `DELETE` removes rows one by one and can be rolled back; `TRUNCATE` removes all rows quickly and cannot be rolled back.
+
+    - Use DELETE when you need to remove specific rows based on criteria and potentially want to rollback the deletion.
+    - Use TRUNCATE when you want to quickly remove all data from a table and are sure you don't need to undo the operation. 
+      However, be cautious due to its irreversible nature.
+
+- What is the difference between `WHERE` and `HAVING`?
+  - `WHERE` filters rows before grouping; `HAVING` filters groups after grouping.
+  
+  - The `WHERE` and `HAVING` clauses are both used to filter data in SQL queries, but they serve different purposes and are used in different contexts.
+
+  - WHERE Clause
+    - Purpose: The `WHERE` clause is used to filter rows before any grouping is performed.
+    - Usage: It is used in `SELECT`, `UPDATE`, `DELETE` statements to filter rows based on specified conditions.
+    - Scope: It operates on individual rows.
+    - Aggregate Functions: Cannot be used with aggregate functions unless they are part of a subquery.
+
+    - Example: Select employees with a salary greater than 50000
+
+      SELECT * FROM Employees
+      WHERE salary > 50000;
+
+
+  - HAVING Clause
+    - Purpose: The `HAVING` clause is used to filter groups after the `GROUP BY` clause has been applied.
+    - Usage: It is used in `SELECT` statements to filter groups based on aggregate conditions.
+    - Scope: It operates on groups of rows.
+    - Aggregate Functions: Can be used with aggregate functions to filter groups.
+
+    - Example: Select departments with an average salary greater than 50000
+
+      SELECT department_id, AVG(salary) AS avg_salary
+      FROM Employees
+      GROUP BY department_id
+      HAVING AVG(salary) > 50000;
+
+
+  - Key Differences
+    1. Order of Execution:
+    - `WHERE` is applied before any groupings are made.
+    - `HAVING` is applied after groupings are made.
+
+    2. Context of Use:
+    - `WHERE` filters rows before they are grouped.
+    - `HAVING` filters groups after the `GROUP BY` clause has been applied.
+
+    3. Aggregate Functions:
+    - `WHERE` cannot use aggregate functions directly.
+    - `HAVING` can use aggregate functions.
+
+    4. Usage:
+    - `WHERE` is used in `SELECT`, `UPDATE`, `DELETE` statements.
+    - `HAVING` is used in `SELECT` statements in conjunction with `GROUP BY`.
+
+  - Combined Example:- Using both `WHERE` and `HAVING` in a single query:
+    - Select departments with an average salary greater than 50000, 
+      but only consider employees with a salary greater than 30000 for the average calculation
+
+      SELECT department_id, AVG(salary) AS avg_salary
+      FROM Employees
+      WHERE salary > 30000
+      GROUP BY department_id
+      HAVING AVG(salary) > 50000;
+
+
+    - Explanation:
+      1. `WHERE salary > 30000`: Filters rows where the salary is greater than 30000 before grouping.
+      2. `GROUP BY department_id`: Groups the remaining rows by department.
+      3. `HAVING AVG(salary) > 50000`: Filters the groups to include only those departments where the average salary of the filtered employees is greater than 50000.
+
+  - Summary
+    - Use `WHERE` to filter rows before grouping.
+    - Use `HAVING` to filter groups after grouping.
+    - `WHERE` works on individual rows, while `HAVING` works on groups created by `GROUP BY`.
+    - Aggregate functions can be used in `HAVING` but not in `WHERE`.
+
+
+- What is a composite key?
+    - A composite key is a primary key composed of multiple columns.
+
+- What are aggregate functions?
+    - Functions that perform a calculation on a set of values and return a single value, such as `SUM`, `AVG`, `COUNT`, `MAX`, `MIN`.
+
+ Advanced SQL Questions
+21. What are window functions?
+    - Functions that perform calculations across a set of table rows related to the current row, such as `ROW_NUMBER`, `RANK`, `DENSE_RANK`, `NTILE`.
+
+22. Explain `UNION` vs `UNION ALL`.
+    - `UNION` combines result sets and removes duplicates; `UNION ALL` combines result sets including duplicates.
+
+23. What is an execution plan?
+    - A graphical representation of the steps SQL Server takes to execute a query.
+
+24. Explain `EXISTS` vs `IN`.
+    - `EXISTS` returns true if a subquery returns one or more records; `IN` checks if a value exists in a list of values.
+
+25. What is a temporary table?
+    - A table that exists temporarily during the session it was created in.
+
+26. What are common table expressions (CTEs)?
+    - Temporary result sets defined within the execution scope of a single `SELECT`, `INSERT`, `UPDATE`, or `DELETE` statement.
+
+27. What is database partitioning?
+    - The division of a database into smaller, more manageable pieces for performance and manageability.
+
+28. Explain `MERGE` statement.
+    - A statement that allows conditional update or insertion of data into a table.
+
+29. What are OLTP and OLAP?
+    - OLTP (Online Transaction Processing) focuses on managing transaction-oriented applications. OLAP (Online Analytical Processing) focuses on complex queries and data analysis.
+
+30. What is a materialized view?
+    - A view that stores both the query and the results, allowing for faster query performance.
+
+ SQL Queries
+31. Select all records from a table.
+    
+    SELECT * FROM table_name;
+    
+
+32. Find the second highest salary.
+    
+    SELECT MAX(salary) 
+    FROM employees 
+    WHERE salary < (SELECT MAX(salary) FROM employees);
+    
+
+33. Count the number of employees in each department.
+    
+    SELECT department_id, COUNT(*)
+    FROM employees
+    GROUP BY department_id;
+    
+
+34. Find employees who have the highest salary in each department.
+    
+    SELECT department_id, MAX(salary) 
+    FROM employees 
+    GROUP BY department_id;
+    
+
+35. Delete duplicate rows from a table.
+    
+    DELETE FROM table_name
+    WHERE id NOT IN (
+        SELECT MIN(id)
+        FROM table_name
+        GROUP BY column1, column2, ...);
+    
+
+36. Update the salary of employees by 10%.
+    
+    UPDATE employees
+    SET salary = salary * 1.1;
+    
+
+37. Retrieve the names of employees starting with 'A'.
+    
+    SELECT name
+    FROM employees
+    WHERE name LIKE 'A%';
+    
+
+38. List all employees who joined in the last 30 days.
+    
+    SELECT *
+    FROM employees
+    WHERE join_date > CURRENT_DATE - INTERVAL '30' DAY;
+    
+
+39. Find all managers who have at least one direct report.
+    
+    SELECT DISTINCT manager_id
+    FROM employees
+    WHERE manager_id IS NOT NULL;
+    
+
+40. Show departments with more than 5 employees.
+    
+    SELECT department_id, COUNT(*)
+    FROM employees
+    GROUP BY department_id
+    HAVING COUNT(*) > 5;
+    
+
+ Complex SQL Queries
+41. Find the nth highest salary.
+    
+    SELECT salary
+    FROM (
+        SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) as rank
+        FROM employees
+    ) AS ranked
+    WHERE rank = n;
+    
+
+42. Retrieve employees who earn more than the average salary.
+    
+    SELECT *
+    FROM employees
+    WHERE salary > (SELECT AVG(salary) FROM employees);
+    
+
+43. Show the difference between the highest and lowest salaries.
+    
+    SELECT MAX(salary) - MIN(salary) AS salary_difference
+    FROM employees;
+    
+
+44. Find employees who do not report to anyone.
+    
+    SELECT *
+    FROM employees
+    WHERE manager_id IS NULL;
+    
+
+45. Retrieve the top 3 salaries from each department.
+    
+    SELECT *
+    FROM (
+        SELECT *, DENSE_RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as rank
+        FROM employees
+    ) AS ranked
+    WHERE rank <= 3;
+    
+
+46. Find all employees whose salary is above the department's average salary.
+    
+    SELECT *
+    FROM employees e1
+    WHERE salary > (SELECT AVG(salary)
+                    FROM employees e2
+                    WHERE e1.department_id = e2.department_id);
+    
+
+47. List the names of employees along with their manager’s name.
+    
+    SELECT e1.name AS employee, e2.name AS manager
+    FROM employees e1
+    LEFT JOIN employees e2 ON e1.manager_id = e2.id;
+    
+
+48. Calculate the cumulative salary of employees.
+    
+    SELECT name, salary, SUM(salary) OVER (ORDER BY salary) AS cumulative_salary
+    FROM employees;
+    
+
+49. Find departments where all employees earn above $5000.
+    
+    SELECT department_id
+    FROM employees
+    GROUP BY department_id
+    HAVING MIN(salary) > 5000;
+    
+
+50. Generate a report showing the average salary and total salary for each department.
+    
+    SELECT department_id, AVG(salary) AS average_salary, SUM(salary) AS total_salary
+    FROM employees
+    GROUP BY department_id;
+    
+
+These questions and queries cover a range of topics and difficulty levels, providing a comprehensive preparation for SQL interviews.
+
+
+- delete all records ==> DELETE FROM table_name WHERE column_name BETWEEN value 1 AND value 2;
+- DB dump
+    - sudo -i -u postgres
+    - psql DB name < file path
+    - psql localDB < Downloads/postgres-backup.sql
+
+- DROP SCHEMA ==> DROP SCHEMA if exists public cascade
+-
+-
+-
+-
+-
+-
+-
+-
+
+----------
+typeOrm
+----------
+  >OneToMany relation
+
+    > each bill has multiple pdf's. in bill table we have billNumber and in pdf table we have billNumber.
+    
+    // Bill table
+    @OneToMany(() => Pdf, (document) => document.bill)
+    documents: Pdf[];
+
+    // Pdf table
+    @ManyToOne(() => Bill, (bill) => bill.documents)
+    @JoinColumn({ name: 'billNumber', referencedColumnName: 'billNumber' })
+    bill: Bill;
+
+
+
+
+

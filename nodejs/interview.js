@@ -519,3 +519,31 @@ function secondAndThirdIndexAreMultipleOfTwo(params) {
 
   console.log(test);
 }
+
+function findSubsets(array, targetSum) {
+  const result = [];
+
+  function support(i = 0, sum = 0, t = []) {
+    // If the current sum equals the target sum, add the path to the result
+    if (sum === targetSum) {
+      result.push(t);
+      return;
+    }
+    if (i === array.length) return;
+
+    if (sum + array[i] <= targetSum) {
+      // shout circuit for positive numbers only
+      support(i + 1, sum + array[i], t.concat(array[i]));
+    }
+    support(i + 1, sum, t);
+  }
+
+  support();
+  return result;
+}
+const arr = [1, 3, 5, 4, 2]; // Given array
+const targetSum = 6; // Target sum
+
+// Find and log all subsets that sum to the target sum
+const subsets = findSubsets(arr, targetSum);
+console.log(subsets);

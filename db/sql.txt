@@ -417,79 +417,65 @@
 30. What is a materialized view?
     - A view that stores both the query and the results, allowing for faster query performance.
 
- SQL Queries
-31. Select all records from a table.
-    
-    SELECT * FROM table_name;
-    
+SQL Queries
+--------------
 
-32. Find the second highest salary.
+  - DROP SCHEMA ==> DROP SCHEMA if exists public cascade
+
+  - Find the second highest salary.
     
     SELECT MAX(salary) 
     FROM employees 
     WHERE salary < (SELECT MAX(salary) FROM employees);
-    
 
-33. Count the number of employees in each department.
+    SELECT Salary 
+    FROM Employee 
+    ORDER BY Salary DESC LIMIT 1 OFFSET 1;
+
+
+  - Count the number of employees in each department.
     
     SELECT department_id, COUNT(*)
     FROM employees
     GROUP BY department_id;
     
 
-34. Find employees who have the highest salary in each department.
-    
+  - Find employees who have the highest salary in each department.
+      
     SELECT department_id, MAX(salary) 
     FROM employees 
     GROUP BY department_id;
     
 
-35. Delete duplicate rows from a table.
-    
-    DELETE FROM table_name
-    WHERE id NOT IN (
-        SELECT MIN(id)
-        FROM table_name
-        GROUP BY column1, column2, ...);
-    
-
-36. Update the salary of employees by 10%.
+  - Update the salary of employees by 10%.
     
     UPDATE employees
     SET salary = salary * 1.1;
     
 
-37. Retrieve the names of employees starting with 'A'.
+  - Retrieve the names of employees starting with 'A'.
     
     SELECT name
     FROM employees
     WHERE name LIKE 'A%';
     
 
-38. List all employees who joined in the last 30 days.
+  - List all employees who joined in the last 30 days.
     
     SELECT *
     FROM employees
     WHERE join_date > CURRENT_DATE - INTERVAL '30' DAY;
     
-
-39. Find all managers who have at least one direct report.
-    
-    SELECT DISTINCT manager_id
-    FROM employees
-    WHERE manager_id IS NOT NULL;
-    
-
-40. Show departments with more than 5 employees.
-    
+      
+  - Show departments with more than 5 employees.
+      
     SELECT department_id, COUNT(*)
     FROM employees
     GROUP BY department_id
     HAVING COUNT(*) > 5;
     
 
- Complex SQL Queries
-41. Find the nth highest salary.
+  - Find the nth highest salary.
     
     SELECT salary
     FROM (
@@ -499,27 +485,27 @@
     WHERE rank = n;
     
 
-42. Retrieve employees who earn more than the average salary.
+  - Retrieve employees who earn more than the average salary.
     
     SELECT *
     FROM employees
     WHERE salary > (SELECT AVG(salary) FROM employees);
     
 
-43. Show the difference between the highest and lowest salaries.
+  - Show the difference between the highest and lowest salaries.
     
     SELECT MAX(salary) - MIN(salary) AS salary_difference
     FROM employees;
     
 
-44. Find employees who do not report to anyone.
+  - Find employees who do not report to anyone.
     
     SELECT *
     FROM employees
     WHERE manager_id IS NULL;
     
 
-45. Retrieve the top 3 salaries from each department.
+  - Retrieve the top 3 salaries from each department.
     
     SELECT *
     FROM (
@@ -529,7 +515,7 @@
     WHERE rank <= 3;
     
 
-46. Find all employees whose salary is above the department's average salary.
+  - Find all employees whose salary is above the department's average salary.
     
     SELECT *
     FROM employees e1
@@ -538,20 +524,20 @@
                     WHERE e1.department_id = e2.department_id);
     
 
-47. List the names of employees along with their manager’s name.
+  - List the names of employees along with their manager’s name.
     
     SELECT e1.name AS employee, e2.name AS manager
     FROM employees e1
     LEFT JOIN employees e2 ON e1.manager_id = e2.id;
     
 
-48. Calculate the cumulative salary of employees.
+  - Calculate the cumulative salary of employees.
     
     SELECT name, salary, SUM(salary) OVER (ORDER BY salary) AS cumulative_salary
     FROM employees;
     
 
-49. Find departments where all employees earn above $5000.
+  - Find departments where all employees earn above $5000.
     
     SELECT department_id
     FROM employees
@@ -559,36 +545,28 @@
     HAVING MIN(salary) > 5000;
     
 
-50. Generate a report showing the average salary and total salary for each department.
+  - Generate a report showing the average salary and total salary for each department.
     
     SELECT department_id, AVG(salary) AS average_salary, SUM(salary) AS total_salary
     FROM employees
     GROUP BY department_id;
     
 
-These questions and queries cover a range of topics and difficulty levels, providing a comprehensive preparation for SQL interviews.
 
 
-- delete all records ==> DELETE FROM table_name WHERE column_name BETWEEN value 1 AND value 2;
-- DB dump
-    - sudo -i -u postgres
-    - psql DB name < file path
-    - psql localDB < Downloads/postgres-backup.sql
+DB dump
+---------
 
-- DROP SCHEMA ==> DROP SCHEMA if exists public cascade
--
--
--
--
--
--
--
--
+  - sudo -i -u postgres
+  - psql DB name < file path
+  - psql localDB < Downloads/postgres-backup.sql
+
+
 
 ----------
 typeOrm
 ----------
-  >OneToMany relation
+  > OneToMany relation
 
     > each bill has multiple pdf's. in bill table we have billNumber and in pdf table we have billNumber.
     

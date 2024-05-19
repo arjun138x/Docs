@@ -3,7 +3,7 @@
   - SQL (Structured Query Language) is a standardized language used to manage and manipulate databases.
 
 - What are the different types of SQL commands?
-  - DDL (Data Definition Language): CREATE, ALTER, DROP
+  - DDL (Data Definition Language): CREATE, ALTER, DROP, RENAME, TRUNCATE, COMMENT
   - DML (Data Manipulation Language): SELECT, INSERT, UPDATE, DELETE
   - DCL (Data Control Language): GRANT, REVOKE
   - TCL (Transaction Control Language): COMMIT, ROLLBACK, SAVEPOINT
@@ -17,14 +17,201 @@
 - What is a unique key?
   - A unique key ensures all values in a column are unique. Unlike primary keys, they can accept null values.
 
+-  What is Constraints?
+  - The constraints are the rules that define what type of data can and can’t be entered as a value in the database. 
+  - The most common attributes are: NOT NULL, CHECK, UNIQUE, PRIMARY KEY, FOREIGN KEY
+ 
+- Type of Joins ?
+  - Inner join:- An Inner join returns only those rows where the data from one table matches the data from the second table.
+  - Left outer join:-The left join is a table join that will retrieve all the rows from the left table and only the matching rows from the right table.
+  - Right outer join:- This join is the one that returns all the rows from the right table and only the matching rows from the left table.
+  - Full outer join:- The full outer join will join the data so that the result will include all the rows from one table and all the rows from the second table.
+  - Cross join:- This results in a Cartesian product. This means it will return all the combinations of rows from one table with all the combinations of rows from the other table.
+
+- different type of aggregate functions ?
+  - AVG() – returns the average value
+  - SUM() – returns the sum of values
+  - MIN() – returns the minimum value
+  - MAX() – returns the maximum value
+  - COUNT() – returns the number of rows, including those with null values
+  - FIRST() – returns the first value from a column
+  - LAST()– returns the last value from a column
+
+- Case manipulation functions?
+  - Case manipulation functions represent a subset of character functions, and they're used to change the case of the text data. 
+    With these functions, we can convert the data into the upper, lower, or title case.
+
+  - UCASE() (in other SQL flavors – UPPER()) – returns a string converted to the upper case
+  - LCASE() (in other SQL flavors – LOWER()) – returns a string converted to the lower case
+  - INITCAP() – returns a string converted to the title case (i.e., each word of the string starts from a capital letter)
+
+- character manipulation functions?
+  - Character manipulation functions represent a subset of character functions, and they're used to modify the text data.
+
+  - CONCAT() – joins two or more string values appending the second string to the end of the first one
+  - SUBSTR() – returns a part of a string satisfying the provided start and end points
+  - LENGTH() (in other SQL flavors – LEN()) – returns the length of a string, including the blank spaces
+  - REPLACE() – replaces all occurrences of a defined substring in a provided string with another substring
+  - INSTR() – returns the numeric position of a defined substring in a provided string
+  - LPAD() and RPAD() – return the padding of the left-side/right-side character for right-justified/left-justified value
+  - TRIM() – removes all the defined characters, as well as white spaces, from the left, right, or both ends of a provided string
+
+- Different types of operators?
+  - UNION – returns the records obtained by at least one of two queries (excluding duplicates)
+  - UNION ALL – returns the records obtained by at least one of two queries (including duplicates)
+  - INTERSECT – returns the records obtained by both queries
+  - EXCEPT (called MINUS in MySQL and Oracle) – returns only the records obtained by the first query but not the second one
+
+- What is the order of appearance of the common statements in the SELECT query?
+  - SELECT – FROM – JOIN – ON – WHERE – GROUP BY – HAVING – ORDER BY – LIMIT
+
+- In which order the interpreter executes the common statements in the SELECT query?
+  -FROM – JOIN – ON – WHERE – GROUP BY – HAVING – SELECT – ORDER BY – LIMIT
+
+
 - What is normalization?
   - Normalization is the process of organizing data to reduce redundancy and improve data integrity.
+
+  - Normalization is a process of database design that includes organizing and restructuring data in a way to reduce data redundancy, 
+    dependency, duplication, and inconsistency. This leads to enhanced data integrity, more tables within the database, 
+    more efficient data access and security control, and greater query flexibility.
 
 - What is denormalization?
   - Denormalization involves combining tables to improve read performance by reducing the number of joins.
 
+  - Denormalization is the process opposite of normalization: it introduces data redundancy and combines data from multiple tables. 
+    Denormalization optimizes the performance of the database infrastructure in situations when read operations are more important 
+    than write operations since it helps avoid complex joins and reduces the time of query running.
+
+- What is the difference between renaming a column and giving an alias to it?
+  - Renaming a column means permanently changing its actual name in the original table. Giving an alias to a column means 
+    giving it a temporary name while executing an SQL query, with the purpose to make the code more readable and compact.
+
+- What is the difference between nested and correlated subqueries?
+  - A correlated subquery is an inner query nested in a bigger (outer) query that refers to the values from the outer query for its execution, 
+    meaning that a correlated subquery depends on its outer query. Instead, a non-correlated subquery doesn't rely on the data 
+    from the outer query and can be run independently of it.
+
+- What is the difference between clustered and non-clustered indexes?
+  - While a clustered index defines the physical order of records of a table and performs data searching based on the key values, 
+    a non-clustered index keeps the order of records that doesn't match the physical order of the actual data on the disk. 
+    A table can have only one clustered index but many non-clustered ones.
+
+- What is the CASE() function?
+  - The way to implement the if-then-else logic in SQL. This function sequentially checks the provided conditions 
+    in the WHEN clauses and returns the value from the corresponding THEN clause when the first condition is satisfied. 
+    If none of the conditions is satisfied, the function returns the value from the ELSE clause in case it's provided, otherwise, it returns NULL. 
+  - The syntax is:
+
+    CASE
+        WHEN condition_1 THEN value_1
+        WHEN condition_2 THEN value_2
+        WHEN condition_3 THEN value_3
+        ...
+        ELSE value
+    END;
+
+
+- What is the difference between the DELETE and TRUNCATE statements?
+  - DELETE is a reversible DML (Data Manipulation Language) command used to delete one or more rows from a table 
+    based on the conditions specified in the WHERE clause. Instead, TRUNCATE is an irreversible DDL (Data Definition Language) command 
+    used to delete all rows from a table. DELETE works slower than TRUNCATE. Also, we can't use the TRUNCATE statement for a table containing a foreign key.
+
+- What is the difference between the DROP and TRUNCATE statements?
+  - DROP deletes a table from the database completely, including the table structure and all the associated constraints, 
+    relationships with other tables, and access privileges. TRUNCATE deletes all rows from a table without affecting the 
+    table structure and constraints. DROP works slower than TRUNCATE. Both are irreversible DDL (Data Definition Language) commands.
+
+- What is the difference between the HAVING and WHERE statements?
+  - The first one works on aggregated data after they are grouped, while the second one checks each row individually. 
+    If both statements are present in a query, they appear in the following order: WHERE – GROUP BY – HAVING. 
+    The SQL engine interprets them also in the same order.
+
+-INSERT record to a table?
+    INSERT INTO table_name
+    VALUES (value_1, value_2, ...),
+          (value_3, value_4, ...),
+          ...;
+    
+- delete a record from a table?
+    DELETE FROM table_name
+    WHERE condition;
+    
+- add a column to a table?
+    ALTER TABLE table_name
+    ADD column_name datatype;
+    
+- rename a column of a table?
+    ALTER TABLE table_name
+    RENAME COLUMN old_column_name TO new_column_name;
+    
+- delete a column from a table?
+    ALTER TABLE table_name
+    DROP COLUMN column_name;
+    
+- How to select all even or all odd records in a table?
+  - By checking the remainder of the division by 2. In some SQL versions (e.g., PostgreSQL and My SQL), we use the MOD function, 
+    in the others (Microsoft SQL Server and SQLite) – the modulo operator (%). To select all even records using MOD:
+
+    SELECT * FROM table_name
+    WHERE MOD(ID_column, 2) = 0;
+    
+  - To select all even records using %:
+
+    SELECT * FROM table_name 
+    WHERE ID_column % 2 = 0;
+    
+  - To select all odd records, the syntax is identical in both cases, only that we would use the inequality operator <> instead of =.
+
+- How to prevent duplicate records when making a query?
+  - Using the DISTINCT statement in combination with SELECT or creating a unique key for that table.
+
+
+- How to find the nth highest value in a column of a table?
+  - Using the OFFSET clause. For example, to find the 6th highest value from a column, we would use the following syntax:
+
+    SELECT * FROM table_name
+    ORDER BY column_name DESC
+    LIMIT 1
+    OFFSET 5;
+    
+- How to find the values in a text column of a table that start with a certain letter?
+  - Using the LIKE operator in combination with the % and _ wildcards. For example, we need to find all surnames in a table that start with "A". 
+
+    SELECT * FROM table_name
+    WHERE surname LIKE 'A_';
+    
+  - Here, we assume that a surname must contain at least two letters. Without this assumption (meaning that a surname can be just A), the query is as follows:
+
+    SELECT * FROM table_name
+    WHERE surname LIKE 'A%';
+    
+- How to find the last id in a table?
+    Using the MAX() function. Otherwise, in many SQL versions, we can use the following syntax:
+
+    SELECT id
+    FROM table_name
+    ORDER BY id DESC
+    LIMIT 1;
+    
+  - or in Microsoft SQL Server:
+
+    SELECT TOP 1 id
+    FROM table_name
+    ORDER BY id DESC
+    
+- How to select random rows from a table?
+  - Using the RAND() function in combination with ORDER BY and LIMIT. In some SQL flavors, such as PostgreSQL, it's called RANDOM(). 
+    For example, the following code will return five random rows from a table in MySQL:
+
+    SELECT * FROM table_name
+    ORDER BY RAND()
+    LIMIT 5;
+    
+
 - What are indexes?
-  - Indexes are special lookup tables that the database search engine uses to speed up data retrieval.
+  - A special data structure related to a database table and used for storing its important parts and enabling faster data search and retrieval. 
+    Indexes are especially efficient for large databases, where they significantly enhance query performance.
 
 - What is a view?
   - A view is a virtual table based on the result set of an SQL query.

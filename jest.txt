@@ -1,3 +1,10 @@
+- types of testing do by developer
+  - unit testing => testing in isolation one unit/pice of code 
+  - integration testing => checking all linked code.
+  - end to end testing => testing from user lands to app and user left the app. require tolls like selenium, selenium
+
+  - as a developer will do unit and integration testing
+
 - structure of testing
   - AAA principles:
     - arrange

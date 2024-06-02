@@ -1,0 +1,98 @@
+
+Mehul Gupta
+======================
+  - VIDEO LINK: https://www.youtube.com/watch?v=5V0UI_t_-tM
+
+  - For a long period, RDBMS was my go-to solution for any product. But as I progressed further in my professional career, 
+    I figured out RDBMS is pretty poor with one thing, latency when humongous data has to be stored & fetched in real-time.
+
+  - In late 2020, the team came up with a new product to build around users’ health data. 
+    Let me brief you about the salient features of the application that majorly revolves around digitizing lab reports & 
+    extracting important stuff out of them & eventually building insights over this data:
+
+  - The product has 2 parts 
+    1. Digitize lab reports (scheduled tasks) 
+    2. Show data to users (real-time)
+  
+  - Digitization of lab reports produces 100k entries per hour that have to be stored at user-id level daily. 
+    As this digitization runs for just an hour (a scheduled task fetching all reports from the last day & digitizes them), 
+    total entries made daily were 100k only but within 60 minutes. Hence, we weren’t writing 
+    a lot in the database every minute but more of a burst writing for an hour
+
+  - As we have digitized lab reports for past years as well, the entire database has to hold about 100 Million entries 
+    incrementing with 100k entries every day. This is about 50GB+ in memory size.
+
+  - When a user comes to use the service, his data points have to be fetched & served in real-time. 
+    The platform has millions of users. Hence, a special focus is on reading latency.
+
+  - RDBMS is good when it comes to holding humongous data (as we may produce) but at the cost of speed & variety.
+  - David Teplow quoted:
+    - RDBMS is still good on the volume front, but its fundamental nature makes it ill-suited for velocity and variety
+
+  - But why? When it comes to speed, we consider the database in the below directions
+    1. Write (latency for writing new entries): The data structures followed for writes in RDBMS is B+ Trees which is slow 
+      compared to Cassandra which uses Log-structured merge trees. Discussing these algorithms is a bit out of scope for this post but can be read here.
+
+    2. Read (reading existing entries): Cassandra is super fast & has a time complexity of O(1) for fetching any entry(even using where clause) 
+      whereas RDBMS would need to search entries through the B+ tree (more evovled version of Binary tree) 
+      which definitely doesn’t has a time complexity O(1). Further details can be read here.
+
+    - Hence both reading & writing is faster for Cassandra & keeping in mind the data quantity we need to cater to, 
+      read latency becomes extremely crucial for the success of the product (No user wish to see a loading screen for a long time)
+
+    - Apart from these advantages, querying Cassandra is pretty similar to SQL used for any RDBMS like MySQL or Postgres. 
+      So it is easy to pick up Cassandra for anyone if he/she knows SQL already.
+
+  Dis advantages
+  ==============
+    - You can’t join tables.
+      - If you have worked in the professional world, you must have known how difficult it is to keep everything
+        you need at one table. Not supporting joins is a big demerit Cassandra comes in with
+
+    - You can’t update values for Partition & Cluster keys.
+      - In RDBMS, what we call a composite primary key, is called a combination of Partition & Cluster key in Cassandra. 
+        So, if we have a composite primary key (A, B, C) in RDBMS, then in Cassandra, partition key = A & cluster key =(B, C). 
+        A better explanation can be found here
+
+      - So, assume you declared user_id as a Partition key & you wish to update it for some users, you can’t my friend. 
+        The only resort is to delete such entries & re-insert them. So, by chance, you get stuck in a situation 
+        where you need to update the partition or cluster key, brace yourself, buddy !! Though, you can update non-primary column values.
+
+    - Once declared, no new column can be declared as Cluster or Partition key
+      - This happens because there is some sort of indexing happening at partition & cluster key levels 
+        which may get disturbed due to changes in partition or cluster keys.
+
+    - You can’t do a ‘where’ clause query for every column.
+      - The biggest problem of the lot. This has to be discussed in two parts
+
+    - 1. Where clause on non-cluster/partition columns.
+      - Understanding the depth of this problem, if you have a table of the schema (A, B, C, D, E) with 
+        Partition key=A & Cluster keys = (B, C) & Non-primary = (D, E), then you can’t 
+          - Have a where clause applied on D or E 
+          - As you can’t declare a new column to partition or cluster key, you just have no means to apply a where clause query to D/E. 
+            The only solution is to drop the table, re-define schema & reinsert. This is super painful to do.
+
+    - 2. Applying where clause on Cluster keys is also a big pain point & cumbersome
+
+      - While declaring Partition keys & Cluster keys, the order is very important. 
+        For applying a where clause on any cluster key, values for 
+          - Partition key/keys 
+          - Cluster keys ahead of this cluster key in the order of declaration have to be provided.
+
+      - Considering the above schema with columns (A, B, C, D, E) with Partition key=A & Cluster keys = (B, C) 
+        and Non-primary = (D, E). So to apply a where clause query on column C, you need to provide values for A & B as well. 
+        So, you can’t have: ‘Select * from X where C=abc’ but ‘Select * from X where A=xyz and B=iou and C=abc’ is possible
+
+
+  - So, how's the product doing?
+    - It's doing fine but the ride isn’t as smooth as expected. Cassandra comes up with some new, 
+      unknown limitations frequently making a mess out of everything. It must be noted for some limitations, 
+      the only resolution is to drop the entire table & re-insert which isn’t ideal. When the situation becomes grim, 
+      we do have taken this extreme step as well !!
+
+  - What could have been done better?
+    - As most of the blogs say: Before designing any database or table in Cassandra, one must know what queries would be required. 
+      It's more like define queries first & then your database keeping this Partition key, Cluster key & Non-cluster keys limitations in the head.
+    - When you need to update your data very frequently, it can be the worst possible choice & I mean it
+    - It may be a bad selection for a product under exploration as many changes would be required & finalizing queries is a tougher call to take.
+  

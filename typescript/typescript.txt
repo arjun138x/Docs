@@ -1,3 +1,64 @@
+Venkatesh Mogili
+-----------------
+  - What is TypeScript?
+    - TypeScript is superset of JavaScript.
+    - Developed By Microsoft in 2012.
+    - It compiles to plain JavaScript.
+    - It can be easily integrated into JavaScript Applications
+    
+  - TypeScript Features
+    - Static Type Checking
+    - ES6 Features
+    - Class Based Objects
+    - Modularity
+    - Less Bugs, Predictability, Readability, Rich IDE Support.
+    - Fast Refactoring.
+    - Cross-platform and cross-browser compatibility.
+    - Smooth Learning curve.
+    - You can adopt TypeScript in your existing JavaScript projects by spending less amount of time.
+  
+  - JavaScript vs TypeScript
+    - TypeScript is simply superset of JavaScript, every concept of JavaScript also supports in TypeScript.
+    - But every concept in TypeScript won’t support in JavaScript.
+    - TypeScript has static type checking feature, whereas JavaScript doesn’t have such feature.
+    - TypeScript is not a new language, it’s just an extension of JavaScript for faster JavaScript Application development with less bugs in production.
+
+  - TypeScript Types and Practical
+
+    - Basic TypeScript Types:
+      - String
+      - Number
+      - Boolean
+      - Any – not recommended
+      - Arrays
+      - Tuples – fixed length and fixed type arrays
+      - Union
+      - Enum
+      - Objects, Type Assertion, null, undefined
+
+    - Advanced TypeScript Types:
+      - Functions
+      - Parameters
+      - Optional Parameters
+      - Return Type
+      - Return Void, Never
+      - Interfaces vs Custom Types
+      - Unknown vs Any 
+      - Classes
+      - Access Modifiers
+      - Encapsulation
+      - Interfaces to Class
+      - Inheritance
+      - Generics 
+
+  - Summary
+    - TypeScript is nothing but superset of JavaScript.
+    - It makes code more readable, descriptive and prevent errors in compile time.
+    - It can be compiled using either tsc or babel compilers.
+    - It is the current and future trending technology for software developers.
+    - It supports all the JavaScript data types along with other new types such as Interfaces, Enums and Generics.
+    - It can be integrated with React, Angular, Vue, Express or any JavaScript Frameworks.
+
 
 // code examples for all questions
 

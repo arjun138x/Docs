@@ -3,6 +3,13 @@ Softwares Installation Steps
 
 https://screenrec.com/ ==> forshare screenshot via link 
 
+ngrok
+---------
+  - The fastest way to put anything on the internet. access anyware local running app 
+
+  -  snap install ngrok
+  - ngrok http 3000
+  - ngrok config add-authtoken 2ZFY76gYBDpVVMDPSwSCrCryRvb_aeT4aMyvSGyRKLYY6VBW
     
 Visual Studio installation
 sudo snap install --classic code

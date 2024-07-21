@@ -92,6 +92,69 @@
     meaning that a correlated subquery depends on its outer query. Instead, a non-correlated subquery doesn't rely on the data 
     from the outer query and can be run independently of it.
 
+- What are indexes? types of indexing?
+  - A special data structure related to a database table and used for storing its important parts and enabling faster data search and retrieval. 
+    Indexes are especially efficient for large databases, where they significantly enhance query performance.
+
+  - The four types of indexing in databases are:
+
+    1. Primary Indexing: This type of indexing is based on the primary key of a table. Each table can have only one primary index. 
+      The index is usually a unique index, which means that no two rows can have the same index value.
+      - Example:
+        Consider a table `Students` with columns `StudentID`, `Name`, and `Age`. The `StudentID` is the primary key.
+
+        StudentID (Primary Key) | Name       | Age
+        ------------------------|------------|-----
+        1                       | Alice      | 20
+        2                       | Bob        | 22
+        3                       | Charlie    | 21
+
+    - The primary index would be built on the `StudentID` column, ensuring that each `StudentID` is unique and allowing for fast lookups by `StudentID`.
+
+    2. Secondary Indexing: Secondary indexes are used to improve the performance of queries that are not based on the primary key. 
+      Unlike primary indexing, a table can have multiple secondary indexes.
+      - Example:
+        Suppose you often query the `Students` table by the `Name` column.
+
+        CREATE INDEX idx_name ON Students(Name);
+
+        This creates a secondary index on the `Name` column, speeding up searches for students by their name.
+
+    3. Clustered Indexing: In a clustered index, the rows of the table are stored physically on the disk in the same order as the index. 
+      There can be only one clustered index per table because the data rows themselves can only be sorted in one order.
+      - Example:
+        Imagine a table `Employees` with columns `EmployeeID`, `LastName`, and `FirstName`. If you create a clustered index on `LastName`:
+
+        CREATE CLUSTERED INDEX idx_lastname ON Employees(LastName);
+
+        The rows in the `Employees` table are physically sorted by `LastName`:
+
+        EmployeeID | LastName   | FirstName
+        -----------|------------|----------
+        2          | Brown      | Emily
+        1          | Smith      | John
+        3          | Williams   | David
+
+        There can only be one clustered index per table because the rows can be sorted in only one order.
+
+    4. Non-clustered Indexing: A non-clustered index stores the index data separately from the actual data. T
+      he index contains pointers to the location of the data on the disk. A table can have multiple non-clustered indexes.
+      - Example:
+        For the same `Employees` table, you might also want to create a non-clustered index on the `FirstName` column:
+
+        CREATE NONCLUSTERED INDEX idx_firstname ON Employees(FirstName);
+
+        The non-clustered index maintains a separate structure with pointers to the actual data rows:
+
+        FirstName (Index) | Pointer to Data
+        ------------------|-----------------
+        David             | Pointer to Row 3
+        Emily             | Pointer to Row 2
+        John              | Pointer to Row 1
+
+        The actual data in the table remains sorted by `LastName` due to the clustered index, but lookups by `FirstName` are faster because of the non-clustered index.
+
+
 - What is the difference between clustered and non-clustered indexes?
   - While a clustered index defines the physical order of records of a table and performs data searching based on the key values, 
     a non-clustered index keeps the order of records that doesn't match the physical order of the actual data on the disk. 
@@ -208,11 +271,6 @@
     ORDER BY RAND()
     LIMIT 5;
     
-
-- What are indexes?
-  - A special data structure related to a database table and used for storing its important parts and enabling faster data search and retrieval. 
-    Indexes are especially efficient for large databases, where they significantly enhance query performance.
-
 - What is a view?
   - A view is a virtual table based on the result set of an SQL query.
 

@@ -1,0 +1,55 @@
+import React from 'react';
+import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
+import Box from '@mui/material/Box';
+import 'leaflet/dist/leaflet.css';
+// import geojson from '../map/testData/300.json';
+import data from '../map/testData/1.json';
+import L from 'leaflet';
+
+const {count,geojson}=data
+// geojsonData.features.length = 3;
+const mapStyle = (feature) => ({
+  color: feature.properties?.color || 'black',
+  weight: 2,
+  fillColor: feature.properties?.color || 'red',
+  fillOpacity: 0.1
+});
+
+const onEachOutage = (outage, layer) => {
+  const outageId = outage.properties.outageId || '1234';
+  layer.bindPopup(outageId);
+  // console.log({ outage, layer });
+};
+
+// Function to handle rendering of Point and MultiPoint geometries
+const pointToLayer = (feature, latlng) => {
+  // For individual Point or MultiPoint, create a marker at each location
+  return L.marker(latlng, {
+    icon: L.divIcon({
+      className: 'leaflet-div-icon',
+      html:
+        '<div style="background-color: ' +
+        feature.properties.color +
+        '; width: 12px; height: 12px; border-radius: 50%;"></div>'
+    })
+  });
+};
+
+export const Map = () => {
+  const position = [38.0969, -100.002]; // Initial position for the map (Lat, Lng)
+  //     MAP TYPES = ["MultiPolygon","MultiPoint","Point"]
+  return (
+    <Box sx={{ height: '80vh', padding: '10px' }}>
+      <MapContainer center={position} zoom={4} style={{ height: '100%' }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <GeoJSON
+          data={geojson}
+          style={mapStyle}
+          onEachFeature={onEachOutage}
+          pointToLayer={pointToLayer} // This handles Point and MultiPoint
+        />
+      </MapContainer>
+    </Box>
+  );
+
+};

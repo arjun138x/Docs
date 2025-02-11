@@ -90,3 +90,138 @@ How is Cassandra Different from Other Databases?
     | Cost                 | Free (open-source)                | Pay-as-you-go                   |
 
 
+Important Cassandra Query Language (CQL) queries
+-------------------------------------------------
+
+  - Create a Keyspace
+    - A keyspace is like a database in Cassandra.
+
+    - CREATE KEYSPACE my_keyspace
+      WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
+
+    - `SimpleStrategy`: Used for single data center.
+    - `replication_factor`: Number of replicas for data.
+
+
+  - Use a Keyspace
+    - Switch to a specific keyspace.
+
+      USE my_keyspace;
+
+  - Create a Table
+    Define a table with specific columns and data types.
+
+    CREATE TABLE users (
+        id UUID PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        age INT
+    );
+
+
+  - Insert Data into a Table
+    - Add rows of data to the table.
+
+      INSERT INTO users (id, name, email, age) 
+      VALUES (uuid(), 'Alice', 'alice@example.com', 25);
+
+
+  - Select Data from a Table: Retrieve data from a table.
+
+      - All Data: SELECT * FROM users;
+      - Specific Columns: SELECT name, age FROM users;
+      - Condition (Filtering): SELECT * FROM users WHERE id = cfd66ccc-d857-4e90-b1e5-df98a3d40cd6;
+        
+
+  - Update Data: Modify existing data in a table.
+
+    UPDATE users 
+    SET age = 26 
+    WHERE id = cfd66ccc-d857-4e90-b1e5-df98a3d40cd6;
+
+
+  - Delete Data: Remove rows or columns from a table.
+
+    - Delete a Row: DELETE FROM users WHERE id = cfd66ccc-d857-4e90-b1e5-df98a3d40cd6;
+    - Delete a Column: DELETE age FROM users WHERE id = cfd66ccc-d857-4e90-b1e5-df98a3d40cd6;
+ 
+
+  - Drop a Table: Remove a table completely.
+
+    DROP TABLE users;
+
+
+  - Drop a Keyspace: Delete a keyspace and all its data.
+
+    DROP KEYSPACE my_keyspace;
+
+
+  - Create an Index: Add an index to a column for faster querying.
+
+    CREATE INDEX ON users (email);
+
+
+  - Batch Operations: Perform multiple operations in a single query.
+
+      BEGIN BATCH
+        INSERT INTO users (id, name, email, age) VALUES (uuid(), 'Bob', 'bob@example.com', 30);
+        UPDATE users SET age = 31 WHERE id = cfd66ccc-d857-4e90-b1e5-df98a3d40cd6;
+      APPLY BATCH;
+
+
+  - Count Rows: Get the total number of rows in a table.
+
+    SELECT COUNT(*) FROM users;
+
+
+  - Using TTL (Time to Live): Set an expiration time for data.
+
+    INSERT INTO users (id, name, email, age) 
+    VALUES (uuid(), 'Charlie', 'charlie@example.com', 28)
+    USING TTL 86400; -- Expires in 1 day
+
+
+  - Aggregate Functions: Perform basic aggregation (limited support in Cassandra).
+
+    - Count:
+      
+      SELECT COUNT(*) FROM users;
+      
+
+  - Lightweight Transactions (Conditional Updates): Ensure updates are applied only if a condition is met.
+
+    INSERT INTO users (id, name, email, age)
+    VALUES (uuid(), 'Eve', 'eve@example.com', 22)
+    IF NOT EXISTS;
+
+
+  - Clustering and Ordering: Retrieve data in a specific order (works with clustering keys).
+
+    CREATE TABLE products (
+        id UUID PRIMARY KEY,
+        name TEXT,
+        price DECIMAL
+    ) WITH CLUSTERING ORDER BY (price DESC);
+
+    SELECT * FROM products;
+
+
+  - Allow Filtering: Query on non-primary key columns (use with caution).
+
+    SELECT * FROM users WHERE age = 25 ALLOW FILTERING;
+
+
+  - Alter a Table: Modify the structure of an existing table.
+
+    - Add a Column:
+      ALTER TABLE users ADD phone_number TEXT;
+      
+
+    - Drop a Column:
+      ALTER TABLE users DROP email;
+      
+
+  - Truncate a Table: Delete all data from a table without dropping it.
+
+    TRUNCATE TABLE users;
+

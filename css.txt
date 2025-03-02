@@ -2073,5 +2073,119 @@ Basics
 
 
 
+Interview Questions:
+--------------------------
 
 
+  - What are the different types of CSS?  
+    - Inline CSS: Applied directly to an element using the `style` attribute.  
+    - Internal CSS: Defined inside a `<style>` tag within an HTML document.  
+    - External CSS: Written in a separate `.css` file and linked to the HTML file using `<link>`.
+
+  - What is the difference between `id` and `class` in CSS?  
+    - `id` is unique and used for a single element (`#idname`).  
+    - `class` can be applied to multiple elements (`.classname`).
+
+  - What are pseudo-classes in CSS?  
+    - Pseudo-classes define the special state of an element. Examples:  
+      - `:hover` (when a user hovers over an element)  
+      - `:focus` (when an element is focused)  
+      - `:nth-child(n)` (targets a specific child element)
+
+  - What is the difference between `relative`, `absolute`, and `fixed` positioning in CSS?  
+    - Relative: Positioned relative to its normal position.  
+    - Absolute: Positioned relative to its nearest positioned ancestor (or `body` if none).  
+    - Fixed: Positioned relative to the viewport and does not move when scrolling.
+
+  - What is Flexbox, and how does it work?  
+    - Flexbox is a layout model for one-dimensional layouts. It is defined using `display: flex;` and provides properties like:  
+      - `justify-content` (aligns items horizontally)  
+      - `align-items` (aligns items vertically)  
+      - `flex-wrap` (wraps items to the next row/column)  
+
+  - How is Grid different from Flexbox?  
+    - Flexbox is a one-dimensional layout system (row or column).  
+    - CSS Grid is a two-dimensional system (both rows and columns).
+
+  - What is the difference between `em`, `rem`, `%`, `px`, and `vh/vw` units in CSS?  
+    - `px` (pixels) - Fixed size.  
+    - `%` - Relative to the parent element.  
+    - `em` - Relative to the font size of the parent element.  
+    - `rem` - Relative to the root element (`html`).  
+    - `vh/vw` - Relative to the viewport height and width.
+
+  - What are media queries in CSS?  
+     Media queries allow responsive design based on screen size. Example:  
+      ```css
+      @media (max-width: 600px) {
+          body {
+              background-color: lightblue;
+          }
+      }
+
+  - What is the difference between `min-width`, `max-width`, and `width` in CSS?  
+    - `width`: Defines a fixed width.  
+    - `min-width`: Ensures an element doesn’t shrink below a certain width.  
+    - `max-width`: Ensures an element doesn’t grow beyond a certain width.
+
+  - How does `z-index` work in CSS?  
+    - `z-index` controls the stack order of overlapping elements. Higher values appear on top. Example:  
+      ```css
+      .box1 { z-index: 1; }
+      .box2 { z-index: 2; } /* Will be on top */
+
+  - What are pseudo-elements in CSS?  
+    - Pseudo-elements allow styling a part of an element. Example:  
+      - `::before` (inserts content before an element)  
+      - `::after` (inserts content after an element)  
+      ```css
+      p::before { content: "Hello "; }
+
+  - What is the difference between `visibility: hidden` and `display: none`?  
+    - `visibility: hidden;` hides the element but keeps its space.  
+    - `display: none;` removes the element from the document flow.
+
+  - How does CSS `clip-path` work?  
+    - It clips an element to a specified shape. Example:  
+      ```css
+      img {
+          clip-path: circle(50%);
+      }
+
+  - What is the difference between `grid-template-areas` and `grid-template-columns/rows`?  
+    - `grid-template-columns/rows` define the number of columns and rows.  
+    - `grid-template-areas` assigns names to grid sections for easier layout control.
+
+  - What is the difference between `@import` and `<link>` for adding CSS?  
+    - `<link>` is preferred for performance as it loads in parallel.  
+    - `@import` is processed after the page loads and can slow down rendering.
+
+  - How do you create a CSS-only dropdown menu?  
+    - Using `:hover`:  
+      ```css
+      .dropdown:hover .menu {
+          display: block;
+      }
+
+  - What is the difference between `will-change` and `translateZ(0)` for performance optimization?  
+    - `will-change` hints to the browser about future animations.  
+    - `translateZ(0)` forces GPU acceleration.
+
+  - What is `object-fit` and `object-position` in CSS?  
+    - `object-fit` controls how an image fits inside a container.  
+    - `object-position` controls the position of the image inside the container.  
+      ```css
+      img {
+          object-fit: cover;
+          object-position: center;
+      }
+
+  - How do CSS variables work?  
+    - CSS variables allow reusability:  
+      ```css
+      :root {
+          --main-color: blue;
+      }
+      p {
+          color: var(--main-color);
+      }

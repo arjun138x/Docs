@@ -20,6 +20,7 @@ arr?.forEach((n) => {
 console.log({ result });
 
 // method 2
+//  new Map() is faster then the Object
 var result = new Map();
 arr?.forEach((n) => {
   result.get(n) ? result.set(n, result.get(n) + 1) : result.set(n, 1);
@@ -28,12 +29,15 @@ console.log({ result });
 
 // sort given array. odd numbers in left and even numbers in right ascending order
 const a = [3, 5, 2, 1, 6, 8];
-for (let i = 0; i < a.length - 1; i++) {
-  for (let j = i; j < a.length; j++) {
+for (let i = 0; i < arr.length - 1; i++) {
+  for (let j = i + 1; j < arr.length; j++) {
+    const val1 = arr[i] % 2;
+    const val2 = arr[j] % 2;
     // move odd numbers into left
-    if (a[j] % 2 === 1 && a[i] % 2 === 0) [a[j], a[i]] = [a[i], a[j]];
+    if (val2 === 1 && val1 === 0) [arr[i], arr[j]] = [arr[j], arr[i]];
     // sort numbers by ascending order
-    else if (a[j] < a[i] && a[i] % 2 === a[j] % 2) [a[j], a[i]] = [a[i], a[j]];
+    else if (val1 === val2 && arr[i] > arr[j])
+      [arr[j], arr[i]] = [arr[i], arr[j]];
   }
 }
 

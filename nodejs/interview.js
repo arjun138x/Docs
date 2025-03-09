@@ -136,7 +136,7 @@ function factorial(number) {
 var fact = factorial(5);
 console.log({ fact });
 
-//  gassing the output
+//  guess the output
 
 var length = 10;
 function fn() {

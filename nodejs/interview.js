@@ -524,30 +524,28 @@ function secondAndThirdIndexAreMultipleOfTwo(params) {
   console.log(test);
 }
 
-function findSubsets(array, targetSum) {
-  const result = [];
+function findSubsets(arr, targetSum) {
+  const result = []; // Array to store valid subsets
 
-  function support(i = 0, sum = 0, t = []) {
-    // If the current sum equals the target sum, add the current subset (t) to the result
+  function support(i = 0, sum = 0, subset = []) {
+    // Base case: If the sum matches the target, add the subset to the result
     if (sum === targetSum) {
-      result.push(t);
+      result.push(subset);
       return;
     }
-    // If we've reached the end of the array, return as there are no more elements to consider
-    if (i === array.length) return;
 
-    // If adding the current element does not exceed the target sum
-    if (sum + array[i] <= targetSum) {
-      // Include the current element in the subset and move to the next element
-      support(i + 1, sum + array[i], t.concat(array[i]));
-    }
+    // Base case: Stop recursion if sum exceeds target or index reaches the end
+    if (sum > targetSum || i === arr.length) return;
 
-    // Exclude the current element from the subset and move to the next element
-    support(i + 1, sum, t);
+    // Recursive case: Include the current element if sum remains within target
+    if (sum < targetSum) support(i + 1, sum + arr[i], subset.concat(arr[i]));
+
+    // Recursive case: Exclude the current element and move to the next one
+    support(i + 1, sum, subset);
   }
 
-  support();
-  return result;
+  support(0, 0, []); // Initial call to recursive function
+  return result; // Return all valid subsets
 }
 
 // Example usage

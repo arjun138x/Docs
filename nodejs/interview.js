@@ -528,6 +528,7 @@ function findSubsets(arr, targetSum) {
   const result = []; // Array to store valid subsets
 
   function support(i = 0, sum = 0, subset = []) {
+    console.log(subset);
     // Base case: If the sum matches the target, add the subset to the result
     if (sum === targetSum) {
       result.push(subset);

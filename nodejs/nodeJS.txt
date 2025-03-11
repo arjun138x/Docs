@@ -596,8 +596,6 @@ Promises
 
 JavaScript OOPS/ Classes
 ---------------
-Classes
-----------
 
   > The four pillars of object-oriented programming (OOP) in JavaScript are 
     Encapsulation, Abstraction, Inheritance, Polymorphism

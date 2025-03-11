@@ -1,0 +1,61 @@
+Various Types of Rip
+CAMRip
+CAMRip is captured from a Video camera from Cinema Screen. They are recorded illegally in the theatres. These types of ripping contained unwanted noise and sounds of the audience laughing and babies crying etc. They have may have shaky Videos sometimes and not at perfect angle.
+
+HDTSRip
+HDCAM stands for High Definition Camera, while HDTS stands for High Definition Tele-Sync. In general, HDCAM is considered to be of higher quality than HDTS. HDCAM recordings are made directly from the digital output of a film camera, resulting in better image and sound quality.
+
+PreDVDRip
+PreDVDRip is basically CAMRip with better quality because they were recorded from the perfect angle and with a tripod for stability. Sometimes they recorded audio from the original source. This audio is called TS (Telesync).
+
+DVDRip
+DVDRip is copied from the final released DVD.
+
+WEBRip
+WEBRip is a file ripped from OTT with encoding. The quality is comparable to WEB-DL.
+
+WEB-DL
+WEB-DL is ripped from OTT without any encoding. The quality is quite good since they are not touched. They are the original copy without any watermark.
+
+BRRip
+BRRip is encoded from a Blu-ray release, which is in itself a ripped version but BRrip is a compressed version of an already ripped Blu-ray disc.
+
+BDRip (BluRay Disc Rip)
+BDRip is encoded directly from the BluRay disk. They usually have a resolution of 720p or 1080p and are encoded using .mkv container and x264 codec.
+
+WORKPRINT / WP
+A workprint is a pirated copy of the film that has not been finished. It may have missing scenes, music, and VFX. They may also have Timestamps at corners.
+
+DVDscr
+DVDScr is recorded from the promotional DVD copy of a film sent by the filmmakers before the official DVD release to movie critics, censors etc.
+
+DTHRip / TVRip / HDTV / HDTVRip
+They are ripped from TV via DTH recording feaure or other.
+
+Extended:
+Sometimes movies are released again on DVD because now the movie is extended. They have put back deleted scenes. For example, E.T. was produced first in 1982 and years later it was brought on DVD again, but now digitally remastered and extended.
+
+Remux:
+Remuxing 4K Blu-ray is a process that copies the audio and video streams from a 4K Blu-ray video container and puts them into a new container. 
+
+Used Resolution Types
+
+Actual Resolution |  Resolution Name |    Quality Name
+720×480     |   480p   |   SD
+720 × 576   |  576p    | SD / PAL.   
+1280×720   | 720p     | HD
+1920×1080 |   1080p | Full HD (FHD)
+2560×1440 | 1440p   | Quad HD (QHD), WQHD
+3840×2160 |2160p| Ultra HD (UHD), 4K
+4096 x 2160|2160p| Ultra HD (UHD) True 4K 
+7680×4320 |  4320p  | 8K UHD, 8K
+
+What is x264 & x265 at the end of the File Name ??
+
+They’re both video compression codecs aiming to encode video files into smaller sizes without tossing video quality out the window
+
+X265 was first released in 2013, while x264 was released in 2004. They’re like the classic rock vs. indie debate – both great, but one’s been around a bit longer
+
+These days, encoders are much better about x265 being more about quality than the small file size. The main goal of x265 is that, because it is newer, it can produce the same quality in ~30-50% less space than x264. While it isn't supported on all devices like x264 is, many devices are starting to natively support it.
+
+# Copied

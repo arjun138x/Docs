@@ -4092,3 +4092,345 @@ git push origin main
 | **Process Management**  | PM2                           |
 | **Deployment on Cloud** | AWS EC2, Heroku, DigitalOcean |
 | **CI/CD Automation**    | GitHub Actions                |
+
+---
+
+# 18. **Node.js Engine & Its Internal Components**
+
+Node.js is built on **Google's V8 JavaScript Engine**, which runs **JavaScript outside the browser**. However, since JavaScript is **single-threaded**, Node.js uses **libuv** and an **event-driven architecture** to handle **asynchronous operations efficiently**.
+
+### 🛠️ **Key Parts of the Node.js Engine:**
+
+1. **V8 Engine** - Executes JavaScript code
+2. **Call Stack** - Manages function execution
+3. **Libuv** - Handles asynchronous operations (I/O, Timers, Thread Pool)
+4. **Event Loop** - Manages execution order of tasks
+5. **Microtask & Macrotask Queues** - Prioritize different async tasks
+
+---
+
+## **1️⃣ V8 Engine (JavaScript Execution Engine)**
+
+- **Developed by Google** (Used in Chrome & Node.js)
+- **Compiles JavaScript to machine code** using **JIT (Just-In-Time) compilation**
+- Provides **Garbage Collection** & **Optimization Techniques**
+
+**📌 Example:**
+
+```js
+console.log("Hello World");
+```
+
+✅ V8 compiles and executes this **super fast**!
+
+---
+
+## **2️⃣ Call Stack (Function Execution Management)**
+
+The **Call Stack** is a **LIFO (Last In, First Out) data structure** that manages function execution.
+
+### **📌 Example of Call Stack Execution**
+
+```js
+function first() {
+  console.log("First function");
+  second();
+}
+
+function second() {
+  console.log("Second function");
+  third();
+}
+
+function third() {
+  console.log("Third function");
+}
+
+first();
+```
+
+### **🔍 Execution Flow in Call Stack:**
+
+1️⃣ `first()` is pushed onto the stack  
+2️⃣ `first()` calls `second()`, so `second()` is added to the stack  
+3️⃣ `second()` calls `third()`, so `third()` is added  
+4️⃣ `third()` executes and is removed from the stack  
+5️⃣ `second()` finishes and is removed  
+6️⃣ `first()` finishes and is removed
+
+📌 **Result:**
+
+```
+First function
+Second function
+Third function
+```
+
+✅ The **Call Stack is synchronous**, meaning it executes one function at a time!
+
+---
+
+## **3️⃣ Libuv (Handling Asynchronous Operations)**
+
+**Libuv** is a **C++ library** that provides **multi-platform support** for asynchronous operations in Node.js.
+
+🔹 **What libuv Handles?**  
+✔ **File System (fs module)**  
+✔ **Networking (http, TCP, UDP, etc.)**  
+✔ **DNS Resolution**  
+✔ **Timers (`setTimeout`, `setInterval`)**  
+✔ **Thread Pool (for heavy tasks)**
+
+📌 **Example: Async File Read using Libuv**
+
+```js
+const fs = require("fs");
+
+fs.readFile("file.txt", "utf8", (err, data) => {
+  if (err) console.error(err);
+  console.log(data);
+});
+
+console.log("Reading file...");
+```
+
+✅ **"Reading file..." prints first** because `fs.readFile()` is handled **asynchronously** by libuv!
+
+---
+
+## **4️⃣ Event Loop (Orchestrating Asynchronous Execution)**
+
+The **Event Loop** allows Node.js to handle non-blocking operations **efficiently**, even though it is single-threaded.
+
+### **🔁 How the Event Loop Works?**
+
+1️⃣ Executes **synchronous code** (Call Stack)  
+2️⃣ Handles **async callbacks** (from libuv)  
+3️⃣ **Processes microtasks** (Promises, process.nextTick)  
+4️⃣ **Executes macrotasks** (Timers, I/O, setImmediate)
+
+📌 **Example: Event Loop Execution Order**
+
+```js
+console.log("Start");
+
+setTimeout(() => console.log("Timeout"), 0);
+
+Promise.resolve().then(() => console.log("Promise"));
+
+console.log("End");
+```
+
+✅ **Execution Order:**
+
+```
+Start
+End
+Promise  ✅ (Microtask)
+Timeout  ✅ (Macrotask)
+```
+
+🔹 **Microtasks (Promises) run before Macrotasks (setTimeout)!**
+
+---
+
+## **5️⃣ Microtask & Macrotask Queues**
+
+- **Microtasks Queue:** Promises, `process.nextTick()`
+- **Macrotasks Queue:** `setTimeout()`, `setInterval()`, I/O, `setImmediate()`
+
+📌 **Execution Order:**  
+1️⃣ **Call Stack** (Synchronous Code)  
+2️⃣ **Microtasks** (Promises, `process.nextTick()`)  
+3️⃣ **Macrotasks** (Timers, I/O, `setImmediate()`)
+
+📌 **Example with Microtasks & Macrotasks**
+
+```js
+console.log("A");
+
+setTimeout(() => console.log("B"), 0);
+
+Promise.resolve().then(() => console.log("C"));
+
+process.nextTick(() => console.log("D"));
+
+console.log("E");
+```
+
+✅ **Execution Order:**
+
+```
+A
+E
+D  ✅ (process.nextTick - Microtask)
+C  ✅ (Promise - Microtask)
+B  ✅ (setTimeout - Macrotask)
+```
+
+---
+
+## **🔥 Summary (Node.js Execution Flow)**
+
+✔ **V8 Engine** compiles & executes JavaScript  
+✔ **Call Stack** executes synchronous functions (LIFO)  
+✔ **Libuv** handles async operations (Timers, I/O, Thread Pool)  
+✔ **Event Loop** manages execution order of tasks  
+✔ **Microtask Queue** (Faster) executes Promises & `process.nextTick()` before Macrotasks  
+✔ **Macrotask Queue** handles `setTimeout()`, `setImmediate()`, and I/O
+
+---
+
+# 19. **Worker Threads in Node.js (Multithreading Explained)**
+
+By default, **Node.js is single-threaded**, meaning it executes JavaScript code on a **single thread**. However, for CPU-intensive tasks, we can use **Worker Threads** to run tasks in **separate threads** without blocking the main thread.
+
+---
+
+## **1️⃣ What Are Worker Threads?**
+
+- The **Worker Threads module (`worker_threads`)** allows Node.js to run JavaScript in **multiple threads**.
+- Each **Worker Thread** runs in its **own V8 instance** and **does not block the main thread**.
+- Used for **CPU-intensive tasks** like image processing, data crunching, and machine learning.
+
+📌 **Use Worker Threads for:**  
+✔ **Heavy computations** (e.g., data processing, encryption)  
+✔ **Parallel processing**  
+✔ **Avoiding main-thread blocking**
+
+---
+
+## **2️⃣ When to Use Worker Threads vs. Child Processes?**
+
+| Feature        | Worker Threads 👨‍💻                         | Child Processes 🖥️         |
+| -------------- | ----------------------------------------- | -------------------------- |
+| Memory Sharing | ✅ Shared memory (`SharedArrayBuffer`)    | ❌ No shared memory        |
+| Communication  | ✅ Fast (message passing & shared memory) | 🔄 Slower (IPC)            |
+| Best for       | CPU-intensive tasks                       | Running separate processes |
+| Performance    | ✅ High                                   | ❌ Lower                   |
+
+---
+
+## **3️⃣ Creating a Simple Worker Thread**
+
+📌 **Example: Basic Worker Thread**
+1️⃣ **Main Thread (`main.js`)**
+
+```js
+const { Worker } = require("worker_threads");
+
+console.log("Main Thread: Starting Worker...");
+
+const worker = new Worker("./worker.js");
+
+// Listen for messages from worker
+worker.on("message", (message) => {
+  console.log("Main Thread: Received:", message);
+});
+
+worker.on("error", (error) => console.error("Worker Error:", error));
+
+worker.on("exit", (code) => {
+  console.log(`Worker exited with code ${code}`);
+});
+```
+
+---
+
+2️⃣ **Worker Thread (`worker.js`)**
+
+```js
+const { parentPort } = require("worker_threads");
+
+// Simulate heavy computation
+let sum = 0;
+for (let i = 0; i < 1e9; i++) {
+  sum += i;
+}
+
+// Send result back to main thread
+parentPort.postMessage(`Sum: ${sum}`);
+```
+
+✅ **Execution Order:**
+
+```
+Main Thread: Starting Worker...
+Main Thread: Received: Sum: 499999999500000000
+Worker exited with code 0
+```
+
+🎯 **The heavy computation runs in a separate thread, so the main thread stays responsive!**
+
+---
+
+## **4️⃣ Sharing Data Between Threads**
+
+By default, Workers use **message passing**, but they can also use **Shared Memory** (`SharedArrayBuffer`).
+
+📌 **Example: Using Shared Memory**  
+1️⃣ **Main Thread (`main.js`)**
+
+```js
+const { Worker, isMainThread, workerData } = require("worker_threads");
+
+if (isMainThread) {
+  const sharedBuffer = new SharedArrayBuffer(4);
+  const int32Array = new Int32Array(sharedBuffer);
+  int32Array[0] = 100; // Initial value
+
+  const worker = new Worker(__filename, { workerData: sharedBuffer });
+
+  setTimeout(() => {
+    console.log("Main Thread: Value after Worker execution:", int32Array[0]);
+  }, 1000);
+} else {
+  const int32Array = new Int32Array(workerData);
+  Atomics.add(int32Array, 0, 50);
+  console.log("Worker: Updated Shared Memory");
+}
+```
+
+✅ **The Worker modifies the shared memory without sending messages!**
+
+---
+
+## **5️⃣ Running Multiple Worker Threads in Parallel**
+
+📌 **Example: Creating Multiple Workers**
+
+```js
+const { Worker } = require("worker_threads");
+
+for (let i = 0; i < 4; i++) {
+  const worker = new Worker("./worker.js");
+  worker.on("message", (message) => console.log(`Worker ${i}:`, message));
+}
+```
+
+✅ **Multiple Workers can run in parallel, using multi-core processing efficiently.**
+
+---
+
+## **6️⃣ Worker Threads vs. Clustering**
+
+| Feature            | Worker Threads 👨‍💻            | Clustering 🚀                    |
+| ------------------ | ---------------------------- | -------------------------------- |
+| Used for           | CPU-intensive tasks          | Handling more requests           |
+| Memory Sharing     | ✅ Yes (`SharedArrayBuffer`) | ❌ No (Separate processes)       |
+| Parallel Execution | ✅ Yes (Threads)             | ✅ Yes (Multiple Node instances) |
+| Best for           | Heavy computations           | Scaling web servers              |
+
+📌 **Use Clustering (`cluster` module) for handling more incoming requests, and Worker Threads for CPU-heavy tasks!**
+
+---
+
+# **🔥 Summary**
+
+✔ **Worker Threads** allow multithreading in Node.js  
+✔ **Each worker runs in a separate thread (own V8 instance)**  
+✔ **Uses message passing or shared memory (`SharedArrayBuffer`)**  
+✔ **Best for CPU-heavy tasks, not I/O operations**  
+✔ **More efficient than Child Processes for parallel execution**
+
+---

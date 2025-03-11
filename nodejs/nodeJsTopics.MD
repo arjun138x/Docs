@@ -4434,3 +4434,291 @@ for (let i = 0; i < 4; i++) {
 ✔ **More efficient than Child Processes for parallel execution**
 
 ---
+
+# 20.**Regular Expressions**
+
+## **Introduction**
+
+Regular expressions (RegEx) are a powerful tool used for pattern matching and text manipulation. They allow developers to search, match, and replace text efficiently. Regular expressions are widely used in programming, data validation, text parsing, and more.
+
+### **Common Uses of Regular Expressions**
+
+- **Validation**: Checking if an input meets certain criteria (e.g., email, password, phone number)
+- **Search & Replace**: Finding and modifying specific text patterns
+- **Data Extraction**: Extracting useful information from large text bodies (e.g., log files, documents)
+- **Formatting Strings**: Reformatting date, phone numbers, or any structured text
+
+---
+
+## **1. Literal Characters**
+
+Literal characters match specific characters exactly as they appear in the pattern.
+
+### **Example:** Matching the word "fox"
+
+```js
+const text = "The quick brown fox jumps over the lazy dog";
+const pattern = /fox/;
+console.log(pattern.test(text)); // Output: true
+```
+
+---
+
+## **2. Character Classes**
+
+Character classes match any one of a set of characters enclosed in square brackets `[]`.
+
+### **Example:** Match any vowel
+
+```js
+const text = "The quick brown fox jumps over the lazy dog";
+const pattern = /[aeiou]/g;
+console.log(text.match(pattern)); // Output: ['e', 'u', 'i', 'o', 'o', 'u', 'o', 'e', 'a', 'u']
+```
+
+---
+
+## **3. Negated Character Classes**
+
+Matching any character that is not in a specific set. Using `^` inside brackets negates the character set.
+
+### **Example:** Match any non-vowel character
+
+```js
+const text = "The quick brown fox";
+const pattern = /[^aeiou]/g;
+console.log(text.match(pattern));
+// Output: ['T', 'h', ' ', 'q', 'c', 'k', ' ', 'b', 'r', 'w', 'n', ' ', 'f', 'x']
+```
+
+---
+
+## **4. Ranges**
+
+Ranges allow matching any character within a specified range.
+
+### **Example:** Match lowercase letters
+
+```js
+const text = "The quick brown fox";
+const pattern = /[a-z]/g;
+console.log(text.match(pattern));
+// Output: ['h', 'e', 'q', 'u', 'i', 'c', 'k', 'b', 'r', 'o', 'w', 'n', 'f', 'o', 'x']
+```
+
+---
+
+## **5. Wildcard**
+
+The dot (`.`) matches any single character except a newline.
+
+### **Example:** Match any character after "o"
+
+```js
+const text = "The quick brown fox jumps over the lazy dog";
+const pattern = /o./g;
+console.log(text.match(pattern)); // Output: ['ow', 'ox', 'ov']
+```
+
+---
+
+## **6. Quantifiers**
+
+Quantifiers specify how many times a character or group should appear.
+
+| Quantifier | Description                       |
+| ---------- | --------------------------------- |
+| `*`        | Matches **zero or more** times    |
+| `+`        | Matches **one or more** times     |
+| `?`        | Matches **zero or one** time      |
+| `{n}`      | Matches **exactly n** times       |
+| `{n,}`     | Matches **at least n** times      |
+| `{n,m}`    | Matches **between n and m** times |
+
+### **Example:** Match repeated characters
+
+```js
+// `*`: Matches zero or more occurrences.
+const text = "abbcccddddeeeee";
+const pattern = /b*/g;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'b', '', '', '', '', '' ]
+
+// `+`: Matches one or more occurrences.
+const text = "abbcccddddeeeee";
+const pattern = /c+/g;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'ccc' ]
+
+// `?`: Matches zero or one occurrence.
+const text = "abbcccddddeeeee";
+const pattern = /d?/g;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ '', '', '', 'd', '', '', '', '', '' ]
+
+// `{n}`: Matches exactly n occurrences.
+const text = "abbcccddddeeeee";
+const pattern = /e{3}/g;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'eee' ]
+
+// `{n,}`: Matches n or more occurrences.
+const text = "abbcccddddeeeee";
+const pattern = /e{3}/g;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'eee' ]
+
+// `{n,m}`: Matches at least n and at most m occurrences.
+const text = "abbcccddddeeeee";
+const pattern = /d{2,4}/g;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'dddd' ]
+```
+
+---
+
+## **7. Anchors**
+
+Anchors specify the position in the text where a match should occur.
+
+| Anchor | Description                     |
+| ------ | ------------------------------- |
+| `^`    | Matches the **start** of a line |
+| `$`    | Matches the **end** of a line   |
+
+### **Example:**
+
+```js
+// `^`: Matches the start of a line.
+const text = "The quick brown fox\njumps over the lazy dog";
+const pattern = /^The/g;
+
+const result = pattern.test(text);
+console.log(result); // Output: true
+
+// `$`: Matches the end of a line.
+const text = "The quick brown fox\njumps over the lazy dog";
+const pattern = /dog$/g;
+
+const result = pattern.test(text);
+console.log(result); // Output: true
+```
+
+Using m flag for multiline matching:
+
+### **Example:**
+
+In this example, the regular expression /^The/gm matches the word "The" at the start of the first line because of the m flag (multiline).
+
+Without the m flag, it would have only matched "The" at the start of the whole text, not individual lines.
+
+```js
+const text = "The quick brown fox\njumps over the lazy dog";
+const pattern = /^The/gm;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'The' ]
+```
+
+Using m flag to match the end of each line:
+
+### **Example:**
+
+In this example, the regular expression /dog$/gm matches the word "dog" at the end of the last line because of the m flag (multiline).
+
+The m flag is used to enable multiline matching, allowing the anchors to work on each line independently.
+
+```js
+const text = "The quick brown fox\njumps over the lazy dog";
+const pattern = /dog$/gm;
+
+const matches = text.match(pattern);
+console.log(matches); // Output: [ 'dog' ]
+```
+
+---
+
+## **8. Grouping and Capturing**
+
+Grouping allows us to capture and extract specific parts of a match using parentheses `()`.
+
+### **Example:** Extract parts of a phone number
+
+```js
+const text = "My phone number is 123-456-7890";
+const pattern = /(\d{3})-(\d{3})-(\d{4})/;
+const match = pattern.exec(text);
+console.log(match[1]); // Output: 123
+console.log(match[2]); // Output: 456
+console.log(match[3]); // Output: 7890
+```
+
+---
+
+## **9. Alternation (`|`)**
+
+Alternation allows matching one pattern or another.
+
+### **Example:** Match "cat" or "dog"
+
+```js
+const text = "I have a cat and a dog";
+const pattern = /cat|dog/g;
+console.log(text.match(pattern)); // Output: ['cat', 'dog']
+```
+
+---
+
+## **10. Escape Sequences**
+
+Escape sequences use backslashes (`\`) to treat special characters as literals.
+
+### **Example:** Match a literal period (`.`)
+
+```js
+const text = "I have a dot: .";
+const pattern = /\./;
+console.log(pattern.test(text)); // Output: true
+```
+
+---
+
+## **11. Real-World Use Cases**
+
+### **1. Validate Email Address**
+
+```js
+const email = "test@example.com";
+const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+console.log(pattern.test(email)); // Output: true
+```
+
+### **2. Extract URLs from Text**
+
+```js
+const text = "Visit https://example.com and http://google.com";
+const pattern = /https?:\/\/(www\.)?[a-zA-Z0-9.-]+\.[a-z]{2,}/g;
+console.log(text.match(pattern));
+// Output: ['https://example.com', 'http://google.com']
+```
+
+### **3. Validate Password Strength**
+
+```js
+const password = "Passw0rd!";
+const pattern =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+console.log(pattern.test(password)); // Output: true
+```
+
+---
+
+## **Conclusion**
+
+Regular expressions are an essential tool for developers, allowing them to perform complex text processing tasks efficiently. Mastering RegEx will greatly enhance your ability to validate, extract, and manipulate text-based data.

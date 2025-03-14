@@ -470,3 +470,138 @@ export default Counter;
 | `useMemo`     | Memoizes computed values                 | Expensive calculations, filtering large datasets  |
 | `useCallback` | Memoizes functions                       | Preventing unnecessary function recreation        |
 | `useReducer`  | Manages complex state logic              | Forms, state transitions, complex component state |
+
+# 3. **🆚 `useState` vs `useReducer` in React**
+
+React provides two powerful hooks for managing state: `useState` and `useReducer`. While both serve the same purpose, they are designed for different use cases. Let's dive deeper into their differences.
+
+---
+
+## **📌 Key Differences Between `useState` and `useReducer`**
+
+| Feature                       | `useState` 🟢                                        | `useReducer` 🔴                                           |
+| ----------------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
+| **Best For**                  | Simple state management (booleans, numbers, strings) | Complex state logic with multiple sub-values              |
+| **State Updates**             | Directly set the new state value                     | Uses a reducer function to determine the next state       |
+| **Handling Multiple States**  | Requires multiple `useState` calls                   | Can handle multiple state changes in a single reducer     |
+| **Readability & Maintenance** | Simple and concise for basic state                   | More structured and scalable for complex logic            |
+| **Performance**               | Similar to `useReducer` for simple state             | Preferred for optimizing performance in complex scenarios |
+| **Use Case Examples**         | Form inputs, toggles, counters                       | Todo lists, authentication state, API data management     |
+
+---
+
+## **📌 When to Use Which?**
+
+### ✅ **Use `useState` when:**
+
+- You are managing **simple** and **independent** state variables.
+- The state updates are **straightforward** and do not depend on previous values.
+- Example: A toggle button (`true` / `false`), counter, or form input.
+
+### ✅ **Use `useReducer` when:**
+
+- Your state **transitions** are **complex** or interdependent.
+- You need to **manage state changes** using a **single function** (reducer).
+- Your state consists of **multiple sub-values** (e.g., object, array).
+- You want to **avoid prop drilling** by passing the reducer's `dispatch` function to child components.
+
+---
+
+## **📌 Code Examples for `useState` vs `useReducer`**
+
+### **1️⃣ `useState` Example (Simple Counter)**
+
+```jsx
+import React, { useState } from "react";
+
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <h2>Count: {count}</h2>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={() => setCount(count - 1)}>Decrement</button>
+    </div>
+  );
+};
+
+export default Counter;
+```
+
+**🔹 Why use `useState` here?**
+
+- The state is simple (just a number).
+- Each update is **independent** and does not require complex logic.
+
+---
+
+### **2️⃣ `useReducer` Example (Todo List)**
+
+```jsx
+import React, { useReducer, useState } from "react";
+
+const initialTodos = [
+  { id: 1, description: "Learn React" },
+  { id: 2, description: "Practice Coding" },
+];
+
+// Reducer function
+const todoReducer = (state, action) => {
+  switch (action.type) {
+    case "ADD_TODO":
+      return [...state, { id: state.length + 1, description: action.payload }];
+    case "REMOVE_TODO":
+      return state.filter((todo) => todo.id !== action.payload);
+    default:
+      return state;
+  }
+};
+
+const TodoApp = () => {
+  const [todos, dispatch] = useReducer(todoReducer, initialTodos);
+  const [text, setText] = useState("");
+
+  const addTodo = () => {
+    if (text.trim() === "") return;
+    dispatch({ type: "ADD_TODO", payload: text });
+    setText("");
+  };
+
+  const removeTodo = (id) => {
+    dispatch({ type: "REMOVE_TODO", payload: id });
+  };
+
+  return (
+    <div>
+      <input value={text} onChange={(e) => setText(e.target.value)} />
+      <button onClick={addTodo}>Add Todo</button>
+
+      {todos.map((todo) => (
+        <div key={todo.id}>
+          <span>{todo.description}</span>
+          <button onClick={() => removeTodo(todo.id)}>Remove</button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default TodoApp;
+```
+
+**🔹 Why use `useReducer` here?**
+
+- The state has multiple objects (`id`, `description`).
+- Different **actions** (`ADD_TODO`, `REMOVE_TODO`) need to be handled.
+- Centralized logic in the **reducer function** makes it easy to modify and scale.
+
+---
+
+## **🎯 Conclusion**
+
+- **Use `useState`** when managing **simple, independent state values**.
+- **Use `useReducer`** when dealing with **complex state logic** that requires structured updates.
+
+🚀 If you're building a **small component** with a simple state, **go with `useState`**.  
+💡 If your state management involves **multiple related states or complex updates**, **use `useReducer`**.

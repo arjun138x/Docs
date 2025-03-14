@@ -605,3 +605,38 @@ export default TodoApp;
 
 🚀 If you're building a **small component** with a simple state, **go with `useState`**.  
 💡 If your state management involves **multiple related states or complex updates**, **use `useReducer`**.
+
+# 4. Create a React Counter: Increment 0 to 5, Reset to 0, and Stop
+
+```jsx
+import { useState, useEffect } from "react";
+
+const Counter = () => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount((prv) => {
+        if (prv < 5) {
+          return prv + 1;
+        } else {
+          clearInterval(interval);
+          return 0;
+        }
+      });
+      if (count === 5) {
+        console.log({ count });
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  return <h1>Count: {count}</h1>;
+};
+
+export default Counter;
+```
+
+---

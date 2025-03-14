@@ -36,7 +36,7 @@ const Todo = () => {
         </button>
       </div>
 
-      {todo.map((todo) => (
+      {todo.map((todo, idx) => (
         <div
           className="flex justify-between items-center m-1 w-9/12 border-2 p-2 "
           id={todo.id}
@@ -46,7 +46,7 @@ const Todo = () => {
             className="h-10 ms-1 text-xl font-bold bg-red-500 p-1 rounded-lg hover:bg-red-700 text-white"
             onClick={() => onRemove(todo.id)}
           >
-            add
+            Remove
           </button>
         </div>
       ))}

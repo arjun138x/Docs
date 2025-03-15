@@ -1,47 +1,31 @@
 import React, { useEffect, useState } from "react";
 
-function ProgressBar() {
-  const [progress, setProgress] = useState(0);
+const ProgressBar = () => {
+  const [percentage, setPercentage] = useState(0);
 
-  // method 1
   useEffect(() => {
     const interval = setInterval(() => {
-      setProgress((prv) => {
-        if (prv >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prv + 1;
+      setPercentage((prv) => {
+        console.log(prv);
+        if (prv >= 100) clearInterval(interval);
+        else return (prv += 10);
       });
-    }, 100);
-    return () => clearInterval(interval); // Cleanup the interval on unmount or when progress >= 100
+    }, 500);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  // method 2
-  // useEffect(() => {
-  //   if (progress <= 100) {
-  //     setTimeout(() => {
-  //       setProgress((prv) => prv + 10);
-  //     }, 1000);
-  //   }
-  // }, [progress]);
-
   return (
-    <div style={{ with: "100%", height: "40px", backgroundColor: "red" }}>
-      <h1
-        style={{
-          textAlign: "center",
-          width: `${progress}%`,
-          height: "40px",
-          background: "green",
-          margin: 0,
-          lineHeight: "40px",
-        }}
-      >
-        {progress}%
-      </h1>
-    </div>
+    <div
+      style={{
+        height: "40px",
+        width: `${percentage}%`,
+        backgroundColor: "green",
+      }}
+    ></div>
   );
-}
+};
 
 export default ProgressBar;

@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.input-box {
+  width: 500px;
+  padding: 10px;
+}
+
+.search-box {
+  width: 500px;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.search-text {
+  padding: 5px;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Ensure hover and selection styling */
+.search-text:hover,
+.selected {
+  background-color: aliceblue;
+}

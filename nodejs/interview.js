@@ -111,6 +111,32 @@ function sumOfNumbers(obj) {
 
 console.log(sumOfNumbers(obj));
 
+function thirdHighest(arr) {
+  let first = -Infinity,
+    second = -Infinity,
+    third = -Infinity;
+
+  for (let num of arr) {
+    if (num > first) {
+      third = second;
+      second = first;
+      first = num;
+    } else if (num > second) {
+      third = second;
+      second = num;
+    } else if (num > third) {
+      third = num;
+    }
+  }
+
+  return third === -Infinity ? null : third;
+}
+
+// Example usage:
+console.log(thirdHighest([4, 1, 7, 7, 2, 4, 8, 8])); // Output: 4
+console.log(thirdHighest([10, 10, 10])); // Output: null
+console.log(thirdHighest([1, 2])); // Output: null
+
 // remove duplicate with one iteration
 var array = [1, 2, 1, 3, 5, 1, true, undefined, false, "aa", true, "aa"];
 

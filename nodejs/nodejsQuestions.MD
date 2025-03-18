@@ -683,3 +683,91 @@ console.log(person.toString()); // Output: [object Object]
 ✅ **Polymorphism** enables objects to take multiple forms.
 
 Would you like to see real-world examples like **API handling with OOP**? 🚀
+
+# **5. HTTP Methods(GET, POST, PUT, and PATCH)**
+
+In Node.js (or generally in REST APIs), the HTTP methods **GET, POST, PUT, and PATCH** are used for different types of operations:
+
+### **1. GET**
+
+- Used to retrieve data from a server.
+- It should not change the server state (idempotent and safe).
+- Example:
+  ```js
+  app.get("/users/:id", (req, res) => {
+    // Fetch user data based on ID
+    res.send({ id: req.params.id, name: "John Doe" });
+  });
+  ```
+
+---
+
+### **2. POST**
+
+- Used to create new resources on the server.
+- It is **not idempotent** (sending the same request multiple times can create duplicate resources).
+- Example:
+  ```js
+  app.post("/users", (req, res) => {
+    // Create a new user
+    res.status(201).send({ message: "User created", user: req.body });
+  });
+  ```
+
+---
+
+### **3. PUT**
+
+- Used to update a resource **completely** (replace the entire resource).
+- It is **idempotent** (sending the same request multiple times will have the same effect).
+- Example:
+  ```js
+  app.put("/users/:id", (req, res) => {
+    // Replace the user data completely
+    res.send({ message: "User updated", user: req.body });
+  });
+  ```
+
+---
+
+### **4. PATCH**
+
+- Used to update a resource **partially** (only specific fields).
+- It is **not necessarily idempotent** (depends on implementation).
+- Example:
+  ```js
+  app.patch("/users/:id", (req, res) => {
+    // Update specific fields of a user
+    res.send({ message: "User partially updated", updatedFields: req.body });
+  });
+  ```
+
+---
+
+### **Other HTTP Methods in Node.js**
+
+1. **DELETE** - Deletes a resource.
+
+   ```js
+   app.delete("/users/:id", (req, res) => {
+     res.send({ message: "User deleted" });
+   });
+   ```
+
+2. **OPTIONS** - Used to check what HTTP methods are supported on a route.
+
+   ```js
+   app.options("/users", (req, res) => {
+     res.set("Allow", "GET, POST, PUT, PATCH, DELETE").send();
+   });
+   ```
+
+3. **HEAD** - Same as GET but without a response body (useful for checking if a resource exists).
+
+   ```js
+   app.head("/users/:id", (req, res) => {
+     res.status(200).end();
+   });
+   ```
+
+4. **TRACE** - Used for debugging purposes to see what changes were made to the request.

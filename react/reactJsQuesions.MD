@@ -866,3 +866,705 @@ export default HybridComponent;
 | ---------------- | ---------------- | -------------- | ----------------------------------------------------- |
 | **Controlled**   | ✅ Yes           | ❌ No          | Forms, validation, dynamic updates                    |
 | **Uncontrolled** | ❌ No            | ✅ Yes         | Direct DOM access, file inputs, third-party libraries |
+
+# **7. How to Get Child Component Changes in Parent Component in React?**
+
+In React, child components **cannot directly modify** their parent's state. Instead, the parent must pass a function **as a prop** to the child, allowing the child to send data back to the parent.
+
+---
+
+## **✅ 1. Using Callback Function (Best for Simple Cases)**
+
+**Parent passes a function to the child.**  
+**Child calls this function to send data back to the parent.**
+
+### **Example: Child Input Value Updates Parent State**
+
+📌 **Parent Component (`App.js`)**
+
+```jsx
+import React, { useState } from "react";
+import Child from "./Child";
+
+function App() {
+  const [message, setMessage] = useState(""); // State in Parent
+
+  // Function to update Parent state from Child
+  const handleChildChange = (childData) => {
+    setMessage(childData);
+  };
+
+  return (
+    <div>
+      <h2>Parent Component</h2>
+      <p>Message from Child: {message}</p>
+      <Child onMessageChange={handleChildChange} />
+    </div>
+  );
+}
+
+export default App;
+```
+
+📌 **Child Component (`Child.js`)**
+
+```jsx
+import React, { useState } from "react";
+
+function Child({ onMessageChange }) {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleChange = (e) => {
+    setInputValue(e.target.value);
+    onMessageChange(e.target.value); // Send data to Parent
+  };
+
+  return (
+    <div>
+      <h3>Child Component</h3>
+      <input type="text" value={inputValue} onChange={handleChange} />
+    </div>
+  );
+}
+
+export default Child;
+```
+
+### **📌 How It Works**
+
+✔ The **Parent (`App.js`)** has a `handleChildChange` function to update its state.  
+✔ The **Parent passes this function as a prop (`onMessageChange`)** to the **Child (`Child.js`)**.  
+✔ The **Child calls `onMessageChange(e.target.value)`**, sending the input value to the Parent.
+
+---
+
+## **✅ 2. Using `useState` with `useEffect` (If Child Needs to Trigger Side Effects in Parent)**
+
+**Useful when the Parent needs to react when the Child's state changes.**
+
+📌 **Parent Component (`App.js`)**
+
+```jsx
+import React, { useState } from "react";
+import Child from "./Child";
+
+function App() {
+  const [childCount, setChildCount] = useState(0);
+
+  return (
+    <div>
+      <h2>Parent Component</h2>
+      <p>Counter from Child: {childCount}</p>
+      <Child onCountChange={setChildCount} />
+    </div>
+  );
+}
+
+export default App;
+```
+
+📌 **Child Component (`Child.js`)**
+
+```jsx
+import React, { useState, useEffect } from "react";
+
+function Child({ onCountChange }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    onCountChange(count); // Send count to Parent when updated
+  }, [count]);
+
+  return (
+    <div>
+      <h3>Child Component</h3>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+    </div>
+  );
+}
+
+export default Child;
+```
+
+### **📌 How It Works**
+
+✔ Every time the **Child's `count` state changes**, `useEffect` sends the updated value to the Parent.
+
+---
+
+## **✅ 3. Using Context API (Best for Deeply Nested Components)**
+
+**If the child is deep inside multiple components, passing functions as props (prop drilling) can be cumbersome.**  
+**The Context API allows direct communication between the Parent and Child, no matter where they are in the component tree.**
+
+📌 **Context Setup (`CounterContext.js`)**
+
+```jsx
+import React, { createContext, useState } from "react";
+
+// Create Context
+export const CounterContext = createContext();
+
+export function CounterProvider({ children }) {
+  const [count, setCount] = useState(0);
+
+  return (
+    <CounterContext.Provider value={{ count, setCount }}>
+      {children}
+    </CounterContext.Provider>
+  );
+}
+```
+
+📌 **Parent Component (`App.js`)**
+
+```jsx
+import React, { useContext } from "react";
+import { CounterProvider, CounterContext } from "./CounterContext";
+import Child from "./Child";
+
+function Parent() {
+  const { count } = useContext(CounterContext);
+
+  return (
+    <div>
+      <h2>Parent Component</h2>
+      <p>Counter from Child: {count}</p>
+      <Child />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <CounterProvider>
+      <Parent />
+    </CounterProvider>
+  );
+}
+```
+
+📌 **Child Component (`Child.js`)**
+
+```jsx
+import React, { useContext } from "react";
+import { CounterContext } from "./CounterContext";
+
+function Child() {
+  const { setCount } = useContext(CounterContext);
+
+  return (
+    <div>
+      <h3>Child Component</h3>
+      <button onClick={() => setCount((prev) => prev + 1)}>Increment</button>
+    </div>
+  );
+}
+
+export default Child;
+```
+
+### **📌 How It Works**
+
+✔ `CounterContext` provides the `count` and `setCount` state to all child components.  
+✔ The **Child updates** the counter using `setCount`, and the **Parent automatically updates** because it reads from the same Context.
+
+✅ **No need to pass props manually through multiple components!**
+
+---
+
+## **✅ 4. Using Zustand for Global State Management**
+
+If you want to share state between **Parent and Child without Context API**, you can use **Zustand**.
+
+📌 **Install Zustand**
+
+```sh
+npm install zustand
+```
+
+📌 **Create Zustand Store (`store.js`)**
+
+```js
+import create from "zustand";
+
+const useCounterStore = create((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+}));
+
+export default useCounterStore;
+```
+
+📌 **Parent Component (`App.js`)**
+
+```jsx
+import React from "react";
+import useCounterStore from "./store";
+import Child from "./Child";
+
+function App() {
+  const count = useCounterStore((state) => state.count);
+
+  return (
+    <div>
+      <h2>Parent Component</h2>
+      <p>Counter from Child: {count}</p>
+      <Child />
+    </div>
+  );
+}
+
+export default App;
+```
+
+📌 **Child Component (`Child.js`)**
+
+```jsx
+import React from "react";
+import useCounterStore from "./store";
+
+function Child() {
+  const increment = useCounterStore((state) => state.increment);
+
+  return (
+    <div>
+      <h3>Child Component</h3>
+      <button onClick={increment}>Increment</button>
+    </div>
+  );
+}
+
+export default Child;
+```
+
+### **📌 How It Works**
+
+✔ `useCounterStore` holds the state globally.  
+✔ The **Parent reads the state**, and the **Child updates it**.  
+✔ The state **automatically updates across components** without prop drilling.
+
+---
+
+## **🚀 Summary: Best Approach for Different Use Cases**
+
+| Approach                      | Best For                                            |
+| ----------------------------- | --------------------------------------------------- |
+| **Callback Function (Props)** | Simple one-level Parent-Child communication         |
+| **useState + useEffect**      | When Parent needs to react to Child's state changes |
+| **Context API**               | Deeply nested components needing shared state       |
+| **Zustand**                   | Simple global state management without Context API  |
+
+---
+
+# **8. Context API vs. Redux Store: Key Differences & When to Use What?**
+
+Both **Context API** and **Redux** are used for state management in React, but they serve different purposes. Let’s break it down.
+
+---
+
+## **1. What is Context API?**
+
+📌 **Built-in React feature** for passing state deeply without prop drilling.  
+📌 Works best for **lightweight** state management like themes, user authentication, etc.
+
+✅ **When to Use Context API?**  
+✔ Simple global state (e.g., Theme, User Auth, Language Settings).  
+✔ When state updates don’t require complex logic.  
+✔ Avoids unnecessary re-renders if used efficiently with `useMemo`.
+
+📌 **Example: Using Context API for Theme State**
+
+```jsx
+import React, { createContext, useContext, useState } from "react";
+
+// Create Context
+const ThemeContext = createContext();
+
+// Provider Component
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState("light");
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// Hook to Use Theme
+export function useTheme() {
+  return useContext(ThemeContext);
+}
+
+// App Component
+export default function App() {
+  return (
+    <ThemeProvider>
+      <ChildComponent />
+    </ThemeProvider>
+  );
+}
+
+// Child Component
+function ChildComponent() {
+  const { theme, setTheme } = useTheme();
+  return (
+    <div>
+      <p>Current Theme: {theme}</p>
+      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+        Toggle Theme
+      </button>
+    </div>
+  );
+}
+```
+
+---
+
+## **2. What is Redux Store?**
+
+📌 **External library** used for managing complex application state.  
+📌 **Predictable state container** with a single immutable store.  
+📌 Uses **actions, reducers, and middleware** for structured updates.
+
+✅ **When to Use Redux?**  
+✔ When managing **large, complex, and shared state** across multiple components.  
+✔ **If you need features like:**
+
+- Time-travel debugging.
+- Middleware for async calls (e.g., API fetching).
+- Performance optimization for large apps.
+
+📌 **Example: Redux Store for Global Counter**
+
+1️⃣ **Install Redux Toolkit**
+
+```sh
+npm install @reduxjs/toolkit react-redux
+```
+
+2️⃣ **Create Redux Store (`store.js`)**
+
+```js
+import { configureStore, createSlice } from "@reduxjs/toolkit";
+
+const counterSlice = createSlice({
+  name: "counter",
+  initialState: { count: 0 },
+  reducers: {
+    increment: (state) => {
+      state.count += 1;
+    },
+    decrement: (state) => {
+      state.count -= 1;
+    },
+  },
+});
+
+export const { increment, decrement } = counterSlice.actions;
+
+export const store = configureStore({
+  reducer: { counter: counterSlice.reducer },
+});
+```
+
+3️⃣ **Wrap App with Redux Provider (`index.js`)**
+
+```jsx
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import App from "./App";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
+```
+
+4️⃣ **Use Redux Store in Components (`Counter.js`)**
+
+```jsx
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { increment, decrement } from "./store";
+
+function Counter() {
+  const count = useSelector((state) => state.counter.count);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <h2>Counter: {count}</h2>
+      <button onClick={() => dispatch(increment())}>+</button>
+      <button onClick={() => dispatch(decrement())}>-</button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+---
+
+## **3. Key Differences: Context API vs. Redux**
+
+| Feature             | Context API                                       | Redux                                                     |
+| ------------------- | ------------------------------------------------- | --------------------------------------------------------- |
+| **Purpose**         | Passing state between deeply nested components    | Managing large-scale app state                            |
+| **Complexity**      | Simple                                            | More structured (actions, reducers, store)                |
+| **Performance**     | Can cause unnecessary re-renders if not optimized | Optimized with selectors, middleware, and dev tools       |
+| **Async Support**   | Not built-in (requires extra handling)            | Supports middleware like Redux Thunk/Saga for async calls |
+| **Debugging Tools** | No built-in debugging tools                       | Redux DevTools for tracking state changes                 |
+| **Best for**        | Theming, authentication, UI state                 | Global state, API state, real-time updates                |
+
+---
+
+## **4. When to Choose What?**
+
+| Use Case                                | Context API               | Redux  |
+| --------------------------------------- | ------------------------- | ------ |
+| **Theme Switching**                     | ✅ Yes                    | ❌ No  |
+| **User Authentication**                 | ✅ Yes                    | ❌ No  |
+| **Managing API Data**                   | ❌ No                     | ✅ Yes |
+| **State Shared Across Many Components** | ❌ No (causes re-renders) | ✅ Yes |
+| **Time-Travel Debugging**               | ❌ No                     | ✅ Yes |
+| **Optimized for Large Apps**            | ❌ No                     | ✅ Yes |
+
+---
+
+## **5. When to Use Both Together?**
+
+Sometimes, you might **combine Redux and Context API**:  
+✔ **Use Context API for UI state** (e.g., theme, user auth).  
+✔ **Use Redux for app-wide data** (e.g., API responses, large shared state).
+
+📌 **Example: Theme with Context API + Data Management with Redux**
+
+- **Context API for Theme State**
+- **Redux for API Data (e.g., Products, Users, Orders)**
+
+---
+
+## **🔥 Conclusion**
+
+- **Use Context API** when you need to pass state **without unnecessary complexity**.
+- **Use Redux** when handling **complex, shared state** with API calls and debugging needs.
+- **For small to medium projects**, Context API is enough.
+- **For large-scale apps**, Redux is more scalable.
+
+Yes! **You can create multiple states using Redux** by defining multiple **slices** and combining them in the Redux store.
+
+---
+
+# **9. How to Manage Multiple States in Redux?**
+
+📌 **Use Redux Toolkit (`createSlice`)** to create separate states for different features.  
+📌 **Combine multiple slices** into a single store using `configureStore`.
+
+---
+
+### **✅ Example: Managing User & Counter States in Redux**
+
+We will create **two slices**:  
+1️⃣ **Counter Slice** → Manages a simple counter.  
+2️⃣ **User Slice** → Manages user authentication state.
+
+---
+
+### **1️⃣ Install Redux Toolkit (If Not Installed)**
+
+```sh
+npm install @reduxjs/toolkit react-redux
+```
+
+---
+
+### **2️⃣ Create `counterSlice.js` (For Counter State)**
+
+```js
+import { createSlice } from "@reduxjs/toolkit";
+
+const counterSlice = createSlice({
+  name: "counter",
+  initialState: { count: 0 },
+  reducers: {
+    increment: (state) => {
+      state.count += 1;
+    },
+    decrement: (state) => {
+      state.count -= 1;
+    },
+    reset: (state) => {
+      state.count = 0;
+    },
+  },
+});
+
+export const { increment, decrement, reset } = counterSlice.actions;
+export default counterSlice.reducer;
+```
+
+---
+
+### **3️⃣ Create `userSlice.js` (For User Authentication State)**
+
+```js
+import { createSlice } from "@reduxjs/toolkit";
+
+const userSlice = createSlice({
+  name: "user",
+  initialState: { name: "", isAuthenticated: false },
+  reducers: {
+    login: (state, action) => {
+      state.name = action.payload; // Set username
+      state.isAuthenticated = true;
+    },
+    logout: (state) => {
+      state.name = "";
+      state.isAuthenticated = false;
+    },
+  },
+});
+
+export const { login, logout } = userSlice.actions;
+export default userSlice.reducer;
+```
+
+---
+
+### **4️⃣ Create `store.js` (Combine Multiple States)**
+
+```js
+import { configureStore } from "@reduxjs/toolkit";
+import counterReducer from "./counterSlice";
+import userReducer from "./userSlice";
+
+export const store = configureStore({
+  reducer: {
+    counter: counterReducer, // Manages counter state
+    user: userReducer, // Manages user authentication state
+  },
+});
+```
+
+---
+
+### **5️⃣ Wrap App with Redux Provider (`index.js`)**
+
+```jsx
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import App from "./App";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
+```
+
+---
+
+### **6️⃣ Use Multiple States in Components**
+
+📌 **Component 1: Counter Component (`Counter.js`)**
+
+```jsx
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { increment, decrement, reset } from "./counterSlice";
+
+function Counter() {
+  const count = useSelector((state) => state.counter.count);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <h2>Counter: {count}</h2>
+      <button onClick={() => dispatch(increment())}>+</button>
+      <button onClick={() => dispatch(decrement())}>-</button>
+      <button onClick={() => dispatch(reset())}>Reset</button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+---
+
+📌 **Component 2: User Authentication Component (`User.js`)**
+
+```jsx
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { login, logout } from "./userSlice";
+
+function User() {
+  const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <h2>User Authentication</h2>
+      {user.isAuthenticated ? (
+        <>
+          <p>Welcome, {user.name}!</p>
+          <button onClick={() => dispatch(logout())}>Logout</button>
+        </>
+      ) : (
+        <>
+          <button onClick={() => dispatch(login("John Doe"))}>Login</button>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default User;
+```
+
+---
+
+### **7️⃣ Use Both Components in `App.js`**
+
+```jsx
+import React from "react";
+import Counter from "./Counter";
+import User from "./User";
+
+function App() {
+  return (
+    <div>
+      <h1>Redux Multiple State Example</h1>
+      <Counter />
+      <User />
+    </div>
+  );
+}
+
+export default App;
+```
+
+---
+
+## **🎯 Summary: Managing Multiple States in Redux**
+
+| Feature             | Context API                         | Redux                            |
+| ------------------- | ----------------------------------- | -------------------------------- |
+| **Multiple States** | ❌ Not ideal for complex cases      | ✅ Easy with multiple slices     |
+| **Performance**     | ❌ Can cause unnecessary re-renders | ✅ Optimized with Redux DevTools |
+| **Scalability**     | ❌ Hard to manage in large apps     | ✅ Best for large applications   |
+| **Best for**        | UI state, themes, simple auth       | API data, complex global state   |
+
+✅ **Yes! You can manage multiple states using Redux** by creating multiple slices and combining them in `configureStore`. 🚀
+
+---

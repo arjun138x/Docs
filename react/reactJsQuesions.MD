@@ -144,7 +144,7 @@ React provides several hooks to optimize state management, performance, and comp
 
 ## **1️⃣ `useRef` - Persist Values Without Re-rendering**
 
-🔹 **What is `useRef`?**
+**What is `useRef`?**
 
 - `useRef` **stores a mutable value** that persists across renders **without causing re-renders**.
 - It’s commonly used for:  
@@ -220,7 +220,7 @@ export default LoginPage;
 
 ## **2️⃣ `useMemo` - Optimize Expensive Calculations**
 
-🔹 **What is `useMemo`?**
+**What is `useMemo`?**
 
 - `useMemo` **memoizes the result of a computation** and only recalculates it when dependencies change.
 - This helps in preventing unnecessary recalculations.
@@ -256,7 +256,7 @@ function MyComponent() {
 
 ## **3️⃣ `useCallback` - Memoize Functions for Optimization**
 
-🔹 **What is `useCallback`?**
+**What is `useCallback`?**
 
 - `useCallback` **memoizes a function** so that it does not get recreated on every render.
 - Useful when passing **functions as props** to child components to prevent unnecessary re-renders.
@@ -341,7 +341,7 @@ export default ParentComponent;
 
 ---
 
-### **🔹 Expected Behavior**
+### **Expected Behavior**
 
 | Action                  | What Happens?                                                                                                                              |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -354,7 +354,7 @@ export default ParentComponent;
 
 ## **4️⃣ `useReducer` - Manage Complex State Logic**
 
-🔹 **What is `useReducer`?**
+**What is `useReducer`?**
 
 - `useReducer` is an **alternative to `useState`** when dealing with **complex state logic**.
 - It is useful when state transitions depend on the **previous state** or involve **multiple related values**.
@@ -462,7 +462,7 @@ export default Counter;
 
 ---
 
-## **🔹 Summary: When to Use What?**
+## **Summary: When to Use What?**
 
 | Hook          | Purpose                                  | Best Use Cases                                    |
 | ------------- | ---------------------------------------- | ------------------------------------------------- |
@@ -529,7 +529,7 @@ const Counter = () => {
 export default Counter;
 ```
 
-**🔹 Why use `useState` here?**
+**Why use `useState` here?**
 
 - The state is simple (just a number).
 - Each update is **independent** and does not require complex logic.
@@ -590,7 +590,7 @@ const TodoApp = () => {
 export default TodoApp;
 ```
 
-**🔹 Why use `useReducer` here?**
+**Why use `useReducer` here?**
 
 - The state has multiple objects (`id`, `description`).
 - Different **actions** (`ADD_TODO`, `REMOVE_TODO`) need to be handled.
@@ -708,3 +708,161 @@ componentInstance.functionalIncrement();
    - Functional updates, like `setCount(prevCount => prevCount + 1)`, are the preferred way to update state when the new state depends on the previous state. This ensures that you're working with the most up-to-date state value.
 
 This example provides a basic understanding of the inner workings of `useState`. Remember that the actual React implementation is much more complex and optimized for performance.
+
+# **6. Controlled vs. Uncontrolled Components in React**
+
+In **React**, there are two types of form components based on how their values are managed:
+
+1️⃣ **Controlled Components** → State is managed by React (via `useState`).  
+2️⃣ **Uncontrolled Components** → State is managed by the DOM (via `useRef`).
+
+---
+
+## **1. Controlled Component**
+
+✅ React **controls** the input value using `useState`.  
+✅ Every change in the input field updates the state.
+
+### **Example: Controlled Input with `useState`**
+
+```jsx
+import React, { useState } from "react";
+
+function ControlledInput() {
+  const [name, setName] = useState(""); // React manages state
+
+  return (
+    <div>
+      <h2>Controlled Component</h2>
+      <input
+        type="text"
+        value={name} // Value comes from state
+        onChange={(e) => setName(e.target.value)} // Updates state on change
+      />
+      <p>Typed Name: {name}</p>
+    </div>
+  );
+}
+
+export default ControlledInput;
+```
+
+### **📌 How It Works**
+
+- `useState` holds the value of the input field.
+- When the user types, `onChange` updates the state.
+- The input field **always reflects the state value**.
+
+✅ **Advantages:**  
+✔ Easier to track input changes.  
+✔ Useful for validation, transformations, or controlling inputs dynamically.  
+✔ Recommended in modern React apps.
+
+---
+
+## **2. Uncontrolled Component**
+
+✅ React **does NOT** control the input value.  
+✅ The value is directly **managed by the DOM** using `useRef`.
+
+### **Example: Uncontrolled Input with `useRef`**
+
+```jsx
+import React, { useRef } from "react";
+
+function UncontrolledInput() {
+  const nameRef = useRef(null); // Reference to DOM element
+
+  const handleSubmit = () => {
+    alert(`Entered Name: ${nameRef.current.value}`); // Accessing value directly from DOM
+  };
+
+  return (
+    <div>
+      <h2>Uncontrolled Component</h2>
+      <input type="text" ref={nameRef} /> {/* No state management */}
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+}
+
+export default UncontrolledInput;
+```
+
+### **📌 How It Works**
+
+- `useRef` is used to access the input field directly.
+- The value is **not stored in React state**.
+- When submitting, `nameRef.current.value` fetches the input value from the DOM.
+
+✅ **Advantages:**  
+✔ Useful for accessing values **without re-rendering**.  
+✔ Works well with third-party libraries that require direct DOM manipulation.
+
+---
+
+## **Key Differences: Controlled vs. Uncontrolled**
+
+| Feature              | Controlled Component                  | Uncontrolled Component                              |
+| -------------------- | ------------------------------------- | --------------------------------------------------- |
+| **State Management** | Managed by React (`useState`)         | Managed by the DOM (`useRef`)                       |
+| **Reactivity**       | Updates with state changes            | Does not trigger re-renders                         |
+| **Value Access**     | From React state                      | From DOM (`ref.current.value`)                      |
+| **Use Case**         | Forms, validation, input restrictions | Interacting with third-party libraries, file inputs |
+
+---
+
+## **When to Use What?**
+
+| Use Case                                         | Recommended Approach |
+| ------------------------------------------------ | -------------------- |
+| Need validation, transformation, or live updates | **Controlled**       |
+| Need minimal re-renders for performance          | **Uncontrolled**     |
+| Working with legacy or third-party libraries     | **Uncontrolled**     |
+
+---
+
+## **🔥 Example: Combining Both**
+
+Sometimes, you may need both approaches together.
+
+```jsx
+import React, { useState, useRef } from "react";
+
+function HybridComponent() {
+  const [email, setEmail] = useState(""); // Controlled
+  const fileRef = useRef(null); // Uncontrolled
+
+  const handleSubmit = () => {
+    alert(`Email: ${email}\nFile: ${fileRef.current.files[0]?.name}`);
+  };
+
+  return (
+    <div>
+      <h2>Hybrid Component</h2>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input type="file" ref={fileRef} />{" "}
+      {/* File inputs are usually uncontrolled */}
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+}
+
+export default HybridComponent;
+```
+
+✅ Controlled for text input  
+✅ Uncontrolled for file input (as file inputs don’t work well with `useState`)
+
+---
+
+## **🚀 Summary**
+
+| Type             | Uses `useState`? | Uses `useRef`? | Best For                                              |
+| ---------------- | ---------------- | -------------- | ----------------------------------------------------- |
+| **Controlled**   | ✅ Yes           | ❌ No          | Forms, validation, dynamic updates                    |
+| **Uncontrolled** | ❌ No            | ✅ Yes         | Direct DOM access, file inputs, third-party libraries |

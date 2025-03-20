@@ -311,4 +311,274 @@ console.log(lru.get(2)); // -1 (removed)
 
 ---
 
-These are some **challenging JavaScript coding questions** often asked in interviews. Want more? Let me know! 🚀
+Here are **more advanced JavaScript coding questions** for interview preparation:
+
+---
+
+### **11. Find the Longest Substring Without Repeating Characters**
+
+#### **Question:**
+
+Given a string, find the length of the longest substring without repeating characters.
+
+#### **Solution:**
+
+```js
+function longestUniqueSubstring(s) {
+  let seen = new Set();
+  let left = 0,
+    maxLength = 0;
+
+  for (let right = 0; right < s.length; right++) {
+    while (seen.has(s[right])) {
+      seen.delete(s[left]);
+      left++;
+    }
+    seen.add(s[right]);
+    maxLength = Math.max(maxLength, right - left + 1);
+  }
+
+  return maxLength;
+}
+
+console.log(longestUniqueSubstring("abcabcbb")); // 3 ("abc")
+console.log(longestUniqueSubstring("bbbbb")); // 1 ("b")
+console.log(longestUniqueSubstring("pwwkew")); // 3 ("wke")
+```
+
+---
+
+### **12. Find Pairs in an Array That Sum to a Target**
+
+#### **Question:**
+
+Given an array of integers, return all pairs that sum to a given target.
+
+#### **Solution:**
+
+```js
+function findPairs(arr, target) {
+  let seen = new Set();
+  let pairs = [];
+
+  for (let num of arr) {
+    let complement = target - num;
+    if (seen.has(complement)) {
+      pairs.push([num, complement]);
+    }
+    seen.add(num);
+  }
+
+  return pairs;
+}
+
+console.log(findPairs([1, 2, 3, 4, 5, 6], 7)); // [[4, 3], [5, 2], [6, 1]]
+```
+
+---
+
+### **13. Merge Two Sorted Arrays Without Duplicates**
+
+#### **Question:**
+
+Given two sorted arrays, merge them into one sorted array without duplicates.
+
+#### **Solution:**
+
+```js
+function mergeSortedArrays(arr1, arr2) {
+  let merged = [...new Set([...arr1, ...arr2])];
+  return merged.sort((a, b) => a - b);
+}
+
+console.log(mergeSortedArrays([1, 3, 5], [2, 3, 6])); // [1, 2, 3, 5, 6]
+```
+
+---
+
+### **14. Find the Majority Element in an Array**
+
+#### **Question:**
+
+Given an array, find the majority element (appears more than `n/2` times).
+
+#### **Solution:** (Using **Boyer-Moore Voting Algorithm**)
+
+```js
+function majorityElement(nums) {
+  let count = 0,
+    candidate = null;
+
+  for (let num of nums) {
+    if (count === 0) candidate = num;
+    count += num === candidate ? 1 : -1;
+  }
+
+  return candidate;
+}
+
+console.log(majorityElement([3, 2, 3])); // 3
+console.log(majorityElement([2, 2, 1, 1, 1, 2, 2])); // 2
+```
+
+---
+
+### **15. Find the Kth Largest Element in an Array**
+
+#### **Question:**
+
+Find the `k`th largest element in an unsorted array.
+
+#### **Solution:**
+
+```js
+function kthLargestElement(arr, k) {
+  return arr.sort((a, b) => b - a)[k - 1];
+}
+
+console.log(kthLargestElement([3, 2, 1, 5, 6, 4], 2)); // 5
+```
+
+---
+
+### **16. Check if Two Strings are Anagrams**
+
+#### **Question:**
+
+Determine if two strings are anagrams of each other.
+
+#### **Solution:**
+
+```js
+function isAnagram(str1, str2) {
+  return str1.split("").sort().join("") === str2.split("").sort().join("");
+}
+
+console.log(isAnagram("listen", "silent")); // true
+console.log(isAnagram("hello", "world")); // false
+```
+
+---
+
+### **17. Implement a Function to Generate Fibonacci Numbers**
+
+#### **Question:**
+
+Generate the first `n` Fibonacci numbers.
+
+#### **Solution:**
+
+```js
+function fibonacci(n) {
+  let fib = [0, 1];
+  for (let i = 2; i < n; i++) {
+    fib[i] = fib[i - 1] + fib[i - 2];
+  }
+  return fib;
+}
+
+console.log(fibonacci(10)); // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+```
+
+---
+
+### **18. Implement a Function to Rotate an Array**
+
+#### **Question:**
+
+Rotate an array to the right by `k` steps.
+
+#### **Solution:**
+
+```js
+function rotateArray(arr, k) {
+  k = k % arr.length;
+  return [...arr.slice(-k), ...arr.slice(0, -k)];
+}
+
+console.log(rotateArray([1, 2, 3, 4, 5, 6], 2)); // [5, 6, 1, 2, 3, 4]
+```
+
+---
+
+### **19. Implement a Function to Find the Longest Palindromic Substring**
+
+#### **Question:**
+
+Find the longest palindromic substring in a given string.
+
+#### **Solution:**
+
+```js
+function longestPalindrome(s) {
+  let res = "";
+
+  for (let i = 0; i < s.length; i++) {
+    let odd = expandAroundCenter(s, i, i);
+    let even = expandAroundCenter(s, i, i + 1);
+
+    let longer = odd.length > even.length ? odd : even;
+    if (longer.length > res.length) res = longer;
+  }
+
+  return res;
+}
+
+function expandAroundCenter(s, left, right) {
+  while (left >= 0 && right < s.length && s[left] === s[right]) {
+    left--;
+    right++;
+  }
+  return s.slice(left + 1, right);
+}
+
+console.log(longestPalindrome("babad")); // "bab" or "aba"
+console.log(longestPalindrome("cbbd")); // "bb"
+```
+
+---
+
+### **20. Find the Intersection of Two Arrays**
+
+#### **Question:**
+
+Find the common elements between two arrays.
+
+#### **Solution:**
+
+```js
+function arrayIntersection(arr1, arr2) {
+  let set1 = new Set(arr1);
+  return arr2.filter((num) => set1.has(num));
+}
+
+console.log(arrayIntersection([1, 2, 3, 4], [2, 4, 6, 8])); // [2, 4]
+```
+
+---
+
+### **21. Implement a Function to Generate Power Set**
+
+#### **Question:**
+
+Generate all subsets of a given set (Power Set).
+
+#### **Solution:**
+
+```js
+function powerSet(arr) {
+  let result = [[]];
+
+  for (let num of arr) {
+    let newSubsets = result.map((subset) => [...subset, num]);
+    result.push(...newSubsets);
+  }
+
+  return result;
+}
+
+console.log(powerSet([1, 2, 3]));
+// [[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]
+```
+
+---

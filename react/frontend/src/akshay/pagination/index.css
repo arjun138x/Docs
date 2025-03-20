@@ -1,0 +1,36 @@
+.products-container {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.product {
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+  text-align: center;
+  border: 1px solid black;
+}
+
+.product-thumbnail {
+  max-height: 100px;
+  max-width: 100px;
+}
+
+.page-nation-container {
+  text-align: center;
+  display: flex;
+  margin: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-number {
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid black;
+  /* background-color: aqua; */
+}
+.active {
+  background-color: aqua;
+}

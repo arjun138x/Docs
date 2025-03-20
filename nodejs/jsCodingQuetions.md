@@ -582,3 +582,291 @@ console.log(powerSet([1, 2, 3]));
 ```
 
 ---
+
+Here are more **popular and complex JavaScript problems** commonly asked in interviews:
+
+---
+
+### **22. Trapping Rain Water (Hard)**
+
+#### **Question:**
+
+Given an array representing elevation heights, compute how much water it can trap after raining.
+
+#### **Solution:**
+
+```js
+function trapRainWater(heights) {
+  let left = 0,
+    right = heights.length - 1;
+  let leftMax = 0,
+    rightMax = 0,
+    trappedWater = 0;
+
+  while (left < right) {
+    if (heights[left] < heights[right]) {
+      leftMax = Math.max(leftMax, heights[left]);
+      trappedWater += leftMax - heights[left];
+      left++;
+    } else {
+      rightMax = Math.max(rightMax, heights[right]);
+      trappedWater += rightMax - heights[right];
+      right--;
+    }
+  }
+
+  return trappedWater;
+}
+
+console.log(trapRainWater([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])); // 6
+```
+
+---
+
+### **23. Find the Longest Consecutive Sequence (Hard)**
+
+#### **Question:**
+
+Given an unsorted array, find the length of the longest consecutive elements sequence.
+
+#### **Solution:**
+
+```js
+function longestConsecutive(nums) {
+  let numSet = new Set(nums);
+  let maxLength = 0;
+
+  for (let num of nums) {
+    if (!numSet.has(num - 1)) {
+      let currentNum = num;
+      let currentLength = 1;
+
+      while (numSet.has(currentNum + 1)) {
+        currentNum++;
+        currentLength++;
+      }
+
+      maxLength = Math.max(maxLength, currentLength);
+    }
+  }
+
+  return maxLength;
+}
+
+console.log(longestConsecutive([100, 4, 200, 1, 3, 2])); // 4 (1,2,3,4)
+```
+
+---
+
+### **24. Merge Intervals (Medium)**
+
+#### **Question:**
+
+Given an array of intervals, merge overlapping intervals.
+
+#### **Solution:**
+
+```js
+function mergeIntervals(intervals) {
+  if (!intervals.length) return [];
+
+  intervals.sort((a, b) => a[0] - b[0]);
+  let result = [intervals[0]];
+
+  for (let i = 1; i < intervals.length; i++) {
+    let prev = result[result.length - 1];
+    let curr = intervals[i];
+
+    if (curr[0] <= prev[1]) {
+      prev[1] = Math.max(prev[1], curr[1]);
+    } else {
+      result.push(curr);
+    }
+  }
+
+  return result;
+}
+
+console.log(
+  mergeIntervals([
+    [1, 3],
+    [2, 6],
+    [8, 10],
+    [15, 18],
+  ])
+); // [[1,6],[8,10],[15,18]]
+```
+
+---
+
+### **25. Three Sum (Medium)**
+
+#### **Question:**
+
+Find all unique triplets in an array that sum up to zero.
+
+#### **Solution:**
+
+```js
+function threeSum(nums) {
+  nums.sort((a, b) => a - b);
+  let result = [];
+
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+
+    let left = i + 1,
+      right = nums.length - 1;
+
+    while (left < right) {
+      let sum = nums[i] + nums[left] + nums[right];
+
+      if (sum === 0) {
+        result.push([nums[i], nums[left], nums[right]]);
+        while (nums[left] === nums[left + 1]) left++;
+        while (nums[right] === nums[right - 1]) right--;
+        left++;
+        right--;
+      } else if (sum < 0) {
+        left++;
+      } else {
+        right--;
+      }
+    }
+  }
+
+  return result;
+}
+
+console.log(threeSum([-1, 0, 1, 2, -1, -4])); // [[-1,-1,2],[-1,0,1]]
+```
+
+---
+
+### **26. Word Break (Medium)**
+
+#### **Question:**
+
+Given a string and a dictionary of words, determine if the string can be segmented into words from the dictionary.
+
+#### **Solution:**
+
+```js
+function wordBreak(s, wordDict) {
+  let wordSet = new Set(wordDict);
+  let dp = Array(s.length + 1).fill(false);
+  dp[0] = true;
+
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 0; j < i; j++) {
+      if (dp[j] && wordSet.has(s.substring(j, i))) {
+        dp[i] = true;
+        break;
+      }
+    }
+  }
+
+  return dp[s.length];
+}
+
+console.log(wordBreak("leetcode", ["leet", "code"])); // true
+console.log(wordBreak("applepenapple", ["apple", "pen"])); // true
+console.log(wordBreak("catsandog", ["cats", "dog", "sand", "and", "cat"])); // false
+```
+
+---
+
+### **27. Implement a Promise Pool (Advanced)**
+
+#### **Question:**
+
+Implement a function that runs a maximum of `N` promises concurrently.
+
+#### **Solution:**
+
+```js
+function promisePool(tasks, n) {
+  let index = 0;
+  let running = 0;
+
+  return new Promise((resolve) => {
+    function next() {
+      if (index >= tasks.length && running === 0) resolve();
+
+      while (running < n && index < tasks.length) {
+        running++;
+        tasks[index++]().finally(() => {
+          running--;
+          next();
+        });
+      }
+    }
+    next();
+  });
+}
+
+// Example usage:
+const tasks = [
+  () =>
+    new Promise((res) => setTimeout(() => res(console.log("Task 1")), 1000)),
+  () => new Promise((res) => setTimeout(() => res(console.log("Task 2")), 500)),
+  () =>
+    new Promise((res) => setTimeout(() => res(console.log("Task 3")), 1500)),
+  () => new Promise((res) => setTimeout(() => res(console.log("Task 4")), 800)),
+];
+
+promisePool(tasks, 2);
+```
+
+---
+
+### **28. Serialize and Deserialize a Binary Tree (Hard)**
+
+#### **Question:**
+
+Serialize and deserialize a binary tree.
+
+#### **Solution:**
+
+```js
+class TreeNode {
+  constructor(val, left = null, right = null) {
+    this.val = val;
+    this.left = left;
+    this.right = right;
+  }
+}
+
+function serialize(root) {
+  if (!root) return "null";
+  return `${root.val},${serialize(root.left)},${serialize(root.right)}`;
+}
+
+function deserialize(data) {
+  let nodes = data.split(",");
+
+  function buildTree() {
+    let val = nodes.shift();
+    if (val === "null") return null;
+    let node = new TreeNode(Number(val));
+    node.left = buildTree();
+    node.right = buildTree();
+    return node;
+  }
+
+  return buildTree();
+}
+
+// Example usage:
+let tree = new TreeNode(
+  1,
+  new TreeNode(2),
+  new TreeNode(3, new TreeNode(4), new TreeNode(5))
+);
+let serialized = serialize(tree);
+console.log(serialized); // "1,2,null,null,3,4,null,null,5,null,null"
+let deserialized = deserialize(serialized);
+console.log(deserialized);
+```
+
+---

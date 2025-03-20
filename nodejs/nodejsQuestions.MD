@@ -207,12 +207,13 @@ Deeply nested callbacks make code harder to read and maintain.
 
 ## **2️⃣ Promises**
 
-A **Promise** represents a value that might be available now, later, or never.  
+A **Promise** is an object that represents the eventual completion or failure of an asynchronous operation.
+
 A Promise has **three states**:
 
-- **Pending** (Initial state)
-- **Resolved (Fulfilled)** (Success case)
-- **Rejected** (Error case)
+- **pending**: Initial state
+- **fulfilled**: Operation completed successfully
+- **rejected**: Operation failed
 
 ```js
 function print(string) {
@@ -771,3 +772,223 @@ In Node.js (or generally in REST APIs), the HTTP methods **GET, POST, PUT, and P
    ```
 
 4. **TRACE** - Used for debugging purposes to see what changes were made to the request.
+
+# 6. **What is the event loop in JavaScript?**
+
+The **event loop** is a mechanism in JavaScript that handles asynchronous operations by continuously checking the call stack and the task queue.
+
+- **Call Stack**: Executes synchronous code.
+- **Task Queue**: Stores callback functions from asynchronous operations.
+- **Microtask Queue**: Stores promises and other high-priority tasks.
+- **Macrotask Queue**: Stores intervals and other low-priority tasks.
+- **Execution Order**:
+  - Executes all synchronous code in the call stack.
+  - Executes all microtasks (e.g., `Promise.then()`, `MutationObserver`).
+  - Executes one task from the task queue (e.g., `setTimeout`, `setInterval`).
+
+```js
+console.log("Start");
+
+setTimeout(() => console.log("Timeout"), 0);
+
+Promise.resolve().then(() => console.log("Promise"));
+
+console.log("End");
+
+// Output:
+// Start
+// End
+// Promise
+// Timeout
+```
+
+---
+
+# 7. **Explain `this` in JavaScript.**
+
+The value of `this` depends on how a function is called:
+
+- **Global Scope (non-strict mode)**: `this` refers to the `window` object.
+- **Global Scope (strict mode)**: `this` is `undefined`.
+- **Inside an Object Method**: `this` refers to the object.
+- **Arrow Functions**: `this` is lexically inherited (does not create its own `this`).
+- **Constructor Function**: `this` refers to the newly created object.
+
+```js
+const obj = {
+  name: "Alice",
+  greet() {
+    console.log(this.name);
+  },
+};
+obj.greet(); // Alice
+
+const arrowFunc = () => console.log(this);
+arrowFunc(); // `this` depends on the surrounding scope
+
+function regularFunc() {
+  console.log(this);
+}
+regularFunc(); // In strict mode: undefined, otherwise window
+```
+
+# 8. **What is the difference between `var`, `let`, and `const`?**
+
+| Feature      | `var`                                | `let`                     | `const`                   |
+| ------------ | ------------------------------------ | ------------------------- | ------------------------- |
+| Scope        | Function-scoped                      | Block-scoped              | Block-scoped              |
+| Hoisting     | Hoisted (initialized as `undefined`) | Hoisted (not initialized) | Hoisted (not initialized) |
+| Reassignable | Yes                                  | Yes                       | No                        |
+| Redeclarable | Yes                                  | No                        | No                        |
+
+```js
+console.log(a); // undefined (hoisting)
+var a = 10;
+
+// console.log(b); // Error: Cannot access 'b' before initialization
+let b = 20;
+
+const c = 30;
+c = 40; // Error: Assignment to constant variable
+```
+
+### Example 2
+
+```js
+if (true) {
+  var a = 10;
+  let b = 20;
+  const c = 30;
+}
+
+console.log(a); // 10 (hoisting)
+console.log(b); // Error: Cannot access 'b' before initialization
+console.log(c); // Error: Cannot access 'b' before initialization
+```
+
+---
+
+# 9. **Explain `call()`, `apply()`, and `bind()`.**
+
+- These methods are used to manipulate the `.this()` in javascript
+- **call() :** Calls a function with a given this value and arguments passed individually.
+- **apply() :** Similar to call(), but arguments are passed as an array.
+- **bind() :**
+  - Returns a new function with this set to the specified object.
+  - Unlike call() and apply(), it does not immediately invoke the function.
+
+| Method  | Function Invocation          | Arguments           |
+| ------- | ---------------------------- | ------------------- |
+| `call`  | Invokes function immediately | Passed individually |
+| `apply` | Invokes function immediately | Passed as an array  |
+| `bind`  | Returns a new function       | Passed individually |
+
+```js
+function greet(greeting, punctuation) {
+  console.log(`${greeting}, ${this.name}${punctuation}`);
+}
+
+const person = { name: "Alice" };
+
+greet.call(person, "Hello", "!"); // Hello, Alice!
+greet.apply(person, ["Hi", "."]); // Hi, Alice.
+const boundFunc = greet.bind(person, "Hey");
+boundFunc("?"); // Hey, Alice?
+```
+
+# 10. **What is debouncing and throttling?**
+
+| Feature        | Description                                                             | Use Case                      |
+| -------------- | ----------------------------------------------------------------------- | ----------------------------- |
+| **Debouncing** | Ensures a function is executed only after a certain delay of inactivity | Search bar suggestions        |
+| **Throttling** | Ensures a function is executed at most once in a given time interval    | Window resizing, Scroll event |
+
+**Debounce Example:**
+
+```js
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+const log = debounce(() => console.log("Debounced!"), 300);
+window.addEventListener("resize", log);
+```
+
+**Throttle Example:**
+
+```js
+function throttle(func, interval) {
+  let lastCall = 0;
+  return function (...args) {
+    const now = Date.now();
+    if (now - lastCall >= interval) {
+      lastCall = now;
+      func.apply(this, args);
+    }
+  };
+}
+
+const log = throttle(() => console.log("Throttled!"), 1000);
+window.addEventListener("scroll", log);
+```
+
+---
+
+# 11. **What is the difference between `==` and `===` in JavaScript?**
+
+| Operator | Type Coercion | Checks Value | Checks Type |
+| -------- | ------------- | ------------ | ----------- |
+| `==`     | Yes           | Yes          | No          |
+| `===`    | No            | Yes          | Yes         |
+
+```js
+console.log(5 == "5"); // true  (type coercion)
+console.log(5 === "5"); // false (strict comparison)
+```
+
+---
+
+# 12. **What are generators in JavaScript?**
+
+A **generator** is a special function that can pause execution and resume later.
+
+```js
+function* generatorFunction() {
+  yield "First";
+  yield "Second";
+  yield "Third";
+}
+
+const gen = generatorFunction();
+console.log(gen.next().value); // First
+console.log(gen.next().value); // Second
+console.log(gen.next().value); // Third
+```
+
+Generators are useful for **lazy evaluation** and **iterating over large datasets**.
+
+---
+
+### 13. **What is the difference between deep and shallow copy?**
+
+| Type             | Description                                                                | Example                                               |
+| ---------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Shallow Copy** | Copies only the first level of an object, nested objects remain references | `Object.assign({}, obj)` or `{ ...obj }`              |
+| **Deep Copy**    | Recursively copies all levels of an object                                 | `JSON.parse(JSON.stringify(obj))` or using **Lodash** |
+
+```js
+const obj = { a: 1, b: { c: 2 } };
+const shallowCopy = { ...obj };
+shallowCopy.b.c = 42;
+
+console.log(obj.b.c); // 42 (Changed!)
+
+const deepCopy = JSON.parse(JSON.stringify(obj));
+deepCopy.b.c = 99;
+
+console.log(obj.b.c); // Still 42 (Not affected!)
+```

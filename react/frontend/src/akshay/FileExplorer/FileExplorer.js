@@ -1,104 +1,104 @@
 import React, { useState } from "react";
 
 const FileExplorer = () => {
-  const [structure, setStructure] = useState([]);
+  const [structure, setStructure] = useState([
+    {
+      id: 1,
+      name: "frontend",
+      isFolder: true,
+      children: [
+        {
+          name: "src",
+          isFolder: true,
+          id: 2,
+          children: [{ name: "index.js", isFolder: false, id: 30 }],
+        },
+        { name: "index.js", isFolder: false, id: 3 },
+      ],
+    },
+    { name: "backend", isFolder: true, children: [], id: 4 },
+  ]);
 
-  // Function to add a new folder or file
-  const addItem = (parentPath, type) => {
-    const name = prompt(`Enter ${type} name:`);
-    if (!name) return;
-    setStructure((prev) =>
-      addToStructure(prev, parentPath, {
-        name,
-        type,
-        children: type === "folder" ? [] : undefined,
-      })
-    );
+  const onRemove = (id) => {
+    function support(arr, id) {
+      return arr
+        .filter((obj) => obj.id !== id)
+        .map((child) => ({
+          ...child,
+          children: child.children ? support(child.children, id) : [],
+        }));
+    }
+
+    setStructure((prv) => support(prv, id));
   };
 
-  // Function to remove a folder or file
-  const removeItem = (path) => {
-    setStructure((prev) => removeFromStructure(prev, path));
+  const onAdd = (id, type) => {
+    const name = prompt(`Enter the ${type} name`);
+    if (!name) return;
+    const isFolder = type === "folder" ? true : false;
+
+    function support(arr, id) {
+      const data = arr.map((obj) => {
+        if (obj.id === id) {
+          return {
+            ...obj,
+            children: [
+              ...obj.children,
+              { name, isFolder, id: new Date().toString(), children: [] },
+            ],
+          };
+        }
+
+        return {
+          ...obj,
+          children: obj.children ? support(obj.children, id) : [],
+        };
+      });
+      return data;
+    }
+
+    setStructure((prev) => support(prev, id));
   };
 
   return (
     <div>
-      <h2>File Explorer</h2>
-      {/* Button to add a root-level folder */}
-      <button onClick={() => addItem([], "folder")}>Add Root Folder</button>
-      <FileTree
-        data={structure}
-        addItem={addItem}
-        removeItem={removeItem}
-        path={[]}
-      />
+      {console.log(structure)}
+      {structure.map((obj) => (
+        <ul>
+          <CreateStructure onRemove={onRemove} onAdd={onAdd} data={obj} />
+        </ul>
+      ))}
     </div>
   );
 };
 
-const FileTree = ({ data, addItem, removeItem, path }) => {
+const CreateStructure = ({ data, onRemove, onAdd }) => {
+  const { id, isFolder, name, children } = data;
   return (
-    <ul>
-      {data.map((item, index) => {
-        const itemPath = [...path, index];
-        return (
-          <li key={index}>
-            {item.type === "folder" ? "📁" : "📄"} {item.name}
-            {/* Show add buttons only for folders */}
-            {item.type === "folder" && (
-              <>
-                <button onClick={() => addItem(itemPath, "folder")}>
-                  + Folder
-                </button>
-                <button onClick={() => addItem(itemPath, "file")}>
-                  + File
-                </button>
-              </>
-            )}
-            {/* Delete button for both files and folders */}
-            <button onClick={() => removeItem(itemPath)}>❌</button>
-            {/* Recursively render child folders */}
-            {item.type === "folder" &&
-              item.children &&
-              item.children.length > 0 && (
-                <FileTree
-                  data={item.children}
-                  addItem={addItem}
-                  removeItem={removeItem}
-                  path={itemPath}
-                />
-              )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-};
-
-// Function to add an item (folder or file) to the structure at the given path
-const addToStructure = (arr, path, newItem) => {
-  if (path.length === 0) return [...arr, newItem];
-  const [index, ...rest] = path;
-  return arr.map((item, i) =>
-    i === index
-      ? {
-          ...item,
-          children: item.children
-            ? addToStructure(item.children, rest, newItem)
-            : item.children,
-        }
-      : item
-  );
-};
-
-// Function to remove an item (folder or file) from the structure at the given path
-const removeFromStructure = (arr, path) => {
-  if (path.length === 1) return arr.filter((_, i) => i !== path[0]);
-  const [index, ...rest] = path;
-  return arr.map((item, i) =>
-    i === index
-      ? { ...item, children: removeFromStructure(item.children, rest) }
-      : item
+    <li key={id}>
+      {name}
+      {isFolder && (
+        <>
+          <button onClick={() => onAdd(id, "file")}>file+</button>{" "}
+          <button onClick={() => onAdd(id, "folder")}>folder+</button>
+        </>
+      )}
+      <button onClick={() => onRemove(id)}>remove</button>
+      {children?.length > 0 && (
+        <ul>
+          {children.map((child) => {
+            return (
+              <CreateStructure
+                onRemove={onRemove}
+                onAdd={onAdd}
+                key={child.id}
+                data={child}
+              />
+            );
+          })}
+        </ul>
+      )}
+    </li>
   );
 };
 

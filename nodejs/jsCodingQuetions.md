@@ -307,6 +307,12 @@ class LRUCache {
       this.cache.delete(key);
     } else if (this.cache.size >= this.capacity) {
       this.cache.delete(this.cache.keys().next().value); // Remove least recently used
+      this.map.keys() returns an iterator over the keys of the Map.
+      /*
+      .next() retrieves the first key from the iterator (which is the least recently used key because Map maintains insertion order).
+      .value extracts the key from the next() result.
+      this.cache.delete(...) attempts to remove the least recently used (LRU) key from the cache.
+      */
     }
     this.cache.set(key, value);
   }
@@ -319,10 +325,6 @@ console.log(lru.get(1)); // 10
 lru.put(3, 30);
 console.log(lru.get(2)); // -1 (removed)
 ```
-
----
-
-Here are **more advanced JavaScript coding questions** for interview preparation:
 
 ---
 

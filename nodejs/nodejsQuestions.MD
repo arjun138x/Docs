@@ -969,6 +969,42 @@ window.addEventListener("scroll", handleScroll);
 
 🔹 **Explanation**: The function executes at most **once per second**, even if the user scrolls continuously.
 
+### Example 2
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS</title>
+  </head>
+  <body>
+    <input id="wrapper" />
+    <script>
+      let s = document.getElementById("wrapper");
+      s.onkeypress = wrapper;
+
+      let counter = 0;
+      let flag = true;
+      function wrapper(params) {
+        if (flag) {
+          throttling();
+          flag = false;
+          setTimeout(() => {
+            flag = true;
+          }, 2000);
+        }
+      }
+
+      function throttling() {
+        console.log("called", ++counter);
+      }
+    </script>
+  </body>
+</html>
+```
+
 ---
 
 ### **Key Differences**

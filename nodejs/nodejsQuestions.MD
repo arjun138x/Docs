@@ -898,14 +898,22 @@ boundFunc("?"); // Hey, Alice?
 
 # 10. **What is debouncing and throttling?**
 
-| Feature        | Description                                                             | Use Case                      |
-| -------------- | ----------------------------------------------------------------------- | ----------------------------- |
-| **Debouncing** | Ensures a function is executed only after a certain delay of inactivity | Search bar suggestions        |
-| **Throttling** | Ensures a function is executed at most once in a given time interval    | Window resizing, Scroll event |
+Both **debouncing** and **throttling** are techniques used to control the rate at which a function executes, particularly useful for optimizing event-driven operations like scrolling, resizing, and input handling.
 
-**Debounce Example:**
+---
 
-```js
+## **1. Debouncing**
+
+Debouncing ensures that a function is executed **only after a specified delay** has passed **since the last time** the function was invoked. If the function is triggered again within the delay period, the timer resets.
+
+### **Use Case:**
+
+- Handling **search inputs** (e.g., triggering API calls only after the user stops typing).
+- Resizing the window (e.g., only executing a function after resizing stops).
+
+### **Implementation**
+
+```javascript
 function debounce(func, delay) {
   let timer;
   return function (...args) {
@@ -914,13 +922,32 @@ function debounce(func, delay) {
   };
 }
 
-const log = debounce(() => console.log("Debounced!"), 300);
-window.addEventListener("resize", log);
+// Example: Debounced search input
+const handleSearch = debounce((query) => {
+  console.log("Searching for:", query);
+}, 500);
+
+document.getElementById("search").addEventListener("input", (e) => {
+  handleSearch(e.target.value);
+});
 ```
 
-**Throttle Example:**
+🔹 **Explanation**: If the user types continuously, the function keeps delaying execution. It runs only when they stop typing for `500ms`.
 
-```js
+---
+
+## **2. Throttling**
+
+Throttling ensures that a function **executes at most once per specified time interval**, no matter how many times the event is triggered.
+
+### **Use Case:**
+
+- Handling **scroll events** (e.g., triggering animations or lazy loading).
+- Handling **button clicks** (e.g., preventing multiple submissions).
+
+### **Implementation**
+
+```javascript
 function throttle(func, interval) {
   let lastCall = 0;
   return function (...args) {
@@ -932,9 +959,33 @@ function throttle(func, interval) {
   };
 }
 
-const log = throttle(() => console.log("Throttled!"), 1000);
-window.addEventListener("scroll", log);
+// Example: Throttled scroll event
+const handleScroll = throttle(() => {
+  console.log("Scrolled!");
+}, 1000);
+
+window.addEventListener("scroll", handleScroll);
 ```
+
+🔹 **Explanation**: The function executes at most **once per second**, even if the user scrolls continuously.
+
+---
+
+### **Key Differences**
+
+| Feature              | Debouncing                                    | Throttling                                          |
+| -------------------- | --------------------------------------------- | --------------------------------------------------- |
+| **Definition**       | Executes function **after a delay**           | Ensures function runs **at most once per interval** |
+| **Best for**         | Input fields, resize events                   | Scroll events, button clicks                        |
+| **How it works**     | Delays execution, resets timer on new trigger | Executes at fixed intervals                         |
+| **Example scenario** | Search input API calls                        | Preventing excessive API calls on scrolling         |
+
+---
+
+### **Which One to Use?**
+
+- **Use debouncing** when you want to execute a function **only after the event stops occurring**.
+- **Use throttling** when you want to execute a function **at a controlled rate** even if the event continues.
 
 ---
 

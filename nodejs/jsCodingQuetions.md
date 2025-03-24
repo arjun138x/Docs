@@ -242,6 +242,17 @@ console.log(original.b.c); // 2 (original remains unchanged)
 console.log(copy.b.c); // 99
 ```
 
+#### Solution 2
+
+```js
+const original = { a: 1, b: { c: 2 } };
+const copy = JSON.parse(JSON.stringify(original));
+copy.b.c = 99;
+
+console.log(original.b.c); // 2 (original remains unchanged)
+console.log(copy.b.c); // 99
+```
+
 ---
 
 ### **9. Implement an `async/await` Based `sleep()` Function**

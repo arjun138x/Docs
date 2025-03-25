@@ -475,7 +475,7 @@ console.log(fibonacci(10)); // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
 
 ---
 
-### **18. NEED TO ADD**
+# **18. NEED TO ADD**
 
 ---
 
@@ -487,31 +487,41 @@ Find the longest palindromic substring in a given string.
 
 #### **Solution:**
 
+- A palindrome is any set of characters that read the same forwards and backwards. For example: 'noon' is a palindrome, and 'loon' is not. Both of these strings contain palindromic substrings 'oo'.
+
 ```js
 function longestPalindrome(s) {
   let res = "";
 
   for (let i = 0; i < s.length; i++) {
+    // Check for odd-length palindromes (centered at i)
     let odd = expandAroundCenter(s, i, i);
+    // Check for even-length palindromes (centered between i and i+1)
     let even = expandAroundCenter(s, i, i + 1);
 
     let longer = odd.length > even.length ? odd : even;
     if (longer.length > res.length) res = longer;
   }
 
-  return res;
+  return res; // Return the longest palindromic substring
 }
 
+// Function to expand around a given center and return the longest palindrome substring
 function expandAroundCenter(s, left, right) {
+  // Expand while characters at left and right are equal and within bounds
   while (left >= 0 && right < s.length && s[left] === s[right]) {
-    left--;
-    right++;
+    left--; // Move left pointer outward
+    right++; // Move right pointer outward
   }
+
+  // Return the valid palindrome found (substring between left+1 and right)
   return s.slice(left + 1, right);
 }
 
-console.log(longestPalindrome("babad")); // "bab" or "aba"
-console.log(longestPalindrome("cbbd")); // "bb"
+// Example test cases
+console.log(longestPalindrome("babad")); // Output: "bab" or "aba"
+console.log(longestPalindrome("cbbd")); // Output: "bb"
+console.log(longestPalindrome("noon")); // Output: "noon"
 ```
 
 ---

@@ -343,6 +343,7 @@ function longestUniqueSubstring(s) {
     maxLength = 0;
 
   for (let right = 0; right < s.length; right++) {
+    // Sliding Window Approach
     while (seen.has(s[right])) {
       seen.delete(s[left]);
       left++;
@@ -358,6 +359,8 @@ console.log(longestUniqueSubstring("abcabcbb")); // 3 ("abc")
 console.log(longestUniqueSubstring("bbbbb")); // 1 ("b")
 console.log(longestUniqueSubstring("pwwkew")); // 3 ("wke")
 ```
+
+### Explanation: [Youtube video](https://www.youtube.com/watch?v=wiGpQwVHdE0)
 
 ---
 
@@ -409,30 +412,7 @@ console.log(mergeSortedArrays([1, 3, 5], [2, 3, 6])); // [1, 2, 3, 5, 6]
 
 ---
 
-### **14. Find the Majority Element in an Array**
-
-#### **Question:**
-
-Given an array, find the majority element (appears more than `n/2` times).
-
-#### **Solution:** (Using **Boyer-Moore Voting Algorithm**)
-
-```js
-function majorityElement(nums) {
-  let count = 0,
-    candidate = null;
-
-  for (let num of nums) {
-    if (count === 0) candidate = num;
-    count += num === candidate ? 1 : -1;
-  }
-
-  return candidate;
-}
-
-console.log(majorityElement([3, 2, 3])); // 3
-console.log(majorityElement([2, 2, 1, 1, 1, 2, 2])); // 2
-```
+# **14. NEED TO ADD**
 
 ---
 

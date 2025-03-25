@@ -545,33 +545,7 @@ console.log(arrayIntersection([1, 2, 3, 4], [2, 4, 6, 8])); // [2, 4]
 
 ---
 
-### **21. Implement a Function to Generate Power Set**
-
-#### **Question:**
-
-Generate all subsets of a given set (Power Set).
-
-#### **Solution:**
-
-```js
-function powerSet(arr) {
-  let result = [[]];
-
-  for (let num of arr) {
-    let newSubsets = result.map((subset) => [...subset, num]);
-    result.push(...newSubsets);
-  }
-
-  return result;
-}
-
-console.log(powerSet([1, 2, 3]));
-// [[], [1], [2], [1,2], [3], [1,3], [2,3], [1,2,3]]
-```
-
----
-
-Here are more **popular and complex JavaScript problems** commonly asked in interviews:
+# **21. NEED TO ADD**
 
 ---
 

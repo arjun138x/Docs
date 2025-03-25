@@ -475,22 +475,7 @@ console.log(fibonacci(10)); // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
 
 ---
 
-### **18. Implement a Function to Rotate an Array**
-
-#### **Question:**
-
-Rotate an array to the right by `k` steps.
-
-#### **Solution:**
-
-```js
-function rotateArray(arr, k) {
-  k = k % arr.length;
-  return [...arr.slice(-k), ...arr.slice(0, -k)];
-}
-
-console.log(rotateArray([1, 2, 3, 4, 5, 6], 2)); // [5, 6, 1, 2, 3, 4]
-```
+### **18. NEED TO ADD**
 
 ---
 

@@ -1060,22 +1060,146 @@ Generators are useful for **lazy evaluation** and **iterating over large dataset
 
 ---
 
-### 13. **What is the difference between deep and shallow copy?**
+# 13. **What is Deep Copy vs. Shallow Copy & Pass by Value vs. Pass by Reference?**
 
-| Type             | Description                                                                | Example                                               |
-| ---------------- | -------------------------------------------------------------------------- | ----------------------------------------------------- |
-| **Shallow Copy** | Copies only the first level of an object, nested objects remain references | `Object.assign({}, obj)` or `{ ...obj }`              |
-| **Deep Copy**    | Recursively copies all levels of an object                                 | `JSON.parse(JSON.stringify(obj))` or using **Lodash** |
+### **Deep Copy vs. Shallow Copy**
 
-```js
-const obj = { a: 1, b: { c: 2 } };
-const shallowCopy = { ...obj };
-shallowCopy.b.c = 42;
+#### **Shallow Copy**
 
-console.log(obj.b.c); // 42 (Changed!)
+- A shallow copy creates a new object, but it only copies references to nested objects instead of copying the actual objects.
+- If the original object contains other objects (like arrays or objects), the references to those objects are copied rather than the objects themselves.
+- This means changes to a nested object in the copied object will also reflect in the original object.
 
-const deepCopy = JSON.parse(JSON.stringify(obj));
-deepCopy.b.c = 99;
+##### **Example of Shallow Copy:**
 
-console.log(obj.b.c); // Still 42 (Not affected!)
+```javascript
+let obj1 = { a: 10, b: { c: 20 } };
+let obj2 = Object.assign({}, obj1);
+
+// Modify nested object
+obj2.b.c = 50;
+
+console.log(obj1.b.c); // 50 (Changed in both obj1 and obj2)
+console.log(obj2.b.c); // 50
 ```
+
+- Since `b` is an object, only its reference is copied.
+
+##### **Other Ways to Create a Shallow Copy:**
+
+- Using spread operator (`{ ...obj }`)
+- Using `Object.assign({}, obj)`
+
+---
+
+#### **Deep Copy**
+
+- A deep copy creates a completely new object, duplicating **all** values, including nested objects.
+- Changes made in the copied object will **not** affect the original object.
+
+##### **Example of Deep Copy:**
+
+```javascript
+let obj1 = { a: 10, b: { c: 20 } };
+
+// Using JSON methods
+let obj2 = JSON.parse(JSON.stringify(obj1));
+
+// Modify nested object
+obj2.b.c = 50;
+
+console.log(obj1.b.c); // 20 (Remains unchanged)
+console.log(obj2.b.c); // 50
+```
+
+- Here, `JSON.stringify()` converts the object into a string, and `JSON.parse()` converts it back to an object, breaking any reference links.
+
+##### **Other Ways to Create a Deep Copy:**
+
+- Using **Lodash**: `_.cloneDeep(obj)`
+- Using **structuredClone()** (for modern browsers):
+  ```javascript
+  let obj2 = structuredClone(obj1);
+  ```
+
+---
+
+### **Pass by Value vs. Pass by Reference**
+
+#### **Pass by Value**
+
+- **Primitive types** (like `Number`, `String`, `Boolean`, `undefined`, `null`, `Symbol`, and `BigInt`) are **passed by value**.
+- This means a copy of the value is passed to a function, and modifying it inside the function **does not** affect the original variable.
+
+##### **Example:**
+
+```javascript
+let a = 10;
+
+function modify(x) {
+  x = 20;
+}
+
+modify(a);
+console.log(a); // 10 (Unchanged)
+```
+
+- The function gets a copy of `a`, so the original `a` remains unchanged.
+
+---
+
+#### **Pass by Reference**
+
+- **Objects, Arrays, and Functions** are **passed by reference** in JavaScript.
+- This means that the function receives a reference (or memory address) of the original object, so modifying it inside the function **does affect** the original object.
+
+##### **Example:**
+
+```javascript
+let obj = { a: 10 };
+
+function modify(objRef) {
+  objRef.a = 20;
+}
+
+modify(obj);
+console.log(obj.a); // 20 (Changed)
+```
+
+- Since `obj` is an object, its reference is passed, and changes inside the function reflect in the original object.
+
+---
+
+### **Common Misconception: JavaScript Uses Pass-by-Value for Everything**
+
+- Technically, **everything in JavaScript is passed by value**.
+- However, for objects, the **value passed is a reference to the memory location** (not the actual object itself).
+- This is why objects seem to behave as "pass by reference."
+
+##### **Example to Demonstrate This:**
+
+```javascript
+let obj1 = { a: 10 };
+
+function modify(objRef) {
+  objRef = { a: 20 }; // This creates a new object and assigns it to objRef
+}
+
+modify(obj1);
+console.log(obj1.a); // 10 (Unchanged)
+```
+
+- Inside the function, `objRef` gets a **new** object, but this **does not** affect `obj1`.
+
+---
+
+### **Summary Table**
+
+| Concept               | Explanation                                                                          | Example                                                   |
+| --------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| **Shallow Copy**      | Copies the object but keeps references to nested objects.                            | `Object.assign({}, obj)`, `{ ...obj }`                    |
+| **Deep Copy**         | Copies everything, including nested objects.                                         | `JSON.parse(JSON.stringify(obj))`, `structuredClone(obj)` |
+| **Pass by Value**     | Only a copy of the value is passed; changes do not affect the original variable.     | Works for primitives (`Number`, `String`, etc.)           |
+| **Pass by Reference** | The reference (memory address) is passed; modifying the object affects the original. | Works for `Object`, `Array`, `Function`                   |
+
+---

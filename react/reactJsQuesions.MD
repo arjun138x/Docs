@@ -1568,3 +1568,74 @@ export default App;
 ✅ **Yes! You can manage multiple states using Redux** by creating multiple slices and combining them in `configureStore`. 🚀
 
 ---
+
+# **10. What is a Pure Component**
+
+In React, **Pure Components** are components that implement `shouldComponentUpdate()` with a shallow comparison of props and state. This helps prevent unnecessary re-renders and improves performance.
+
+### Key Points:
+
+- **Extends `React.PureComponent`** instead of `React.Component`
+- **Automatically implements `shouldComponentUpdate()`** using a shallow prop and state comparison
+- **Useful for optimizing functional and class components** by preventing redundant renders
+
+---
+
+### Example: Using a Pure Component
+
+```jsx
+import React, { PureComponent, useState } from "react";
+
+class Counter extends PureComponent {
+  render() {
+    console.log("Counter component re-rendered");
+    return <h2>Count: {this.props.count}</h2>;
+  }
+}
+
+const App = () => {
+  const [count, setCount] = useState(0);
+  const [otherState, setOtherState] = useState(false);
+
+  return (
+    <div>
+      <Counter count={count} />
+      <button onClick={() => setCount(count + 1)}>Increment Count</button>
+      <button onClick={() => setOtherState(!otherState)}>
+        Toggle Other State
+      </button>
+    </div>
+  );
+};
+
+export default App;
+```
+
+---
+
+### Explanation:
+
+1. `Counter` extends `PureComponent`, so it only re-renders if `count` changes.
+2. If `otherState` changes, `Counter` **does not** re-render unnecessarily.
+3. This improves performance in large applications.
+
+### Pure Component with React.memo and Objects
+
+```jsx
+const ProfileCard = React.memo(
+  ({ user }) => {
+    console.log("ProfileCard component re-rendered");
+    return (
+      <div>
+        <h3>{user.name}</h3>
+        <p>Email: {user.email}</p>
+      </div>
+    );
+  },
+  (prevProps, nextProps) => prevProps.user.name === nextProps.user.name
+);
+
+export default ProfileCard;
+```
+
+✅ Uses custom comparison to avoid unnecessary re-renders

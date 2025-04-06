@@ -7,8 +7,10 @@ const ProgressBar = () => {
     const interval = setInterval(() => {
       setPercentage((prv) => {
         console.log(prv);
-        if (prv >= 100) clearInterval(interval);
-        else return (prv += 10);
+        if (prv >= 100) {
+          clearInterval(interval);
+          return 100;
+        } else return (prv += 10);
       });
     }, 500);
 

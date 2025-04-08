@@ -136,9 +136,15 @@ When clicking the button:
 1. **`useLayoutEffect` runs first** (before the browser repaints).
 2. **`useEffect` runs afterward** (after the DOM update is painted).
 
-# 2. **`useRef`, `useMemo`, `useCallback` and `useReducer` in React**
+# 2. **`useRef`, `useMemo`, `useCallback` in React**
 
 React provides several hooks to optimize state management, performance, and component rendering. Let's dive into some key hooks:
+
+## 📌 Note:
+
+- useMemo for memoization for result(heavy calculations).
+- useCallback for memoization for function.
+- useEffect, useMemo and useCallback is same. useEffect cant return anything and it cant assign to any variable
 
 ---
 
@@ -255,27 +261,45 @@ export default App;
 
 ### 📌 **Example: Memoizing a Computed Value**
 
-In this example, squaredCount is memoized using useMemo. It will only recompute when the count state changes.
+In this example, number is memoized using useMemo. It will only recompute when the number state changes.
 
 ```jsx
 import React, { useMemo, useState } from "react";
 
-function MyComponent() {
-  const [count, setCount] = useState(0);
+function UseMemoExample() {
+  const [number, setNumber] = useState(0);
+  const [dark, setDark] = useState();
 
-  const squaredCount = useMemo(() => {
-    console.log("Calculating squared count...");
-    return count ** 2;
-  }, [count]);
+  // syntax for useMemo and useState is same. useEffect cant return the value and cant assign to the variable
+  // useMemo remembers the result of expensiveFunction(number) until number changes.
+  const memoCalculation = useMemo(() => {
+    return expensiveFunction(number);
+  }, [number]); // Runs once after the initial render
+
+  // Every time dark changes (theme toggle), expensiveFunction runs again—even though number hasn't changed.
+  // const calculation = expensiveFunction(number);
+  const cssStyes = {
+    backgroundColor: dark ? "black" : "white",
+    color: dark ? "white" : "black",
+  };
 
   return (
-    <div>
-      <p>Count: {count}</p>
-      <p>Squared Count: {squaredCount}</p>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
+    <div style={cssStyes}>
+      <input type="number" onClick={({ target }) => setNumber(target.value)} />
+      {/* <h3>calculation:{calculation}</h3> */}
+      <h3>calculation:{memoCalculation}</h3>
+      <button onClick={() => setDark((prv) => !prv)}>theme</button>
     </div>
   );
 }
+
+function expensiveFunction(num) {
+  console.log("for loop started");
+  for (let index = 0; index < 200000000; index++) {}
+  return num;
+}
+
+export default UseMemoExample;
 ```
 
 ✅ **Best use cases**: Optimizing expensive computations, filtering/sorting large datasets.
@@ -377,89 +401,6 @@ export default ParentComponent;
 | Clicking "Toggle Theme" | The theme changes, `ParentComponent` re-renders, but `ChildComponent` **does not re-render** since `onIncrement` reference remains stable. |
 
 ✅ **Best use cases**: Passing stable function references to child components, optimizing event handlers.
-
----
-
-## **4️⃣ `useReducer` - Manage Complex State Logic**
-
-**What is `useReducer`?**
-
-- `useReducer` is an **alternative to `useState`** when dealing with **complex state logic**.
-- It is useful when state transitions depend on the **previous state** or involve **multiple related values**.
-- It follows the **Redux-like pattern** with a `reducer` function handling **state updates** based on dispatched actions.
-
----
-
-## **📌 Example: A Simple Counter with `useReducer`**
-
-We'll create a **counter app** where we can **increment, decrement, and reset** the count.  
-Instead of `useState`, we'll use `useReducer` for better state management.
-
----
-
-### **🚀 Code Example**
-
-```jsx
-import React, { useReducer } from "react";
-
-// 1️⃣ Reducer function: Determines how the state changes based on action type
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "increment":
-      return { count: state.count + 1 };
-    case "decrement":
-      return { count: state.count - 1 };
-    case "reset":
-      return { count: 0 };
-    default:
-      throw new Error("Unknown action type");
-  }
-};
-
-// 2️⃣ Component using useReducer
-const Counter = () => {
-  // 3️⃣ Initializing useReducer with the reducer function and initial state
-  const [state, dispatch] = useReducer(reducer, { count: 0 });
-
-  return (
-    <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h2>Count: {state.count}</h2>
-      {/* Dispatching actions to update state */}
-      <button onClick={() => dispatch({ type: "increment" })}>
-        ➕ Increment
-      </button>
-      <button onClick={() => dispatch({ type: "decrement" })}>
-        ➖ Decrement
-      </button>
-      <button onClick={() => dispatch({ type: "reset" })}>🔄 Reset</button>
-    </div>
-  );
-};
-
-export default Counter;
-```
-
----
-
-### **🧐 Explanation**
-
-1️⃣ **Reducer Function (`reducer`)**
-
-- Defines how state updates based on **action types**.
-- **Accepts**: `(state, action)`
-- **Returns**: The **new state** based on the action.
-
-2️⃣ **Initializing `useReducer`**
-
-- `const [state, dispatch] = useReducer(reducer, { count: 0 });`
-- `state`: Current state (`{ count: 0 }` initially).
-- `dispatch`: Function to **send actions** to the reducer.
-
-3️⃣ **Dispatching Actions**
-
-- `dispatch({ type: "increment" })` → Calls `reducer`, updating state.
-- `dispatch({ type: "decrement" })` → Decreases `count`.
-- `dispatch({ type: "reset" })` → Resets `count` to `0`.
 
 ---
 

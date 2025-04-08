@@ -1690,33 +1690,42 @@ export default ParentComponent;
 #### **Example: `useMemo` to Optimize Expensive Computations**
 
 ```jsx
-import { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 
-function ExpensiveComputation({ num }) {
-  const squaredValue = useMemo(() => {
-    console.log("Computing square...");
-    return num * num;
-  }, [num]);
+function Example() {
+  const [number, setNumber] = useState(0);
+  const [dark, setDark] = useState();
 
-  return <p>Squared Value: {squaredValue}</p>;
-}
+  // syntax for useMemo and useState is same. useEffect cant return the value and cant assign to the variable
+  // useMemo remembers the result of expensiveFunction(number) until number changes.
+  const memoCalculation = useMemo(() => {
+    return expensiveFunction(number);
+  }, [number]); // Runs once after the initial render
 
-function Parent() {
-  const [num, setNum] = useState(2);
-  const [count, setCount] = useState(0);
+  // Every time dark changes (theme toggle), expensiveFunction runs again—even though number hasn't changed.
+  // const calculation = expensiveFunction(number);
+  const cssStyes = {
+    backgroundColor: dark ? "black" : "white",
+    color: dark ? "white" : "black",
+  };
 
   return (
-    <div>
-      <button onClick={() => setCount(count + 1)}>
-        Re-render Parent ({count})
-      </button>
-      <button onClick={() => setNum(num + 1)}>Increment Num ({num})</button>
-      <ExpensiveComputation num={num} />
+    <div style={cssStyes}>
+      <input type="number" onClick={({ target }) => setNumber(target.value)} />
+      {/* <h3>calculation:{calculation}</h3> */}
+      <h3>calculation:{memoCalculation}</h3>
+      <button onClick={() => setDark((prv) => !prv)}>theme</button>
     </div>
   );
 }
 
-export default Parent;
+function expensiveFunction(num) {
+  console.log("for loop started");
+  for (let index = 0; index < 200000000; index++) {}
+  return num;
+}
+
+export default Example;
 ```
 
 ✅ **Avoids re-computation** unless `num` changes.
@@ -1732,36 +1741,54 @@ export default Parent;
 #### **Example: Using `useCallback`**
 
 ```jsx
-import { useState, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 
-function Child({ handleClick }) {
-  console.log("Child Rendered");
-  return <button onClick={handleClick}>Click Me</button>;
-}
+function UseCallbackExample() {
+  const [number, setNumber] = useState(0);
+  const [dark, setDark] = useState();
 
-const MemoizedChild = React.memo(Child);
+  // syntax for useMemo and useCallback is same. useCallback memoize the function. useMemo memoize the result.
+  // useMemo remembers the result of expensiveFunction(number) until number changes.
+  const calculateTable = useCallback(() => {
+    return [number * 1, number * 2, number * 3, number * 4, number * 5];
+  }, [number]);
 
-function Parent() {
-  const [count, setCount] = useState(0);
+  // Every time dark changes (theme toggle), calculateTable runs again—even though number hasn't changed.
+  // const calculateTable = () => {
+  //   return [number * 1, number * 2, number * 3, number * 4, number * 5];
+  // };
 
-  const handleClick = useCallback(() => {
-    console.log("Button clicked!");
-  }, []);
+  const cssStyes = {
+    backgroundColor: dark ? "black" : "white",
+    color: dark ? "white" : "black",
+  };
 
   return (
-    <div>
-      <button onClick={() => setCount(count + 1)}>
-        Re-render Parent ({count})
-      </button>
-      <MemoizedChild handleClick={handleClick} />
+    <div style={cssStyes}>
+      <input type="number" onClick={({ target }) => setNumber(target.value)} />
+      <PrintTable calculateTable={calculateTable} />
+      <button onClick={() => setDark((prv) => !prv)}>theme</button>
     </div>
   );
 }
 
-export default Parent;
+const PrintTable = ({ calculateTable }) => {
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    console.log("print table runs");
+    setRows(calculateTable());
+  }, [calculateTable]);
+
+  return rows.map((row, index) => {
+    return <p key={index}>{row}</p>;
+  });
+};
+
+export default UseCallbackExample;
 ```
 
-✅ **Prevents `handleClick` from being re-created** on each render, avoiding unnecessary `Child` re-renders.
+✅ **Prevents `handleClick` from being re-created** on each render, avoiding unnecessary `PrintTable` re-renders.
 
 ❌ **Use only when necessary**, as it adds complexity.
 

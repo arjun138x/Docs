@@ -62,25 +62,25 @@ function Example() {
 ### Example
 
 ```jsx
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 function Example() {
-  const [width, setWidth] = useState(window.innerWidth);
+  const textRef = useRef();
 
+  // change useLayoutEffect to useEffect to see the ui rendering difference.
+  // text wil render two times before the useEffect execution and after useEffect execution.
   useLayoutEffect(() => {
-    const handleResize = () => {
-      setWidth(window.innerWidth);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    if (textRef.current !== null) {
+      const dimension = textRef.current.getBoundingClientRect();
+      console.log(dimension);
+      textRef.current.style.paddingTop = `${dimension.height}px`;
+    }
   }, []); // Runs once after the initial render
 
-  return <p>Window width: {width}</p>;
+  return <h4 ref={textRef}>useLayoutEffect</h4>;
 }
+
+export default Example;
 ```
 
 ---

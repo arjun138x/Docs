@@ -163,6 +163,7 @@ function MyComponent() {
 
   const focusInput = () => {
     inputRef.current.focus();
+    inputRef.current.style.width = "300px"; // we can manipulate DOM with out rerendering the component
   };
 
   return (
@@ -172,6 +173,7 @@ function MyComponent() {
     </div>
   );
 }
+export default MyComponent;
 ```
 
 ### 📌 **Example: Focus Input Field**
@@ -212,6 +214,32 @@ function LoginPage() {
 }
 
 export default LoginPage;
+```
+
+### 📌 **Example: Mutable variable without causing re-rendering**
+
+In this example, inputRef is used to store a count without causing re-renders
+
+```jsx
+import React, { useEffect, useRef, useState } from "react";
+
+const App = () => {
+  const [name, setName] = useState("");
+  const refCount = useRef(0);
+
+  useEffect(() => {
+    refCount.current = refCount.current + 1;
+  }); // dependency array is not passing. if the state changes this will execute
+  return (
+    <div>
+      <input onChange={({ target }) => setName(target.value)} />
+      <h2>Name: {name}</h2>
+      <h4>Renders: {refCount.current}</h4>
+    </div>
+  );
+};
+
+export default App;
 ```
 
 ✅ **Best use cases**: DOM manipulation, storing mutable values without re-renders.

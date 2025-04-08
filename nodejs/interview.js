@@ -68,19 +68,26 @@ const originalArray = [1, 2, [3, 4], [5, [6, 7, [8, [9]]]]];
 const flattenedArray = customFlatten(originalArray);
 console.log(flattenedArray);
 
-// method two with reduce
-function customFlatArray(arr) {
-  return arr.reduce((result, value) => {
-    if (Array.isArray(value)) {
-      result.push(...customFlatArray(value));
-    } else {
-      result.push(value);
+// method two with depth
+function customFlatArray(arr, depth) {
+  if (depth === 0) return arr;
+  const result = [];
+
+  function support(arr, depth) {
+    for (const element of arr) {
+      if (Array.isArray(element) && depth > 0) {
+        support(element, depth - 1);
+      } else {
+        result.push(element);
+      }
     }
-    return result;
-  }, []);
+  }
+
+  support(arr, depth);
+  return result;
 }
 
-console.log(customFlatArray([1, 2, [3, 4], [5, [6, 7, [8, [9]]]]]));
+console.log(customFlatArray([1, 2, [3, 4], [5, [6, 7, [8, [9]]]]], 1));
 
 // find the sum of numbers
 obj = {

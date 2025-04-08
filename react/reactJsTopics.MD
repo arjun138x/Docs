@@ -313,11 +313,13 @@ function Counter() {
   return (
     <div>
       <p>Count: {state.count}</p>
-      <button onClick={() => dispatch({ type: "increment" })}>+</button>
-      <button onClick={() => dispatch({ type: "decrement" })}>-</button>
+      <button onClick={() => dispatch({ type: "increment" })}>Increment</button>
+      <button onClick={() => dispatch({ type: "decrement" })}>Decrement</button>
     </div>
   );
 }
+
+export default reducer;
 ```
 
 ---
@@ -2767,5 +2769,3 @@ export default useStore;
 | **Build-Time Integration**        | Simple setup            | Tight coupling        |
 | **Module Federation (Webpack)**   | Independent deployments | More setup required   |
 | **Server-Side Composition (SSR)** | Good for SEO            | Needs backend support |
-
-

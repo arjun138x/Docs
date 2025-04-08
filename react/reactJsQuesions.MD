@@ -1608,3 +1608,98 @@ export default ProfileCard;
 ```
 
 ✅ Uses custom comparison to avoid unnecessary re-renders
+Great! Let's break it down.
+
+---
+
+# **11. 🪝 What is a **Custom Hook** in React?**
+
+A **custom hook** is just a **JavaScript function** that:
+
+- Starts with the word `use` (like `useFetch`, `useAuth`, etc.)
+- Can use other React hooks (`useState`, `useEffect`, etc.)
+- Helps **re-use logic** across multiple components.
+
+### ✅ Why use it?
+
+- Keep components clean.
+- Avoid duplicating logic (like fetching data, handling forms, etc.)
+
+---
+
+## 🔧 Example: `useFetch` Custom Hook
+
+Here’s a simple custom hook that fetches data from an API.
+
+```js
+import { useState, useEffect } from "react";
+
+function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true; // optional: to avoid setting state on unmounted component
+
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Error fetching data");
+        const result = await response.json();
+        if (isMounted) {
+          setData(result);
+          setError(null);
+        }
+      } catch (err) {
+        if (isMounted) setError(err.message);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [url]);
+
+  return { data, loading, error };
+}
+
+export default useFetch;
+```
+
+---
+
+## 📦 How to Use `useFetch` in a Component:
+
+```js
+import React from "react";
+import useFetch from "./useFetch";
+
+function UserList() {
+  const { data, loading, error } = useFetch(
+    "https://jsonplaceholder.typicode.com/users"
+  );
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <ul>
+      {data.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+export default UserList;
+```
+
+---
+
+Let me know if you want an enhanced version of `useFetch` with things like `POST/PUT`, headers, pagination, etc.

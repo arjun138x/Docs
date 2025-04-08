@@ -1538,7 +1538,170 @@ export default App;
 
 ---
 
-# **10. What is a Pure Component**
+Great question! Let's break it down and show you **how to use `redux-thunk` in a React app** step-by-step.
+
+---
+
+# **10. 🧠 What is `redux-thunk`?**
+
+`redux-thunk` is a **middleware** that lets you write **async logic (like API calls)** inside your Redux actions.  
+Normally, Redux actions are just plain objects. With thunk, they can return **functions** that dispatch actions after async tasks (like fetching data).
+
+---
+
+## 🔧 Step-by-Step Setup
+
+### 1️⃣ Install Dependencies
+
+```bash
+npm install redux react-redux redux-thunk
+```
+
+---
+
+### 2️⃣ Create Redux Store with Thunk
+
+```js
+// store.js
+import { createStore, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import rootReducer from "./reducers"; // combineReducers output
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
+
+export default store;
+```
+
+---
+
+### 3️⃣ Wrap App with Provider
+
+```js
+// index.js
+import React from "react";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import App from "./App";
+import store from "./store";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
+```
+
+---
+
+### 4️⃣ Write a Thunk Action (Async Fetch Example)
+
+```js
+// actions/userActions.js
+export const fetchUsers = () => {
+  return async (dispatch) => {
+    dispatch({ type: "FETCH_USERS_REQUEST" });
+
+    try {
+      const res = await fetch("https://jsonplaceholder.typicode.com/users");
+      const data = await res.json();
+      dispatch({ type: "FETCH_USERS_SUCCESS", payload: data });
+    } catch (err) {
+      dispatch({ type: "FETCH_USERS_FAILURE", payload: err.message });
+    }
+  };
+};
+```
+
+---
+
+### 5️⃣ Create Reducer
+
+```js
+// reducers/userReducer.js
+const initialState = {
+  loading: false,
+  users: [],
+  error: null,
+};
+
+const userReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case "FETCH_USERS_REQUEST":
+      return { ...state, loading: true };
+    case "FETCH_USERS_SUCCESS":
+      return { ...state, loading: false, users: action.payload };
+    case "FETCH_USERS_FAILURE":
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export default userReducer;
+```
+
+---
+
+### 6️⃣ Combine Reducers
+
+```js
+// reducers/index.js
+import { combineReducers } from "redux";
+import userReducer from "./userReducer";
+
+export default combineReducers({
+  user: userReducer,
+});
+```
+
+---
+
+### 7️⃣ Use in Component
+
+```js
+// components/UserList.js
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUsers } from "../actions/userActions";
+
+function UserList() {
+  const dispatch = useDispatch();
+  const { users, loading, error } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  return (
+    <ul>
+      {users.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+export default UserList;
+```
+
+---
+
+## ✅ Summary
+
+| Part            | Purpose                                          |
+| --------------- | ------------------------------------------------ |
+| `redux-thunk`   | Middleware to write async logic in Redux actions |
+| `dispatch()`    | Triggers actions from inside components          |
+| `useSelector()` | Access Redux state                               |
+| `useDispatch()` | Send actions (including thunks)                  |
+
+---
+
+# **11. What is a Pure Component**
 
 In React, **Pure Components** are components that implement `shouldComponentUpdate()` with a shallow comparison of props and state. This helps prevent unnecessary re-renders and improves performance.
 
@@ -1612,7 +1775,7 @@ Great! Let's break it down.
 
 ---
 
-# **11. 🪝 What is a **Custom Hook** in React?**
+# **12. 🪝 What is a **Custom Hook** in React?**
 
 A **custom hook** is just a **JavaScript function** that:
 
@@ -1701,5 +1864,3 @@ export default UserList;
 ```
 
 ---
-
-Let me know if you want an enhanced version of `useFetch` with things like `POST/PUT`, headers, pagination, etc.

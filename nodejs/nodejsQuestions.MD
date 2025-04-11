@@ -1203,3 +1203,92 @@ console.log(obj1.a); // 10 (Unchanged)
 | **Pass by Reference** | The reference (memory address) is passed; modifying the object affects the original. | Works for `Object`, `Array`, `Function`                   |
 
 ---
+
+# 14. Abort Long-running Fetch Requests in Node.js
+
+`AbortController` is a built-in Web API that is also available in Node.js (since v14.17.0+ and more stable in v16+). It's used to abort asynchronous operations like fetch requests. In Node.js, you commonly use it with `fetch()` from the `node-fetch` or the built-in `fetch` (available in Node.js 18+).
+
+---
+
+### Use Case: Aborting a Fetch Request
+
+Here's an example where we use `AbortController` to cancel a fetch request if it takes too long.
+
+### ✅ Example Using Node.js 18+ (with built-in fetch):
+
+```js
+// AbortController with fetch in Node.js
+
+const { setTimeout } = require("timers/promises");
+
+async function fetchWithTimeout(url, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(timeoutMs).then(() => {
+    controller.abort(); // Abort the fetch after timeout
+  });
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("API response:", data);
+  } catch (err) {
+    if (err.name === "AbortError") {
+      console.error("❌ Request aborted due to timeout.");
+    } else {
+      console.error("❌ Fetch error:", err);
+    }
+  }
+}
+
+// Example usage
+fetchWithTimeout("https://jsonplaceholder.typicode.com/todos/1", 1000);
+```
+
+---
+
+### 📌 Notes:
+
+- `controller.signal` is passed to `fetch()` to track it.
+- If the timeout is reached before the request finishes, `controller.abort()` is called, triggering an `AbortError`.
+
+---
+
+## ❓ Does `AbortController` notify the **server** to stop processing?
+
+**Short answer:**
+No, **`AbortController` only cancels the request on the **client-side** (Node.js or browser). It **does not\*\* tell the server (like `jsonplaceholder.typicode.com`) to cancel or stop handling the request.
+
+---
+
+### 🔍 Here's what actually happens:
+
+- When `AbortController.abort()` is called:
+  - The HTTP connection is closed from the **client side**.
+  - Any streaming or reading of the response is stopped.
+  - If the request hasn’t been sent yet, it will be skipped entirely.
+  - If the request **has already reached the server**, the server will **still** process it normally — unless it has its own logic for detecting client disconnects (which most APIs don't bother with for small requests).
+
+---
+
+### 🔧 Real-world implications:
+
+- For **simple GET requests** like:
+  ```
+  https://jsonplaceholder.typicode.com/todos/1
+  ```
+  ...the request is tiny and the server likely finishes its work before the abort even matters.
+- For **long-running** APIs (e.g. large file downloads, database-intensive reports), aborting **can** save your client-side resources — but the server will still run the process unless **it also implements** connection tracking logic (like checking if the socket is still open).
+
+---
+
+### ✅ Summary
+
+| Action                    | Effect                                                               |
+| ------------------------- | -------------------------------------------------------------------- |
+| `AbortController.abort()` | Stops the fetch on **client-side**                                   |
+| Server behavior           | Continues processing (unless server has its own disconnect handling) |

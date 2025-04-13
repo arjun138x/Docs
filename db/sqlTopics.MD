@@ -1252,30 +1252,80 @@ SELECT name, salary, GetBonus(salary) AS bonus FROM employees;
 
 ## **3. Triggers**
 
-A **Trigger** is an automatic action executed before or after a database event (`INSERT`, `UPDATE`, `DELETE`).
+A trigger is a special type of stored procedure that automatically executes in response to certain events on a particular table or view in a database. Triggers can be used to enforce business rules, validate data, maintain audit trails, and perform various automated tasks.
 
-### **Creating a Trigger (Audit Log Example)**
+**Types of Triggers**
+
+1. BEFORE Trigger: Executes before an insert, update, or delete operation.
+2. AFTER Trigger: Executes after an insert, update, or delete operation.
+3. INSTEAD OF Trigger: Executes in place of an insert, update, or delete operation.
+
+Here are examples of triggers in SQL Server:
 
 ```sql
-CREATE TABLE audit_log (
-    log_id INT AUTO_INCREMENT PRIMARY KEY,
-    action_type VARCHAR(10),
-    employee_id INT,
-    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+--   create a table
+CREATE TABLE EmployeeAudit (
+AuditID INT IDENTITY(1,1) PRIMARY KEY,
+EmployeeID INT,
+AuditAction VARCHAR(50),
+AuditTimestamp DATETIME DEFAULT GETDATE()
 );
 ```
 
+**AFTER INSERT Trigger:-** This trigger logs every insert operation into an `Employees` table into a separate `EmployeeAudit` table
+
 ```sql
-DELIMITER //
-CREATE TRIGGER after_employee_insert
-AFTER INSERT ON employees
-FOR EACH ROW
+CREATE TRIGGER trgAfterInsert
+ON Employees
+AFTER INSERT
+AS
 BEGIN
-    INSERT INTO audit_log (action_type, employee_id)
-    VALUES ('INSERT', NEW.id);
-END //
-DELIMITER ;
+INSERT INTO EmployeeAudit (EmployeeID, AuditAction)
+SELECT EmployeeID, 'INSERT' FROM inserted;
+END;
 ```
+
+**AFTER UPDATE Trigger:-** This trigger logs every update operation into the `EmployeeAudit` table.
+
+```sql
+CREATE TRIGGER trgAfterUpdate
+ON Employees
+AFTER UPDATE
+AS
+BEGIN
+INSERT INTO EmployeeAudit (EmployeeID, AuditAction)
+SELECT EmployeeID, 'UPDATE' FROM inserted;
+END;
+```
+
+**AFTER DELETE Trigger:-** This trigger logs every delete operation into the `EmployeeAudit` table.
+
+```sql
+CREATE TRIGGER trgAfterDelete
+ON Employees
+AFTER DELETE
+AS
+BEGIN
+INSERT INTO EmployeeAudit (EmployeeID, AuditAction)
+SELECT EmployeeID, 'DELETE' FROM deleted;
+END;
+```
+
+### Explanation:
+
+- `CREATE TABLE EmployeeAudit`: Creates an audit table to store logs.
+- `CREATE TRIGGER trgAfterInsert`: Defines a trigger named `trgAfterInsert` on the `Employees` table that fires after an insert operation.
+- `AFTER INSERT`: Specifies the trigger type and event.
+- `AS BEGIN ... END;`: Contains the SQL statements that the trigger will execute.
+- `INSERT INTO EmployeeAudit ... SELECT EmployeeID, 'INSERT' FROM inserted;`: Inserts a log entry into the `EmployeeAudit` table. The `inserted` table is a special table in SQL Server that holds the new rows being inserted.
+
+### Execution
+
+- When a new row is inserted into the `Employees` table, the `trgAfterInsert` trigger automatically fires, inserting a log entry into the `EmployeeAudit` table.
+- When a row in the `Employees` table is updated, the `trgAfterUpdate` trigger fires, inserting an update log entry.
+- When a row in the `Employees` table is deleted, the `trgAfterDelete` trigger fires, inserting a delete log entry.
+
+A **Trigger** is an automatic action executed before or after a database event (`INSERT`, `UPDATE`, `DELETE`).
 
 ### **Types of Triggers**
 
@@ -1292,6 +1342,8 @@ DELIMITER ;
 
 - Enforcing business rules automatically.
 - Auditing changes in tables.
+- Synchronizing tables.
+- Implementing complex business rules.
 - Keeping data consistency between tables.
 
 ---

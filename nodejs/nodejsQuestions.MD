@@ -1292,3 +1292,125 @@ No, **`AbortController` only cancels the request on the **client-side** (Node.js
 | ------------------------- | -------------------------------------------------------------------- |
 | `AbortController.abort()` | Stops the fetch on **client-side**                                   |
 | Server behavior           | Continues processing (unless server has its own disconnect handling) |
+
+# 15. What is authentication and Authorization?
+
+**Authentication** and **Authorization** are two key concepts in web security.
+
+### **Authentication**
+
+It is the process of verifying **who the user is**. Example: Logging in with username & password.
+
+### **Authorization**
+
+It is the process of verifying **what the user has access to**. Example: Checking if the user has admin rights to access a route.
+
+---
+
+### **Example in Node.js with Express and JWT**
+
+Let's create a simple app to demonstrate both.
+
+#### 1. Install dependencies
+
+```bash
+npm install express jsonwebtoken bcryptjs
+```
+
+---
+
+### **`server.js`**
+
+```js
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+
+const app = express();
+app.use(express.json());
+
+const SECRET = "your-secret-key"; // should be in env vars
+
+// Dummy users database
+const users = [
+  {
+    id: 1,
+    username: "user1",
+    password: bcrypt.hashSync("password1", 8),
+    role: "user",
+  },
+  {
+    id: 2,
+    username: "admin",
+    password: bcrypt.hashSync("adminpass", 8),
+    role: "admin",
+  },
+];
+
+// ------------------- Authentication -------------------
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find((u) => u.username === username);
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  const token = jwt.sign({ id: user.id, role: user.role }, SECRET, {
+    expiresIn: "1h",
+  });
+  res.json({ token });
+});
+
+// ------------------- Middleware for Authorization -------------------
+function verifyToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.sendStatus(403);
+
+  const token = authHeader.split(" ")[1]; // Bearer <token>
+  jwt.verify(token, SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+// Role-based access middleware
+function authorizeRole(role) {
+  return (req, res, next) => {
+    if (req.user.role !== role) {
+      return res.sendStatus(403);
+    }
+    next();
+  };
+}
+
+// ------------------- Routes -------------------
+// Public
+app.get("/", (req, res) => res.send("Public route"));
+
+// Protected route (any logged-in user)
+app.get("/profile", verifyToken, (req, res) => {
+  res.json({ message: "Profile access granted", user: req.user });
+});
+
+// Admin-only route
+app.get("/admin", verifyToken, authorizeRole("admin"), (req, res) => {
+  res.send("Admin access granted");
+});
+
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+```
+
+---
+
+### **Usage**
+
+1. **Login** with POST `/login`  
+   Send `{ "username": "admin", "password": "adminpass" }`
+2. Use the returned JWT token in `Authorization: Bearer <token>` header to access:
+   - `/profile`: accessible to any logged-in user
+   - `/admin`: only accessible to users with `role: admin`
+
+---
+
+Let me know if you want to connect this with MongoDB or add user registration.

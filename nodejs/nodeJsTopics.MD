@@ -3501,9 +3501,197 @@ docker-compose up --build
 
 # **15. Unit Testing in Node.js**
 
+Unit testing involves testing individual functions or components in isolation. In Node.js, two of the most common testing libraries are:
+
 - Writing Tests with Jest/Mocha
 - Testing API Endpoints (`supertest`)
 - Mocking in Tests
+
+---
+
+### 🧪 **1. Writing Tests with Jest / Mocha**
+
+- **Jest** (by Facebook) – popular for its simplicity and built-in features.
+- **Mocha** – flexible test runner (often used with **Chai** for assertions and **Sinon** for mocking).
+
+#### ✅ **Using Jest** (Recommended for most cases)
+
+- Install:
+
+  ```bash
+  npm install --save-dev jest
+  ```
+
+- Example:
+
+```js
+// sum.js
+function sum(a, b) {
+  return a + b;
+}
+module.exports = sum;
+```
+
+```js
+// sum.test.js
+const sum = require("./sum");
+
+test("adds 1 + 2 to equal 3", () => {
+  expect(sum(1, 2)).toBe(3);
+});
+```
+
+- Run tests:
+  ```bash
+  npx jest
+  ```
+
+#### ✅ **Using Mocha + Chai**
+
+- Install:
+
+  ```bash
+  npm install --save-dev mocha chai
+  ```
+
+- Example:
+
+```js
+// sum.js
+function sum(a, b) {
+  return a + b;
+}
+module.exports = sum;
+```
+
+```js
+// test/sum.test.js
+const sum = require("../sum");
+const { expect } = require("chai");
+
+describe("sum()", function () {
+  it("should return 3 for 1 + 2", function () {
+    expect(sum(1, 2)).to.equal(3);
+  });
+});
+```
+
+- Run tests:
+  ```bash
+  npx mocha
+  ```
+
+---
+
+### 🌐 **2. Testing API Endpoints with Supertest**
+
+Used for integration tests – simulating HTTP requests to your Node.js/Express API.
+
+- Install:
+  ```bash
+  npm install --save-dev supertest
+  ```
+
+#### Example: Testing Express Routes
+
+```js
+// app.js
+const express = require("express");
+const app = express();
+
+app.get("/ping", (req, res) => {
+  res.json({ message: "pong" });
+});
+
+module.exports = app;
+```
+
+```js
+// test/app.test.js
+const request = require("supertest");
+const app = require("../app");
+
+describe("GET /ping", () => {
+  it("should return pong", async () => {
+    const res = await request(app).get("/ping");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe("pong");
+  });
+});
+```
+
+> Supertest is often used alongside Jest or Mocha.
+
+---
+
+### 🧪 **3. Mocking in Tests**
+
+Mocking allows you to **simulate external dependencies** (like DB calls, APIs, etc.) so you can test logic in isolation.
+
+#### ✅ **With Jest**
+
+```js
+// userService.js
+const db = require("./db");
+
+async function getUser(id) {
+  return await db.findUserById(id);
+}
+module.exports = { getUser };
+```
+
+```js
+// userService.test.js
+const db = require("./db");
+const userService = require("./userService");
+
+// Mock the db module
+jest.mock("./db");
+
+test("getUser returns user from db", async () => {
+  const fakeUser = { id: 1, name: "Alice" };
+  db.findUserById.mockResolvedValue(fakeUser);
+
+  const result = await userService.getUser(1);
+  expect(result).toEqual(fakeUser);
+});
+```
+
+#### ✅ **With Sinon (if using Mocha)**
+
+```bash
+npm install --save-dev sinon
+```
+
+```js
+const sinon = require("sinon");
+const db = require("../db");
+const userService = require("../userService");
+
+describe("getUser()", () => {
+  it("should return mocked user", async () => {
+    const stub = sinon
+      .stub(db, "findUserById")
+      .resolves({ id: 1, name: "Bob" });
+
+    const result = await userService.getUser(1);
+    expect(result.name).to.equal("Bob");
+
+    stub.restore();
+  });
+});
+```
+
+---
+
+## 🔄 Summary
+
+| Feature       | Jest                   | Mocha + Chai  |
+| ------------- | ---------------------- | ------------- |
+| Assertions    | Built-in               | Chai          |
+| Mocking       | Built-in (`jest.mock`) | Needs `sinon` |
+| Async Support | Excellent              | Good          |
+| API Testing   | Use with `supertest`   | Same          |
 
 ---
 

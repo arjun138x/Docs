@@ -832,3 +832,107 @@ console.log(deserialized);
 ```
 
 ---
+
+# 22. What is Method Chaining?
+
+**Method chaining** is a programming technique where **multiple methods are called in a single line**, one after the other, on the **same object**. Each method returns the object itself (`this`), allowing the next method in the chain to be called.
+
+---
+
+### ✅ **Example using classes**
+
+```js
+class Calculator {
+  constructor() {
+    this.value = 0;
+  }
+
+  add(num) {
+    this.value += num;
+    return this; // Important for chaining
+  }
+
+  subtract(num) {
+    this.value -= num;
+    return this;
+  }
+
+  multiply(num) {
+    this.value *= num;
+    return this;
+  }
+
+  result() {
+    return this.value;
+  }
+}
+
+// Usage
+const calc = new Calculator();
+const final = calc.add(10).subtract(3).multiply(2).result();
+console.log(final); // Output: 14
+
+// wrap with function
+function cal() {
+  return new Cal();
+}
+console.log(cal().add(10).subtract(5).multiply(20).divide(2).getResult());
+```
+
+### ✅ **Example using function**
+
+```js
+function cal() {
+  let val = 0;
+  return {
+    add(n) {
+      val += n;
+      return this;
+    },
+    subtract(n) {
+      val -= n;
+      return this;
+    },
+    multiply(n) {
+      val *= n;
+      return this;
+    },
+    divide(n) {
+      val /= n;
+      return this;
+    },
+    getResult() {
+      return val;
+    },
+  };
+}
+
+console.log(cal().add(10).subtract(5).multiply(20).divide(2).getResult());
+```
+
+---
+
+### 🔍 Why Method Chaining?
+
+- **Readable**: Looks clean and fluent.
+- **Efficient**: Reduces the need for intermediate variables.
+- **Popular in Libraries**: Like jQuery, Mongoose, Lodash, etc.
+
+---
+
+### 🔧 Real-World Example: Mongoose (MongoDB ODM)
+
+```js
+User.find({ active: true })
+  .sort({ name: 1 })
+  .limit(10)
+  .select("name email")
+  .exec((err, users) => {
+    if (err) return console.error(err);
+    console.log(users);
+  });
+```
+
+Each method returns a query object, allowing further chaining.
+
+---

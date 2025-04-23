@@ -14,8 +14,7 @@ var arr = [2, 3, 4, 5, 4, 3, 2, 6, 7, 7, 7];
 // method 1
 var result = {};
 arr?.forEach((n) => {
-  result[n] = result[n] || 0;
-  result[n]++;
+  result[n] = (result[n] || 0) + 1;
 });
 console.log({ result });
 
@@ -26,6 +25,20 @@ arr?.forEach((n) => {
   result.get(n) ? result.set(n, result.get(n) + 1) : result.set(n, 1);
 });
 console.log({ result });
+
+// remove the duplicates
+var b = [5, 7, 9, 3, 2, 9, 7, 8, 6, 6];
+
+const count = {};
+const result = [];
+for (const n of b) {
+  count[n] = (count[n] || 0) + 1;
+  //   if count is >1 it is a duplicate
+  if (count[n] > 1) result.splice(result.indexOf(n), 1);
+  else result.push(n);
+}
+
+console.log(result); // result: [ 5, 3, 2, 8 ]
 
 // sort given array. odd numbers in left and even numbers in right ascending order
 const a = [3, 5, 2, 1, 6, 8];

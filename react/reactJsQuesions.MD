@@ -1,3 +1,402 @@
+# Guess the output?
+
+## Why `Maximum update depth exceeded` error is throwing for below code? Why it won't throw error if we wrap with `setTimeout`.
+
+```js
+import React, { useState, useEffect } from "react";
+
+const Test = () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    setCount(count + 1);
+  }, [count]);
+
+  return <div>{count}</div>;
+};
+
+export default Test;
+```
+
+---
+
+### ✅ Solution
+
+### ✅ This Code Works Fine
+
+```js
+useEffect(() => {
+  setTimeout(() => {
+    setCount(count + 1);
+  }, 0);
+}, [count]);
+```
+
+**Why it works:**
+
+- You're using `setTimeout(..., 0)`, which defers the `setCount()` call to the **next event loop cycle**.
+- This means the effect **finishes** before `setCount()` triggers a re-render.
+- No infinite loop occurs — React schedules the next render _after_ the current one is complete.
+
+🌀 This causes a **continuous re-render loop**, but **not an error**, because each update happens asynchronously after render completes.
+
+---
+
+### ❌ This Code Throws Error
+
+```js
+useEffect(() => {
+  setCount(count + 1);
+}, [count]);
+```
+
+**Why it fails:**
+
+- `setCount()` is called **immediately during the effect**.
+- That causes a **state update**, which triggers another render.
+- Since `count` changes, the effect runs **again** → another `setCount()` → another render → infinite loop.
+
+💥 This leads to a **render loop**, and React detects this and throws a warning/error like:
+
+> "Too many re-renders. React limits the number of renders to prevent an infinite loop."
+
+---
+
+### 🔁 Summary of the difference
+
+| Code Version         | Behavior              | Reason                                |
+| -------------------- | --------------------- | ------------------------------------- |
+| With `setTimeout`    | Works (infinite loop) | Update is deferred until after render |
+| Without `setTimeout` | Crashes (error)       | Update happens during render cycle    |
+
+---
+
+### ✅ Safe Fixes
+
+To avoid infinite loops:
+
+1. **Use `setTimeout` / `setInterval` cautiously**
+2. **Use guards / conditions**
+3. **Use functional state updates** when needed
+
+Or, if you just want to increment once after initial mount:
+
+```js
+useEffect(() => {
+  setCount((c) => c + 1);
+}, []);
+```
+
+---
+
+## What is the value of `count` after clicking the `Increment` button?
+
+```js
+import React, { useState } from "react";
+function Counter() {
+  const [count, setCount] = useState(0);
+  function handleIncrement() {
+    setCount(count + 1);
+    setCount(count + 1);
+  }
+  function handleDecrement() {
+    setCount(count - 1);
+  }
+  return (
+    <div>
+      Count: {count}
+      <button onClick={handleIncrement}>Increment</button>
+      <button onClick={handleDecrement}>Decrement</button>
+    </div>
+  );
+}
+```
+
+---
+
+### ✅ Solution
+
+### 🧠 The Code
+
+```js
+function handleIncrement() {
+  setCount(count + 1);
+  setCount(count + 1);
+}
+```
+
+You're calling `setCount(count + 1)` **twice** in a row.
+
+Now the key point:
+
+> React **batches state updates** from event handlers and will **not immediately update** the `count` value after the first `setCount`.
+
+So both `setCount(count + 1)` are calculated based on the **same old value of `count`**.
+
+---
+
+### 🧪 Example:
+
+Let’s assume `count = 0`.
+
+1. First call: `setCount(0 + 1)` → sets count to `1` (in the queue)
+2. Second call: `setCount(0 + 1)` → again sets count to `1` (not 2)
+
+React applies both updates, but they’re both telling it to set `count = 1`.
+
+---
+
+### ✅ Final Output After Clicking "Increment" Once:
+
+```
+Count: 1
+```
+
+Even though you called `setCount` twice, the state only incremented **by 1** due to **state batching and stale closures**.
+
+---
+
+### 💡 How to fix this?
+
+If you **really want to increment twice**, use the **functional update form** of `setCount`:
+
+```js
+function handleIncrement() {
+  setCount((prev) => prev + 1);
+  setCount((prev) => prev + 1);
+}
+```
+
+Now each update uses the **latest** value of `count`, so you'll get:
+
+```
+Count: 2
+```
+
+---
+
+## What is the log sequence after clicking of `Toggle Effect` button?
+
+```js
+import React, { useState, useEffect } from "react";
+
+export function CleanupTest() {
+  const [toggle, setToggle] = useState(false);
+
+  useEffect(() => {
+    console.log("Effect triggered");
+    return () => {
+      console.log("Cleanup triggered");
+    };
+  }, [toggle]);
+
+  return <button onClick={() => setToggle(!toggle)}>Toggle Effect</button>;
+}
+```
+
+---
+
+### ✅ Solution
+
+### 🧠 Code Overview
+
+```js
+useEffect(() => {
+  console.log("Effect triggered");
+  return () => {
+    console.log("Cleanup triggered");
+  };
+}, [toggle]);
+```
+
+- `useEffect` runs:
+  - on **initial mount** ✅
+  - on every **change to `toggle`** ✅
+- The **cleanup function** runs:
+  - **before** the next effect re-runs (on dependency change)
+  - or **on component unmount**
+
+---
+
+### 📋 Initial Mount
+
+When the component first mounts:
+
+- `toggle = false`
+- `useEffect` runs once:
+  - ✅ Logs: `"Effect triggered"`
+
+---
+
+### 🖱️ On Click
+
+User clicks **"Toggle Effect"**:
+
+- `toggle` changes from `false` ➝ `true`
+- `useEffect` runs again, but **before that**, the previous effect’s cleanup is called
+
+**Logs:**
+
+1. `"Cleanup triggered"`
+2. `"Effect triggered"`
+
+### ✅ Final Log Sequence
+
+```
+Effect triggered
+Cleanup triggered
+Effect triggered
+```
+
+Let me know if you want to visualize this with a timeline diagram or want to see how this changes if you click 3 times or more!
+
+---
+
+## Explain the code?
+
+```js
+import React, { useState, useEffect } from "react";
+
+const DebouncedInput = () => {
+  const [input, setInput] = useState("");
+  const [debouncedInput, setDebouncedInput] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedInput(input);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [input]);
+
+  return (
+    <div>
+      <input
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        placeholder="Type something"
+      />
+      <p>Debounced Input: {debouncedInput}</p>
+    </div>
+  );
+};
+
+export default DebouncedInput;
+```
+
+---
+
+### ✅ Solution
+
+### 💡 What is debouncing?
+
+**Debouncing** means delaying a function's execution until after a certain period of inactivity.
+
+For example, when typing in a search box, you don't want to send a request on **every keystroke**. Instead, you wait until the user stops typing for a bit — then fire the logic. This avoids flooding the system with unnecessary actions.
+
+---
+
+### 🔍 Breakdown of What the Code Does
+
+```jsx
+const [input, setInput] = useState("");
+const [debouncedInput, setDebouncedInput] = useState("");
+```
+
+- `input`: holds the current value from the input box (updated on every keystroke).
+- `debouncedInput`: holds the value **after the user has stopped typing** for 500ms.
+
+---
+
+### 👇 useEffect with debouncing logic
+
+```jsx
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedInput(input); // Update after 500ms of no typing
+  }, 500);
+
+  return () => clearTimeout(timer); // Clear timer if input changes before 500ms
+}, [input]);
+```
+
+- **Every time `input` changes**, a new timer starts.
+- If the user keeps typing, the previous timer is **cleared**.
+- Only when the user stops typing for 500ms does `debouncedInput` get updated.
+
+---
+
+### ✅ When is this useful?
+
+- 🔍 **Search boxes** (API calls)
+- 📤 **Autosave forms**
+- 📊 **Filter-heavy UIs**
+- 🔧 **Avoiding expensive computations on each keystroke**
+
+---
+
+## Before rendering the component i need to call the `computeComplexOperation()`. What is the wrong with this?
+
+```js
+function computeComplexOperation() {
+  // Resolving Complex Time Consuming Algorithm
+  return 0;
+}
+export default function App() {
+  const [count, setCount] = useState(computeComplexOperation());
+  const handleCount = () => {
+    setCount(count + 1);
+  };
+  return (
+    <div className="App">
+      <h1>{count}</h1>
+      <button onClick={handleCount}>+</button>
+    </div>
+  );
+}
+```
+
+---
+
+### ✅ Solution
+
+- You're calling `computeComplexOperation()` directly inside `useState(...)`. This means **every time the component renders**, `computeComplexOperation()` is executed—even though `useState` only uses the value during the initial render.
+- memoize the `computeComplexOperation` using `useCallback`.
+
+```jsx
+import { useCallback, useState } from "react";
+
+export default function App() {
+  const computeComplexOperation = useCallback(() => {
+    // Expensive computation logic here
+    console.log("Computing...");
+    return 0;
+  }, []); // Add dependencies if any inputs affect the computation
+
+  const [count, setCount] = useState(computeComplexOperation);
+
+  const handleCount = () => {
+    setCount(count + 1);
+  };
+
+  return (
+    <div className="App">
+      <h1>{count}</h1>
+      <button onClick={handleCount}>+</button>
+    </div>
+  );
+}
+```
+
+---
+
+### 🔍 Why use `useCallback()` here?
+
+- It ensures `computeComplexOperation` maintains the **same function reference** between renders.
+- Useful when passing the function to children or using it as a dependency elsewhere (e.g., in `useEffect()` or `useMemo()`).
+- It prevents unnecessary recalculations or re-renders caused by function identity changes.
+
+---
+
 # 1. `useEffect` & `useLayoutEffect` With differences and code example
 
 ## Overview

@@ -936,3 +936,47 @@ User.find({ active: true })
 Each method returns a query object, allowing further chaining.
 
 ---
+
+# 23. nested children / buildTree ?
+
+```js
+// Sample flat user data where each user has an `id`, a `name`, and a `managerId`.
+// The `managerId` establishes the hierarchy (e.g., who reports to whom).
+const userData = [
+  { id: 1, name: "Alice", managerId: null }, // Top-level manager (CEO)
+  { id: 2, name: "Bob", managerId: 1 }, // Reports to Alice
+  { id: 3, name: "Charlie", managerId: 1 }, // Reports to Alice
+  { id: 4, name: "David", managerId: 2 }, // Reports to Bob
+  { id: 5, name: "Eve", managerId: 2 }, // Reports to Bob
+  { id: 6, name: "Frank", managerId: 4 }, // Reports to David
+];
+
+// Recursive function to build a hierarchical tree structure from flat data.
+function buildTree(users, parentId = null) {
+  const tree = [];
+
+  // Find all users whose managerId matches the current parentId
+  const childNodes = users.filter((user) => user.managerId === parentId);
+
+  // For each child node, recursively build its own children
+  childNodes.forEach((node) => {
+    const children = buildTree(users, node.id); // Recursive call for current node's children
+
+    // Create a new node object including its children (or null if no children)
+    const newNode = {
+      ...node,
+      children: childNodes.length > 0 ? children : null,
+    };
+
+    // Add the new node to the result tree
+    tree.push(newNode);
+  });
+
+  return tree; // Return the constructed tree for the current level
+}
+
+const treeStructure = buildTree(userData);
+console.log(JSON.stringify(treeStructure, null, 2));
+```
+
+---

@@ -1,5 +1,3 @@
-TypeScript covers a wide range of topics, from basic to advanced concepts. Here’s a structured breakdown:
-
 # **1. Basics**
 
 - Introduction to TypeScript
@@ -356,7 +354,7 @@ let length2: number = (<string>value2).length;
 
 Literal types restrict a variable to **specific** values.
 
-#### **a) String Literal Type**
+#### **a. String Literal Type**
 
 ```ts
 let direction: "left" | "right" | "up" | "down";
@@ -364,7 +362,7 @@ direction = "left"; // ✅ Allowed
 // direction = "forward"; // ❌ Error: Not part of the literal type
 ```
 
-#### **b) Number Literal Type**
+#### **b. Number Literal Type**
 
 ```ts
 let statusCode: 200 | 400 | 404 | 500;
@@ -372,7 +370,7 @@ statusCode = 200; // ✅ Allowed
 // statusCode = 201; // ❌ Error
 ```
 
-#### **c) Boolean Literal Type**
+#### **c. Boolean Literal Type**
 
 ```ts
 let isVerified: true | false;

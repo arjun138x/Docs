@@ -704,9 +704,11 @@ HAVING COUNT(studentID) > 5;
 
 ## DB dump
 
-- sudo -i -u postgres
-- psql DB name < file path
-- psql localDB < Downloads/postgres-backup.sql
+- generate file
+  -     pg_dump -h <hostname> -p <port_number> -U <username> -d <database_name> > <output_file.sql>
+
+- dump data from file
+  -     psql -U <username> -d <database_name> -f <path_to_dump_file.sql>
 
 ---
 

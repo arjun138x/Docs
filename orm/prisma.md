@@ -346,6 +346,10 @@ const stats = await prisma.post.aggregate({
 
 ## 🔄 PART 4: Transactions
 
+- A transaction is a sequence of one or more database operations—such as inserts, updates, or deletes—that are executed as a single, indivisible unit of work.
+- This concept ensures data integrity by guaranteeing that either all operations within the transaction succeed and are committed to the database, or if any operation fails, the entire transaction is rolled back, leaving the database in its original state.
+- This property is known as atomicity, one of the core ACID (Atomicity, Consistency, Isolation, Durability) properties that define reliable database transactions.
+
 Prisma supports both **interactive** and **batch** transactions.
 
 ---

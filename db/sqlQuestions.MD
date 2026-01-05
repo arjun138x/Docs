@@ -704,8 +704,13 @@ HAVING COUNT(studentID) > 5;
 
 ## DB dump
 
-- generate file
+- generate file with tables+ data
+
   -     pg_dump -h <hostname> -p <port_number> -U <username> -d <database_name> > <output_file.sql>
+
+- generate file with tables only
+
+  -     pg_dump -h <hostname> -p <port_number> -U <username> -d <database_name> --schema=<schemaName> --schema-only --no-owner --no-privileges -W > <output_schema_file.sql>
 
 - dump data from file
   -     psql -U <username> -d <database_name> -f <path_to_dump_file.sql>

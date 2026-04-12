@@ -1,56 +1,45 @@
-### **Reverse a String Without Using Built-in Methods `split()`, `reverse()`, or `join()`**
+### **Numbers count**
+
+Method 1 (**using object**)
 
 ```js
-function reverseString(str) {
-  let reversed = "";
-  for (let i = str.length - 1; i >= 0; i--) {
-    reversed += str[i];
-  }
-  return reversed;
-}
-
-console.log(reverseString("hello")); // "olleh"
+let arr = [2, 3, 4, 5, 4, 3, 2, 6, 7, 7, 7];
+let result = {};
+arr?.forEach((n) => {
+  result[n] = (result[n] || 0) + 1;
+});
+console.log({ result });
 ```
 
-```js
-var name = "fruit";
-var reverse = "";
-for (let c in name) {
-  reverse += name[name.length - c - 1];
-}
-console.log({ reverse });
-```
+Method 2 (**using new Map**)
 
 ```js
-var name = "fruit";
-var reverse = "";
-for (let c of name) {
-  reverse = c + reverse;
-}
-console.log({ reverse });
+let arr = [2, 3, 4, 5, 4, 3, 2, 6, 7, 7, 7];
+//  new Map() is faster then the Object
+let result = new Map();
+arr?.forEach((n) => {
+  result.get(n) ? result.set(n, result.get(n) + 1) : result.set(n, 1);
+});
+console.log({ result });
 ```
 
 ---
 
-### **Find the First Non-Repeating Character**
+### **Remove the duplicates**
 
 ```js
-function firstNonRepeatingChar(str) {
-  let charCount = {};
+let arr = [5, 7, 9, 3, 2, 9, 7, 8, 6, 6];
 
-  for (let char of str) {
-    charCount[char] = (charCount[char] || 0) + 1;
-  }
-
-  for (let char of str) {
-    if (charCount[char] === 1) return char;
-  }
-
-  return null;
+const count = {};
+const result = [];
+for (const n of arr) {
+  count[n] = (count[n] || 0) + 1;
+  //   if count is >1 it is a duplicate
+  if (count[n] > 1) result.splice(result.indexOf(n), 1);
+  else result.push(n);
 }
 
-console.log(firstNonRepeatingChar("aabbccdeff")); // "d"
-console.log(firstNonRepeatingChar("aabb")); // null
+console.log(result); // result: [ 5, 3, 2, 8 ]
 ```
 
 ---
@@ -102,7 +91,7 @@ console.log(flattenedArray);
 
 ---
 
-### **Flatten a Nested Array with limited iterations/depth**
+### **Flatten a Nested Array with depth**
 
 ```js
 function flattenArray(arr, depth) {
@@ -126,6 +115,581 @@ function flattenArray(arr, depth) {
 console.log(flattenArray([1, [2, [3, 4], 5], 6], 1));
 // Output: [1, 2, [3, 4], 5, 6]
 ```
+
+---
+
+### **Find the sum of numbers**
+
+- Filter the numbers(question 2)
+
+```js
+obj = {
+  a: 2,
+  b: { x: 4, y: { foo: 3, z: { bar: 2 } } },
+  c: { p: { h: 2, r: 5 }, q: "ball", r: 5 },
+  d: 1,
+  e: { nn: { lil: 2 }, mm: "car" },
+};
+
+function sumOfNumbers(obj) {
+  var sum = 0;
+
+  function supportFunction(obj) {
+    for (let key in obj) {
+      if (typeof obj[key] === "number") {
+        sum += obj[key];
+      } else if (typeof obj[key] === "object") {
+        supportFunction(obj[key]);
+      }
+    }
+  }
+
+  supportFunction(obj);
+
+  return sum;
+}
+
+console.log(sumOfNumbers(obj));
+```
+
+---
+
+### **Remove duplicate with one iteration**
+
+```js
+var array = [1, 2, 1, 3, 5, 1, true, undefined, false, "aa", true, "aa"];
+
+const uniqueValues = [];
+const seen = new Map();
+
+for (let i = 0; i < array.length; i++) {
+  const value = array[i];
+  if (!seen.has(value)) {
+    uniqueValues.push(value);
+    seen.set(value, true);
+  }
+}
+
+console.log(uniqueValues);
+```
+
+---
+
+### Factorial of a given number.
+
+```js
+function factorial(number) {
+  if (number <= 1) return 1;
+  return number * factorial(number - 1);
+}
+
+var fact = factorial(5);
+console.log({ fact });
+```
+
+---
+
+### Guess the output
+
+- Question
+
+```js
+var length = 10;
+function fn() {
+  console.log(this.length);
+}
+
+var obj = {
+  length: 5,
+  method: function (fn) {
+    /**
+     * run this in browser.
+     * we are calling the fn() the output is 10
+     * we are calling outside function so that function scope is applied.
+     * in this case we are calling function in global scope so this refers to the window object.
+     */
+    fn(); //
+
+    /** to manipulate this we can use call(), apply(), bind() methods */
+    fn.call(this);
+
+    /* *
+     * run this in browser.
+     * in this case this is referred to arguments
+     * */
+    arguments[0](); // calling fn() output = 3
+  },
+};
+
+obj.method(fn, 1, 2);
+```
+
+- Question
+
+```js
+(function () {
+  console.log(1);
+  setTimeout(function () {
+    console.log(2);
+  }, 1000);
+
+  /* * it will print 1 3 and through the error.
+   * the IIFE will execute immediately and the callback function is undefined. it through the error
+   * TypeError [ERR_INVALID_ARG_TYPE]: The "callback" argument must be of type function. Received undefined
+   */
+  setTimeout(
+    (function () {
+      console.log(3);
+    })(), // IIFE
+    3000,
+  );
+  console.log(4);
+})();
+```
+
+- Question
+
+```js
+let counter = 0;
+for (var i = 1; i <= 10; i++) {
+  counter += i;
+}
+console.log(counter); // 55
+console.log(i); //11
+```
+
+- Question
+
+```js
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.getName = function () {
+  return this.name;
+};
+
+var john = new Person("John");
+console.log(john.getName());
+```
+
+- Question
+
+```js
+// promise(micro task queue) has high priority then the timeIntervals(macro task queue)
+console.log("Start");
+setTimeout(function () {
+  console.log("Timeout");
+}, 0);
+Promise.resolve().then(function () {
+  console.log("Promise");
+});
+console.log("End");
+
+// guess the output
+console.log("Start");
+setTimeout(() => console.log("First timeout"), 0);
+setTimeout(() => console.log("Second timeout"), 100);
+setTimeout(() => console.log("Third timeout"));
+console.log("End");
+// Start
+// End
+// First timeout
+// Third timeout
+// Second timeout
+```
+
+- Question
+
+```js
+/**
+ * The code starts with a self-executing function enclosed in parentheses ((function() { ... })();).
+ * It creates a private scope, meaning variables and functions declared within it are not accessible from outside.
+ * It executes immediately, producing a value that's assigned to CalculatorModule.
+ * This pattern creates a module-like construct with controlled access to certain parts.
+ * It's a way to organize code with private data and public methods.
+ * The underscore prefix (_) is a convention to indicate private members, but JavaScript doesn't have true private variables.
+ */
+const CalculatorModule = (function () {
+  let _data = 0; // private member
+
+  function add(input) {
+    _data += input;
+    return _data;
+  }
+
+  function subtract(input) {
+    _data -= input;
+    return _data;
+  }
+
+  return {
+    add,
+    subtract,
+  };
+})();
+console.log(CalculatorModule.add(5)); // 5
+console.log(CalculatorModule.subtract(2)); // 3
+```
+
+- Question
+
+```js
+
+```
+
+---
+
+### **Print 1 2 3. without changing the var**
+
+```js
+for (var i = 0; i < 3; i++) {
+  (setTimeout(() => console.log(i)), 1000);
+}
+
+// by using closer we can archive this
+for (var i = 0; i < 3; i++) {
+  function fn(i) {
+    (setTimeout(() => console.log(i)), 1000);
+  }
+  fn(i);
+}
+```
+
+---
+
+### **Find sum of array without using for loop**
+
+```js
+function sumArray(arr) {
+  if (arr.length === 1) {
+    return arr[0];
+  } else {
+    return arr[0] + sumArray(arr.slice(1));
+  }
+}
+
+const array = [1, 2, 3, 4, 5];
+var sum = sumArray(array);
+console.log(sum); // Output: 15
+```
+
+---
+
+### **Binary search**
+
+```js
+function binarySearch(arr, target) {
+  let left = 0;
+  let right = arr.length - 1;
+
+  while (left <= right) {
+    let mid = Math.floor((left + right) / 2);
+
+    if (arr[mid] === target) {
+      return mid; // element found, return its index
+    } else if (arr[mid] < target) {
+      left = mid + 1; // continue searching on the right side
+    } else {
+      right = mid - 1; // continue searching on the left side
+    }
+  }
+
+  return -1; // element not found
+}
+
+// Example usage:
+const sortedArray = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+const target = 13;
+
+const resultIndex = binarySearch(sortedArray, target);
+if (resultIndex !== -1) {
+  console.log(`Element ${target} found at index ${resultIndex}`);
+} else {
+  console.log(`Element ${target} not found in the array`);
+}
+```
+
+---
+
+### **Find coins count for amount**
+
+```js
+const coins = [1, 2, 5, 10, 20, 50, 100, 200, 500].reverse();
+const value = [179, 1059, 42, 80, 542];
+
+const output = []; // [6, 6, 3, 3, 4];
+
+for (let amount of value) {
+  let count = 0;
+  for (const coin of coins) {
+    if (amount >= coin) {
+      count += Math.floor(amount / coin);
+      amount = amount % coin;
+    }
+  }
+  output.push(count);
+}
+
+console.log({ output });
+```
+
+---
+
+### **How can I schedule a series of calendar events in Node.js to execute after specific intervals of time? For instance:**
+
+- Schedule book a movie, then wait for a 5-second delay.
+- Schedule a coffee break reminder then wait for a 6-second delay.
+- Schedule a grocery shopping reminder and wait for 7-second delay.
+- Schedule a car wash reminder and wait for 8-second delay.
+- Schedule - means just console.log the task name
+
+```js
+(async () => {
+  async function scheduleEvent(eventName, delay) {
+    // Create a promise that resolves after the specified delay
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    // Log the event name after the delay
+    console.log(eventName);
+  }
+
+  // Schedule events
+  await scheduleEvent("Book a movie", 3000);
+  await scheduleEvent("Coffee break reminder", 3000);
+  await scheduleEvent("Grocery shopping reminder", 3000);
+  await scheduleEvent("Car wash reminder", 3000);
+})();
+```
+
+---
+
+### **Filter the duplicates by fName & lName**
+
+```js
+let data = [
+  { fName: "a", lName: "b", age: 21 },
+  { fName: "ay", lName: "b", age: 22 },
+  { fName: "a", lName: "bc", age: 23 },
+  { fName: "a", lName: "b", age: 24 },
+  { fName: "a", lName: "bc", age: 25 },
+  { fName: "ac", lName: "b", age: 23 },
+  { fName: "ab", lName: "c", age: 26 },
+  { lName: "c", fName: "ab", age: 26 },
+];
+
+var result = [data[0]];
+for (let i = 1; i < data.length; i++) {
+  const { fName, lName, age } = data[i];
+  let exist = false;
+  for (const res of result)
+    if (res?.fName === fName && res?.lName === lName) {
+      exist = true;
+      break;
+    }
+  if (!exist) result.push(data[i]);
+}
+
+console.log({ result });
+```
+
+---
+
+### **Filter the duplicates with order of n**
+
+```js
+function removerDuplicateObjectsInSingleIteration() {
+  const users = [
+    { name: "arjun", age: 25 },
+    { name: "arjun", age: 25 },
+  ];
+
+  const seen = new Set();
+
+  const result = users.filter((user) => {
+    const exist = seen.has(user.name + user.age);
+    seen.add(user.name + user.age);
+    if (!exist) return user;
+  });
+
+  console.log(result);
+}
+removerDuplicateObjectsInSingleIteration();
+```
+
+---
+
+### Filter by status
+
+- StatusData contains the id's of user which are currently active, we have to create two arrays.
+- one is activeUsers and another for nonActiveUsers also include one more key of active:true/false
+
+- Example
+  - activeUsers = [{ name: 'devin', id: '1234', active: true },.......]
+  - nonActiveUsers = [{name: 'alex', id: '1235', active: false},......]
+
+```js
+function creteActiveAndInactiveUsers() {
+  let data = [
+    { name: "devin", id: "1234" },
+    { name: "alex", id: "1235" },
+    { name: "sam", id: "1236" },
+    { name: "jordan", id: "1237" },
+    { name: "taylor", id: "1238" },
+    { name: "morgan", id: "1239" },
+    { name: "casey", id: "1240" },
+    { name: "jamie", id: "1241" },
+    { name: "pat", id: "1242" },
+    { name: "drew", id: "1243" },
+  ];
+
+  let statusData = [
+    { id: "1234" },
+    { id: "1236" },
+    { id: "1238" },
+    { id: "1240" },
+  ];
+
+  const newStatusData = new Set(statusData.map(({ id }) => id));
+  const activeUsers = [];
+  const nonActiveUsers = [];
+
+  for (const user of data) {
+    newStatusData.has(user.id)
+      ? activeUsers.push({ ...user, active: true })
+      : nonActiveUsers.push({ ...user, active: false });
+  }
+
+  console.log({ activeUsers, nonActiveUsers });
+}
+```
+
+---
+
+### **Subsets of targeted number**
+
+```js
+function findSubsets(arr, targetSum) {
+  const result = []; // Array to store valid subsets
+
+  function support(i = 0, sum = 0, subset = []) {
+    console.log(subset);
+    // Base case: If the sum matches the target, add the subset to the result
+    if (sum === targetSum) {
+      result.push(subset);
+      return;
+    }
+
+    // Base case: Stop recursion if sum exceeds target or index reaches the end
+    if (sum > targetSum || i === arr.length) return;
+
+    // Recursive case: Include the current element if sum remains within target
+    if (sum < targetSum) support(i + 1, sum + arr[i], subset.concat(arr[i]));
+
+    // Recursive case: Exclude the current element and move to the next one
+    support(i + 1, sum, subset);
+  }
+
+  support(0, 0, []); // Initial call to recursive function
+  return result; // Return all valid subsets
+}
+
+// Example usage
+const arr = [1, 3, 5, 4, 2];
+const targetSum = 5;
+const subsets = findSubsets(arr, targetSum);
+console.log(subsets);
+```
+
+---
+
+### **Third highest**
+
+```js
+function thirdHighest(arr) {
+  let first = -Infinity,
+    second = -Infinity,
+    third = -Infinity;
+
+  for (let num of arr) {
+    if (num > first) {
+      third = second;
+      second = first;
+      first = num;
+    } else if (num > second) {
+      third = second;
+      second = num;
+    } else if (num > third) {
+      third = num;
+    }
+  }
+
+  return third === -Infinity ? null : third;
+}
+
+// Example usage:
+console.log(thirdHighest([4, 1, 7, 7, 2, 4, 8, 8])); // Output: 4
+console.log(thirdHighest([10, 10, 10])); // Output: null
+console.log(thirdHighest([1, 2])); // Output: null
+```
+
+---
+
+### **Reverse a String Without Using Built-in Methods `split()`, `reverse()`, or `join()`**
+
+```js
+function reverseString(str) {
+  let reversed = "";
+  for (let i = str.length - 1; i >= 0; i--) {
+    reversed += str[i];
+  }
+  return reversed;
+}
+
+console.log(reverseString("hello")); // "olleh"
+```
+
+```js
+let name = "fruit";
+let reverse = "";
+for (let c in name) {
+  reverse += name[name.length - c - 1];
+}
+console.log({ reverse });
+```
+
+```js
+let name = "fruit";
+let reverse = "";
+for (let c of name) {
+  reverse = c + reverse;
+}
+console.log({ reverse });
+```
+
+---
+
+### **Find the First Non-Repeating Character**
+
+```js
+function firstNonRepeatingChar(str) {
+  let charCount = {};
+
+  for (let char of str) {
+    charCount[char] = (charCount[char] || 0) + 1;
+  }
+
+  for (let char of str) {
+    if (charCount[char] === 1) return char;
+  }
+
+  return null;
+}
+
+console.log(firstNonRepeatingChar("aabbccdeff")); // "d"
+console.log(firstNonRepeatingChar("aabb")); // null
+```
+
+---
 
 ### **Implement a Debounce Function**
 
@@ -469,7 +1033,7 @@ console.log(cal().add(10).subtract(5).multiply(20).divide(2).getResult());
 #### 🔍 Why Method Chaining?
 
 - **Readable**: Looks clean and fluent.
-- **Efficient**: Reduces the need for intermediate variables.
+- **Efficient**: Reduces the need for intermediate letiables.
 - **Popular in Libraries**: Like jQuery, Mongoose, Lodash, etc.
 
 ---

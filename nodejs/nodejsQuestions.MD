@@ -150,9 +150,12 @@ Asynchronous code allows execution to continue while waiting for tasks (like net
 
 ```js
 function print(string) {
-  setTimeout(() => {
-    console.log(string);
-  }, Math.floor(Math.random() * 100));
+  setTimeout(
+    () => {
+      console.log(string);
+    },
+    Math.floor(Math.random() * 100),
+  );
 }
 
 print("Start");
@@ -178,10 +181,13 @@ A **callback** is a function passed as an argument to another function, which is
 
 ```js
 function print(string, callback) {
-  setTimeout(() => {
-    console.log(string);
-    callback(); // Executes the next function
-  }, Math.floor(Math.random() * 100));
+  setTimeout(
+    () => {
+      console.log(string);
+      callback(); // Executes the next function
+    },
+    Math.floor(Math.random() * 100),
+  );
 }
 
 print("Start", () => {
@@ -218,10 +224,13 @@ A Promise has **three states**:
 ```js
 function print(string) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      console.log(string);
-      resolve();
-    }, Math.floor(Math.random() * 100));
+    setTimeout(
+      () => {
+        console.log(string);
+        resolve();
+      },
+      Math.floor(Math.random() * 100),
+    );
   });
 }
 
@@ -1412,5 +1421,3 @@ app.listen(3000, () => console.log("Server running on http://localhost:3000"));
    - `/admin`: only accessible to users with `role: admin`
 
 ---
-
-Let me know if you want to connect this with MongoDB or add user registration.

@@ -932,3 +932,5 @@ jest.mock("./dependency", () => {
 - Jest = powerful testing framework
 - Use mocks & spies wisely
 - Follow F.I.R.S.T principles
+
+---

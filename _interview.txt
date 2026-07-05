@@ -1,3 +1,52 @@
+PLAN:
+  - nodejs 
+    - nodejs/nodejs_tel.md 
+    - nodejs/expressJs_tel.md
+    - nodejs/jsCodingQuestions.md
+    - nodejs/nodejsQuestions.MD
+    - nodejs/nestjs/nestJs._tel.md
+    - nodejs/nestjs/nestjs_interview_questions_tel.md
+    - orm/typeORM_tel.md
+    - orm/prisma_orm.md
+    - typescript/typeScript_tel.md
+    - testing/jest_tel.md
+    - system_design/be_system_design_tel.md
+    - system_design/micro-services_tel.md
+
+
+  - reactjs
+    - react/reactjs_tel.md
+    - react/reactJs_interview_questions_tel.md
+    - css/css_tel.md
+    - react/reactJsQuestions.MD
+    - system_design/fn_system_design_tel.md
+    - system_design/micro-frontend_tel.md
+    - css/mui_tel.md
+
+
+
+  - database 
+    - db/postgres_tel.md
+    - db/postgres_features_tel.md
+    - db/MySQL_basics.pdf
+    - db/mongodb_tel.md
+    - db/sqlQuestions.MD
+
+
+  - other 
+    - datadog/datadog_tel.md
+    - aws/aws_tel.md
+    - data_structures/dataStructures.md
+    - system_design/docker_tel.md
+    - system_design/k8s_tel.md
+    - 
+
+
+
+  - 
+
+
+
 react:
   - first prepare -> anuragrawat123_React-Interview-Preparation-Kit
   

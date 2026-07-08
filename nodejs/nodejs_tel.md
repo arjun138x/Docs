@@ -2187,7 +2187,8 @@ Node.js అనేది Single-threaded (ఒక్కడే వర్కర్ �
 import fs from "node:fs";
 
 // 1. I/O ఆపరేషన్ (Poll Phase లోకి వెళ్ళడానికి)
-fs.readFile(__filename, () => {
+// create one test file
+fs.readFile("./test.txt", () => {
   console.log("--- Inside I/O Callback (Poll Phase) ---");
 
   setTimeout(() => {
@@ -2275,7 +2276,7 @@ getUser(userId, (user) => {
 
 ## 2. Promises & Async/Await (ఆధునిక పరిష్కారం)
 
-کాల్‌బ్యాక్ హెల్ సమస్యను తీర్చడానికి **Promises** వచ్చాయి. ప్రామిస్ అంటే "నేను భవిష్యత్తులో నీకు డేటా ఇస్తాను (Resolve), లేదా ఫెయిల్ అయితే ఎర్రర్ ఇస్తాను (Reject)" అని చెప్పే ఒక ఆబ్జెక్ట్.
+కాల్‌బ్యాక్ హెల్ సమస్యను తీర్చడానికి **Promises** వచ్చాయి. ప్రామిస్ అంటే "నేను భవిష్యత్తులో నీకు డేటా ఇస్తాను (Resolve), లేదా ఫెయిల్ అయితే ఎర్రర్ ఇస్తాను (Reject)" అని చెప్పే ఒక ఆబ్జెక్ట్.
 
 దీన్ని ఇంకా సులువుగా మార్చడానికి **`async/await`** వచ్చింది. దీనివల్ల అసింక్రోనస్ కోడ్ కూడా చూడటానికి నార్మల్ సింక్రోనస్ (లైన్ బై లైన్) కోడ్ లాగే క్లీన్ గా కనిపిస్తుంది.
 
@@ -2288,7 +2289,7 @@ async function getUserPaymentFlow() {
     const payment = await getPaymentDetails(orders[0].id);
     console.log(payment);
   } catch (error) {
-    console.error("❌ ఏదో తప్పు జరిగింది:", error.message);
+    console.error("❌ something went wrong:", error.message);
   }
 }
 ```
@@ -2683,7 +2684,7 @@ server.listen(4000, () => console.log("🚀 TCP Server running on port 4000"));
 
 Node.js లో దీనికోసం **`node:dgram`** మొడ్యూల్ ఉంది.
 
-### 💻 UDP Server (Receiver) ఎగ్జాంపుльный:
+### 💻 UDP Server (Receiver) ఎగ్జాంపుల్:
 
 ```javascript
 import dgram from "node:dgram";
@@ -2720,7 +2721,7 @@ server.bind(5000);
 
 - **ఉపయోగం:** HTTPS (Secure Web), మరియు సురక్షితమైన డేటాబేస్ కనెక్షన్స్.
 
-Node.js లో దీనికోసం **`node:tls`** మొడ్యూల్ ఉంది. దీన్ని రన్ చేయడానికి మనకు **Private Key** మరియు **SSL Certificate** (crt ફાઇલ) అవసరం అవుతాయి.
+Node.js లో దీనికోసం **`node:tls`** మొడ్యూల్ ఉంది. దీన్ని రన్ చేయడానికి మనకు **Private Key** మరియు **SSL Certificate** అవసరం అవుతాయి.
 
 ```javascript
 import tls from "node:tls";
@@ -2768,7 +2769,7 @@ Node.js లో ప్రొఫెషనల్స్ వాడే ముఖ్య
 
 ## 1. Node Inspector & Chrome DevTools
 
-Node.js లో ఒక ఇన్‌బిల్ట్ **V8 Inspector** ఉంటుంది. దీని సహాయంతో మనం మన బ్యాకెండ్ కోడ్‌ను నేరుగా మన గూగుల్ క్రోమ్ బ్రౌజర్ (Chrome DevTools) లోపల ఓపెన్ చేసి, ఫ్రంటెండ్ కోడ్‌ని డీబగ్ చేసినట్టే లైన్-బై-лайн చెక్ చేయవచ్చు.
+Node.js లో ఒక ఇన్‌బిల్ట్ **V8 Inspector** ఉంటుంది. దీని సహాయంతో మనం మన బ్యాకెండ్ కోడ్‌ను నేరుగా మన గూగుల్ క్రోమ్ బ్రౌజర్ (Chrome DevTools) లోపల ఓపెన్ చేసి, ఫ్రంటెండ్ కోడ్‌ని డీబగ్ చేసినట్టే లైన్-బై-లైన్ చెక్ చేయవచ్చు.
 
 ### 💻 దీన్ని ఎలా వాడాలి?:
 
@@ -2799,7 +2800,7 @@ node --inspect-brk app.js
 ### 🛠️ సెటప్ చేసే విధానం:
 
 1. VS Code లో ఎడమ వైపు ఉన్న **Run and Debug** ఐకాన్ (Play బటన్ లా ఉండి పక్కన ఒక పురుగు గుర్తు ఉంటుంది) పై క్లిక్ చేయండి.
-2. అక్కడ **"create a launch.json file"** అనే లింక్ పై క్利క్ చేసి, **Node.js** ఎంచుకోండి.
+2. అక్కడ **"create a launch.json file"** అనే లింక్ పై క్లిక్ చేసి, **Node.js** ఎంచుకోండి.
 3. మీ ప్రాజెక్ట్ లో `.vscode/launch.json` అనే ఫైల్ క్రియేట్ అవుతుంది. అందులో కాన్ఫిగరేషన్ ఇలా ఉంటుంది:
 
 ```json

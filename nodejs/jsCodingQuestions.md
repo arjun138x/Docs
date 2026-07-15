@@ -224,6 +224,48 @@ var obj = {
 obj.method(fn, 1, 2);
 ```
 
+### వివరణ (Explanation)
+
+#### output
+
+ముందుగా ఈ కోడ్ యొక్క అవుట్‌పుట్ వరుసగా ఇలా ఉంటుంది:
+
+1. `10`
+2. `5`
+3. `3`
+
+---
+
+ఈ కోడ్‌లో `this` అనే కీవర్డ్ ఏ సందర్భంలో (context) దేనిని సూచిస్తుందో అర్థం చేసుకోవడం ముఖ్యం.
+
+#### 1. `fn();` (అవుట్‌పుట్: 10)
+
+ఇక్కడ `fn()` ను నేరుగా పిలిచారు. ఇలా పిలిచినప్పుడు, ఆ ఫంక్షన్ లోపల `this` అనేది **Global Object** (బ్రౌజర్‌లో అయితే `window`) ని సూచిస్తుంది. గ్లోబల్ స్కోప్‌లో `var length = 10;` అని ఉంది కాబట్టి, `this.length` విలువ **10** అవుతుంది.
+
+#### 2. `fn.call(this);` (అవుట్‌పుట్: 5)
+
+ఇక్కడ `call()` మెథడ్‌ని ఉపయోగించి, `fn` ఫంక్షన్‌కు `this` ని `obj` లాగా పంపించారు. కాబట్టి, ఇప్పుడు `fn` లోని `this` అనేది `obj` ని సూచిస్తుంది. `obj` లో `length: 5` అని ఉంది కాబట్టి, దీని అవుట్‌పుట్ **5** అవుతుంది.
+
+#### 3. `arguments[0]();` (అవుట్‌పుట్: 3)
+
+ఇది చాలా ముఖ్యమైన పాయింట్. `obj.method(fn, 1, 2)` అని పిలిచినప్పుడు, ఆ ఫంక్షన్‌కు పంపిన ఆర్గ్యుమెంట్స్ ఒక అర్రే లాంటి ఆబ్జెక్ట్ (`arguments`) లో సేవ్ అవుతాయి.
+
+- `arguments[0]` అంటే మనం పంపిన `fn` ఫంక్షన్.
+- `arguments` ఆబ్జెక్ట్‌కు కూడా ఒక `length` ప్రాపర్టీ ఉంటుంది, అది మనం ఎన్ని ఆర్గ్యుమెంట్స్ పంపామో దానిని సూచిస్తుంది. ఇక్కడ మనం మొత్తం 3 ఆర్గ్యుమెంట్స్ (`fn`, `1`, `2`) పంపాం, కాబట్టి `arguments.length` విలువ **3**.
+- `arguments[0]()` అని పిలిచినప్పుడు, `this` అనేది `arguments` ఆబ్జెక్ట్‌ను సూచిస్తుంది, కాబట్టి అవుట్‌పుట్ **3** వస్తుంది.
+
+---
+
+### సారాంశం (Summary)
+
+| కోడ్             | సందర్భం (Context)  | అవుట్‌పుట్ |
+| ---------------- | ------------------ | ---------- |
+| `fn()`           | Global Scope       | **10**     |
+| `fn.call(this)`  | `obj` Context      | **5**      |
+| `arguments[0]()` | `arguments` Object | **3**      |
+
+---
+
 - Question
 
 ```js
@@ -272,6 +314,61 @@ Person.prototype.getName = function () {
 var john = new Person("John");
 console.log(john.getName());
 ```
+
+### Explanation
+
+ఈ కోడ్ JavaScript లో **Constructor Functions** మరియు **Prototypes** ఎలా పనిచేస్తాయో చూపిస్తుంది. దీన్ని సులభంగా అర్థం చేసుకుందాం:
+
+### 1. Constructor Function (`Person`)
+
+```javascript
+function Person(name) {
+  this.name = name;
+}
+```
+
+ఇక్కడ `Person` అనేది ఒక బ్లూప్రింట్ (blueprint) లాంటిది. `new` కీవర్డ్ ఉపయోగించి మనం `Person` నుండి కొత్త ఆబ్జెక్ట్‌లను సృష్టించినప్పుడు, ఆ ఆబ్జెక్ట్‌కు `name` అనే ప్రాపర్టీని ఇది ఇస్తుంది. `this` అనేది మనం సృష్టించే కొత్త ఆబ్జెక్ట్‌ను సూచిస్తుంది.
+
+### 2. Prototype (`getName`)
+
+```javascript
+Person.prototype.getName = function () {
+  return this.name;
+};
+```
+
+ప్రతి ఫంక్షన్‌కు `prototype` అనే ఒక ప్రత్యేక ఆబ్జెక్ట్ ఉంటుంది. మనం ఆ ప్రాపర్టీకి `getName` అనే మెథడ్‌ని జోడించాము.
+
+- దీని వల్ల ప్రయోజనం ఏమిటంటే, మీరు ఎన్ని `Person` ఆబ్జెక్ట్‌లను సృష్టించినా, వారందరూ ఈ `getName` మెథడ్‌ను పంచుకుంటారు (share చేసుకుంటారు). ఇది మెమరీని ఆదా చేస్తుంది.
+
+### 3. Object Creation (`new`)
+
+```javascript
+var john = new Person("John");
+```
+
+`new` కీవర్డ్‌ని వాడినప్పుడు మూడు పనులు జరుగుతాయి:
+
+1. ఒక కొత్త ఖాళీ ఆబ్జెక్ట్ సృష్టించబడుతుంది.
+2. ఆ ఆబ్జెక్ట్ యొక్క `prototype` సంబంధం `Person.prototype` కి అనుసంధానించబడుతుంది.
+3. `Person` ఫంక్షన్ రన్ అవుతుంది, ఫలితంగా `john.name = "John"` అని సెట్ అవుతుంది.
+
+### 4. Method Execution
+
+```javascript
+console.log(john.getName()); // Output: "John"
+```
+
+`john.getName()` అని పిలిచినప్పుడు, JavaScript మొదట `john` ఆబ్జెక్ట్‌లో ఆ మెథడ్ ఉందేమో వెతుకుతుంది. అక్కడ లేకపోతే, `john` యొక్క `prototype` (అంటే `Person.prototype`) లో వెతుకుతుంది. అక్కడ `getName` కనిపిస్తుంది కాబట్టి, అది రన్ అయ్యి `this.name` (అంటే "John")ని రిటర్న్ చేస్తుంది.
+
+---
+
+### క్లుప్తంగా:
+
+- **Constructor:** కొత్త ఆబ్జెక్ట్‌లను తయారు చేయడానికి ఒక ఫ్యాక్టరీ లాంటిది.
+- **Prototype:** ఒకే రకమైన ఆబ్జెక్ట్‌లన్నింటికీ కామన్ మెథడ్స్‌ని అందించడానికి ఒక షేర్డ్ మెమరీ లాంటిది.
+
+---
 
 - Question
 
@@ -569,28 +666,31 @@ function creteActiveAndInactiveUsers() {
 
 ```js
 function findSubsets(arr, targetSum) {
-  const result = []; // Array to store valid subsets
+  const result = [];
 
-  function support(i = 0, sum = 0, subset = []) {
-    console.log(subset);
-    // Base case: If the sum matches the target, add the subset to the result
-    if (sum === targetSum) {
-      result.push(subset);
+  function backtrack(index, currentSubset, currentSum) {
+    // సమ్ మ్యాచ్ అయితే, ఆ సబ్‌సెట్‌ను రిజల్ట్‌లో యాడ్ చేయాలి
+    if (currentSum === targetSum) {
+      result.push([...currentSubset]);
       return;
     }
 
-    // Base case: Stop recursion if sum exceeds target or index reaches the end
-    if (sum > targetSum || i === arr.length) return;
+    // సమ్ ఎక్కువైతే లేదా అర్రే పూర్తయితే ఆపాలి
+    if (currentSum > targetSum || index >= arr.length) {
+      return;
+    }
 
-    // Recursive case: Include the current element if sum remains within target
-    if (sum < targetSum) support(i + 1, sum + arr[i], subset.concat(arr[i]));
-
-    // Recursive case: Exclude the current element and move to the next one
-    support(i + 1, sum, subset);
+    // ప్రతి నంబర్‌ను సబ్‌సెట్‌లో చేర్చడం
+    for (let i = index; i < arr.length; i++) {
+      currentSubset.push(arr[i]);
+      backtrack(i + 1, currentSubset, currentSum + arr[i]);
+      // బ్యాక్‌ట్రాక్: తర్వాత కాంబినేషన్ కోసం నంబర్‌ను తొలగించడం
+      currentSubset.pop();
+    }
   }
 
-  support(0, 0, []); // Initial call to recursive function
-  return result; // Return all valid subsets
+  backtrack(0, [], 0);
+  return result;
 }
 
 // Example usage
@@ -599,6 +699,28 @@ const targetSum = 5;
 const subsets = findSubsets(arr, targetSum);
 console.log(subsets);
 ```
+
+ఈ సమస్యను పరిష్కరించడానికి మనము **Backtracking** (బ్యాక్‌ట్రాకింగ్) అనే పద్ధతిని ఉపయోగిస్తాము. ఇచ్చిన అర్రేలో ఏ ఏ నంబర్ల మొత్తాన్ని కూడితే `targetSum` వస్తుందో, ఆ కాంబినేషన్లను కనుగొనడం దీని ముఖ్య ఉద్దేశ్యం.
+
+---
+
+### వివరణ (Explanation)
+
+ఈ కోడ్ ఎలా పనిచేస్తుందో స్టెప్ బై స్టెప్ చూద్దాం:
+
+1. **Recursion (పునరావృతం):** `backtrack` అనే ఫంక్షన్ ప్రతి నంబర్‌ను తీసుకుంటూ, దాన్ని సబ్‌సెట్‌లో యాడ్ చేస్తుంది.
+2. **Base Case:** \* `currentSum === targetSum`: మనకు కావలసిన మొత్తం దొరికితే, ఆ సబ్‌సెట్‌ను `result`లో సేవ్ చేస్తుంది.
+
+- `currentSum > targetSum`: ఒకవేళ సమ్ పెరిగిపోతే, ఆ దారిలో వెళ్లడం ఆపేస్తుంది (దీనినే 'Pruning' అంటారు).
+
+3. **Backtracking (`pop` చేయడం):** ఒక కాంబినేషన్‌ని చెక్ చేసిన తర్వాత, `pop()` ఉపయోగించి చివరగా యాడ్ చేసిన నంబర్‌ను తొలగిస్తుంది. దీనివల్ల వేరే కొత్త నంబర్లతో కాంబినేషన్లు ట్రై చేయడానికి వీలవుతుంది.
+4. **అవుట్‌పుట్:** మనం పంపిన `[1, 3, 5, 4, 2]` అర్రేలో 5ని ఇచ్చే కాంబినేషన్లు:
+
+- `1 + 4 = 5`
+- `3 + 2 = 5`
+- `5 = 5`
+
+**గమనిక:** పైన ఉన్న కోడ్ అన్ని సాధ్యమయ్యే సబ్‌సెట్‌లను కనుగొంటుంది. ఒకవేళ మీకు కేవలం నంబర్ల ఇండెక్స్ లేదా కౌంట్ కావాలంటే కోడ్‌ను చిన్నగా మార్చుకోవచ్చు.
 
 ---
 
@@ -841,29 +963,52 @@ console.log(lru.get(2)); // -1 (removed)
 
 Given a string, find the length of the longest substring without repeating characters.
 
-```js
-function longestUniqueSubstring(s) {
-  let seen = new Set();
-  let left = 0,
-    maxLength = 0;
+ఈ సమస్యను పరిష్కరించడానికి అత్యంత సమర్థవంతమైన మార్గం **"Sliding Window"** పద్ధతి. ఇందులో మనం ఒక `window` (అంటే ఒక సబ్-స్ట్రింగ్)ని మెయింటైన్ చేస్తూ, డూప్లికేట్ అక్షరాలు రాకుండా చూసుకుంటాం.
 
-  for (let right = 0; right < s.length; right++) {
-    // Sliding Window Approach
-    while (seen.has(s[right])) {
-      seen.delete(s[left]);
-      left++;
+```javascript
+function longestUniqueSubstring(s) {
+  let start = 0; // విండో ప్రారంభం
+  let maxLength = 0; // గరిష్ట పొడవు
+  let charMap = new Map(); // అక్షరాల ఇండెక్స్‌ను స్టోర్ చేయడానికి
+
+  for (let end = 0; end < s.length; end++) {
+    let char = s[end];
+
+    // ఒకవేళ అక్షరం ఇప్పటికే విండోలో ఉంటే, స్టార్టింగ్ పాయింట్‌ను అప్‌డేట్ చేయాలి
+    if (charMap.has(char) && charMap.get(char) >= start) {
+      start = charMap.get(char) + 1;
     }
-    seen.add(s[right]);
-    maxLength = Math.max(maxLength, right - left + 1);
+
+    // అక్షరం యొక్క కొత్త ఇండెక్స్‌ను మ్యాప్‌లో స్టోర్ చేయాలి
+    charMap.set(char, end);
+
+    // విండో యొక్క పొడవును లెక్కించి, మ్యాక్స్‌ని అప్‌డేట్ చేయాలి
+    maxLength = Math.max(maxLength, end - start + 1);
   }
 
   return maxLength;
 }
 
-console.log(longestUniqueSubstring("abcabcbb")); // 3 ("abc")
-console.log(longestUniqueSubstring("bbbbb")); // 1 ("b")
-console.log(longestUniqueSubstring("pwwkew")); // 3 ("wke")
+console.log(longestUniqueSubstring("abcabcbb")); // 3
+console.log(longestUniqueSubstring("bbbbb")); // 1
+console.log(longestUniqueSubstring("pwwkew")); // 3
 ```
+
+---
+
+### వివరణ (Explanation)
+
+ఈ అల్గారిథమ్ ఎలా పనిచేస్తుందో స్టెప్ బై స్టెప్ ఇక్కడ ఉంది:
+
+1. **Sliding Window (`start` మరియు `end`):** మనం స్ట్రింగ్‌లో `end` పాయింటర్‌ను ఉపయోగిస్తూ ఒక్కో అక్షరాన్ని పరిశీలిస్తాం. `start` అనేది మన ప్రస్తుత యూనిక్ సబ్-స్ట్రింగ్ ఎక్కడ మొదలైందో చూపిస్తుంది.
+2. **Map (`charMap`):** మనం చూసిన అక్షరం ఏ ఇండెక్స్‌లో ఉందో ఈ మ్యాప్ గుర్తుంచుకుంటుంది.
+3. **డూప్లికేట్ అక్షరం వస్తే:** ఒకవేళ మనం చూస్తున్న అక్షరం ఇప్పటికే మన విండోలో ఉంటే (అంటే దాని ఇండెక్స్ `start` కంటే ఎక్కువగా ఉంటే), మనం విండోను కుదించి, పాత అక్షరం తర్వాత ఉన్న ఇండెక్స్ నుండి `start`ని కొత్తగా మొదలుపెడతాం.
+4. **పొడవును లెక్కించడం:** ప్రతి అడుగులో `end - start + 1` ద్వారా విండో పొడవును కనుగొని, ఇప్పటివరకు వచ్చిన వాటిలో పెద్దది ఏదో `maxLength`లో సేవ్ చేస్తాం.
+
+### ఎందుకు ఇది ఉత్తమమైనది?
+
+- **Time Complexity:** $O(n)$, ఎందుకంటే మనం స్ట్రింగ్‌ను కేవలం ఒక్కసారి మాత్రమే స్కాన్ చేస్తాం.
+- **Space Complexity:** $O(min(m, n))$, ఇక్కడ $m$ అనేది ఆల్ఫాబెట్ పరిమాణం.
 
 ### Explanation: [Youtube video](https://www.youtube.com/watch?v=wiGpQwVHdE0)
 
@@ -904,6 +1049,54 @@ function mergeSortedArrays(arr1, arr2) {
 
 console.log(mergeSortedArrays([1, 3, 5], [2, 3, 6])); // [1, 2, 3, 5, 6]
 ```
+
+---
+
+### **Sorting an array with .sort((a,b) => a>b) works. Why?**
+
+JavaScriptలో `.sort()` మెథడ్ గురించి మీరు అడిగిన ప్రశ్న చాలా ముఖ్యమైనది. దీనికి ప్రధాన కారణం: **JavaScript డిఫాల్ట్‌గా అన్నింటినీ 'స్ట్రింగ్స్' (Strings) లాగానే చూస్తుంది.**
+
+దీనిని ఇంకా వివరంగా అర్థం చేసుకుందాం:
+
+### 1. డిఫాల్ట్ ప్రవర్తన (The Default Behavior)
+
+మీరు ఏ పారామీటర్ పంపకుండా కేవలం `arr.sort()` అని రాస్తే, JavaScript ఆ నంబర్లను అక్షరాల (UTF-16 code units) లాగా మారుస్తుంది.
+
+ఉదాహరణకు:
+
+```javascript
+let nums = [10, 2, 5];
+nums.sort();
+console.log(nums); // అవుట్‌పుట్: [10, 2, 5]
+```
+
+ఇక్కడ `2` కంటే `10` చిన్నదని JavaScript గ్రహించలేదు. ఎందుకంటే అది `"10"` లోని మొదటి అక్షరం `"1"`ని, `"2"`తో పోల్చింది. `"1"`, `"2"` కంటే చిన్నది కాబట్టి `10` ముందు వచ్చింది.
+
+### 2. `(a, b) => a - b` ఎందుకు రాస్తాం?
+
+`sort()` మెథడ్‌కు మనం ఇచ్చే ఈ ఫంక్షన్‌ని **"Compare Function"** అంటారు. ఇది ఎలా పనిచేస్తుందంటే:
+
+- **`a - b` అనేది నెగటివ్ విలువ ఇస్తే:** అంటే `a` చిన్నది, `b` పెద్దది. అప్పుడు `a`ని ముందు ఉంచుతుంది.
+- **`a - b` అనేది పాజిటివ్ విలువ ఇస్తే:** అంటే `a` పెద్దది, `b` చిన్నది. అప్పుడు `b`ని ముందు ఉంచుతుంది (అంటే స్థానాన్ని మారుస్తుంది).
+- **`0` వస్తే:** రెండూ సమానం అని అర్థం.
+
+దీనివల్ల JavaScript ఆ నంబర్లను కేవలం అక్షరాలుగా కాకుండా, **గణిత విలువలుగా (Numeric values)** పోల్చి, సరిగ్గా అసెండింగ్ ఆర్డర్ (చిన్న నుండి పెద్దకు)లో అమర్చుతుంది.
+
+### ఉదాహరణ:
+
+```javascript
+let nums = [10, 2, 5];
+nums.sort((a, b) => a - b);
+// పోలిక ఇలా జరుగుతుంది:
+// 10 - 2 = 8 (పాజిటివ్, కాబట్టి 2 ముందు వస్తుంది)
+// 10 - 5 = 5 (పాజిటివ్, కాబట్టి 5 ముందు వస్తుంది)
+// ఫలితం: [2, 5, 10]
+```
+
+### గుర్తుంచుకోవాల్సిన చిట్కా:
+
+- **అసెండింగ్ ఆర్డర్ (చిన్న నుండి పెద్దకు):** `(a, b) => a - b`
+- **డిసెండింగ్ ఆర్డర్ (పెద్ద నుండి చిన్నకు):** `(a, b) => b - a`
 
 ---
 
@@ -1117,46 +1310,69 @@ console.log(customMap([1, 2, 3], (num) => num * 2)); // [2, 4, 6]
 
 ### **Implement a Function to Find the Longest Palindromic Substring**
 
-Find the longest palindromic substring in a given string.
+ఈ ప్రశ్న **"Longest Palindromic Substring"** గురించి. ఒక స్ట్రింగ్‌లో ముందుకు చదివినా, వెనుకకు చదివినా ఒకేలా ఉండే అత్యంత పొడవైన భాగాన్ని (Substring) మనం కనుగొనాలి.
 
-- A palindrome is any set of characters that read the same forwards and backwards. For example: 'noon' is a palindrome, and 'loon' is not. Both of these strings contain palindromic substrings 'oo'.
+ఉదాహరణకు: `"cbbd"`లో `"bb"` అనేది పాలిండ్రోమ్. `"noon"` లో `"noon"` మొత్తం పాలిండ్రోమే.
 
-```js
+### పరిష్కారం (JavaScript Solution):
+
+దీనిని పరిష్కరించడానికి **"Expand Around Center"** అనే పద్ధతి చాలా సులభం మరియు సమర్థవంతమైనది.
+
+```javascript
 function longestPalindrome(s) {
-  let res = "";
+  if (s.length < 2) return s;
+  let start = 0,
+    maxLength = 0;
+
+  function expandAroundCenter(left, right) {
+    while (left >= 0 && right < s.length && s[left] === s[right]) {
+      left--;
+      right++;
+    }
+    // పాలిండ్రోమ్ పొడవును లెక్కించడం
+    let currentLength = right - left - 1;
+    if (currentLength > maxLength) {
+      maxLength = currentLength;
+      start = left + 1;
+    }
+  }
 
   for (let i = 0; i < s.length; i++) {
-    // Check for odd-length palindromes (centered at i)
-    let odd = expandAroundCenter(s, i, i);
-    // Check for even-length palindromes (centered between i and i+1)
-    let even = expandAroundCenter(s, i, i + 1);
-
-    let longer = odd.length > even.length ? odd : even;
-    if (longer.length > res.length) res = longer;
+    expandAroundCenter(i, i); // బేసి సంఖ్యలో అక్షరాలు ఉన్నప్పుడు (ఉదా: "aba")
+    expandAroundCenter(i, i + 1); // సరి సంఖ్యలో అక్షరాలు ఉన్నప్పుడు (ఉదా: "abba")
   }
 
-  return res; // Return the longest palindromic substring
+  return s.substring(start, start + maxLength);
 }
 
-// Function to expand around a given center and return the longest palindrome substring
-function expandAroundCenter(s, left, right) {
-  // Expand while characters at left and right are equal and within bounds
-  while (left >= 0 && right < s.length && s[left] === s[right]) {
-    left--; // Move left pointer outward
-    right++; // Move right pointer outward
-  }
-
-  // Return the valid palindrome found (substring between left+1 and right)
-  return s.slice(left + 1, right);
-}
-
-// Example test cases
-console.log(longestPalindrome("babad")); // Output: "bab" or "aba"
-console.log(longestPalindrome("cbbd")); // Output: "bb"
-console.log(longestPalindrome("noon")); // Output: "noon"
+console.log(longestPalindrome("cbbd")); // "bb"
+console.log(longestPalindrome("noon")); // "noon"
 ```
 
 ---
+
+### వివరణ (Explanation):
+
+1. **కేంద్రం (Center):** ఒక పాలిండ్రోమ్‌కు మధ్యలో ఒక కేంద్రం ఉంటుంది.
+
+- ఉదాహరణకు `"aba"`లో `'b'` కేంద్రం.
+- `"abba"`లో `'bb'` మధ్యలో కేంద్రం ఉంటుంది.
+
+2. **అల్గారిథమ్:**
+
+- మనం ప్రతి అక్షరాన్ని కేంద్రంగా భావించి, రెండు వైపులా (ఎడమ మరియు కుడి) అక్షరాలను పోల్చుకుంటూ వెళ్తాం.
+- అక్షరాలు సమానంగా ఉన్నంత వరకు `while` లూప్ ద్వారా విండోను విస్తరిస్తాం (`left--`, `right++`).
+- అక్షరాలు వేరుగా మారినప్పుడు, లూప్ ఆగిపోతుంది. అప్పటివరకు వచ్చిన పాలిండ్రోమ్ యొక్క పొడవును `maxLength`తో పోల్చి అప్‌డేట్ చేస్తాం.
+
+3. **రెండు రకాల సెంటర్లు:**
+
+- `expandAroundCenter(i, i)`: ఇది బేసి సంఖ్యల (odd length) పాలిండ్రోమ్‌ల కోసం (ఉదా: `aba`).
+- `expandAroundCenter(i, i + 1)`: ఇది సరి సంఖ్యల (even length) పాలిండ్రోమ్‌ల కోసం (ఉదా: `bb`, `noon`).
+
+### ఎందుకు ఈ పద్ధతి?
+
+- **Time Complexity:** $O(n^2)$ - స్ట్రింగ్ పొడవు $n$ అనుకుంటే, ప్రతి అక్షరం నుండి బయటకు విస్తరించడానికి ఈ సమయం పడుతుంది. ఇది చాలా వేగవంతమైన పద్ధతి.
+- **Space Complexity:** $O(1)$ - ఎందుకంటే మనం కొత్తగా పెద్ద మెమరీని వాడట్లేదు.
 
 ### **Implement a Promise Pool (Advanced)**
 

@@ -21,9 +21,28 @@ export default Test;
 
 ### ✅ Solution
 
-### ✅ This Code Works Fine
+### ఎందుకు "Maximum update depth exceeded" ఎర్రర్ వస్తుంది?
 
-```js
+మీరు రాసిన ఈ కోడ్ చూడండి:
+
+```javascript
+useEffect(() => {
+  setCount(count + 1); // ఇది సమస్య
+}, [count]);
+```
+
+**ఎందుకు ఫెయిల్ అవుతుంది?**
+
+1. **ఇన్ఫినిట్ లూప్ (Infinite Loop):** `useEffect` లో మీరు `[count]` అని డిపెండెన్సీ ఇచ్చారు. కాబట్టి, `count` మారిన ప్రతిసారీ ఈ ఎఫెక్ట్ రన్ అవుతుంది.
+2. **అప్పటికప్పుడు అప్‌డేట్:** `setCount(count + 1)` ని కాల్ చేసిన వెంటనే, React మళ్ళీ కాంపోనెంట్‌ని రీ-రెండర్ (Re-render) చేస్తుంది.
+3. **సైకిల్:** రీ-రెండర్ అయిన తర్వాత `count` విలువ మారుతుంది. విలువ మారింది కాబట్టి `useEffect` మళ్ళీ రన్ అవుతుంది. మళ్ళీ `setCount` కాల్ అవుతుంది, మళ్ళీ రీ-రెండర్ అవుతుంది... ఇలా ఇది అనంతంగా (Infinite Loop) సాగుతూనే ఉంటుంది.
+4. **React రక్షణ:** ఇలా అనంతంగా జరగకుండా, బ్రౌజర్ క్రాష్ అవ్వకుండా ఉండటానికి React "Too many re-renders" (Maximum update depth exceeded) అని ఎర్రర్ ఇచ్చి ఆపేస్తుంది.
+
+---
+
+### `setTimeout` వాడితే ఎందుకు పని చేస్తుంది?
+
+```javascript
 useEffect(() => {
   setTimeout(() => {
     setCount(count + 1);
@@ -31,60 +50,38 @@ useEffect(() => {
 }, [count]);
 ```
 
-**Why it works:**
+**ఎందుకు పని చేస్తుంది?**
 
-- You're using `setTimeout(..., 0)`, which defers the `setCount()` call to the **next event loop cycle**.
-- This means the effect **finishes** before `setCount()` triggers a re-render.
-- No infinite loop occurs — React schedules the next render _after_ the current one is complete.
-
-🌀 This causes a **continuous re-render loop**, but **not an error**, because each update happens asynchronously after render completes.
+- `setTimeout(..., 0)` వాడినప్పుడు, `setCount` వెంటనే రన్ అవ్వదు.
+- ఇది బ్రౌజర్ యొక్క **Event Loop**లో తదుపరి సైకిల్ కోసం వేచి ఉంటుంది.
+- అంటే, ప్రస్తుత రెండరింగ్ ప్రక్రియ పూర్తిగా పూర్తయిన తర్వాతే ఈ `setCount` రన్ అవుతుంది.
+- దీనివల్ల, React కి "రెండరింగ్ చేస్తున్నప్పుడు మళ్ళీ అప్‌డేట్" చేయడం అనే సమస్య ఎదురుకాదు. అయితే, ఇది కూడా ఇన్ఫినిట్ లూప్‌ను క్రియేట్ చేస్తుంది (కానీ ఎర్రర్ చూపించదు), ఇది పద్ధతి కాదు.
 
 ---
 
-### ❌ This Code Throws Error
+### దీన్ని సరిగ్గా ఎలా రాయాలి?
 
-```js
+మీరు `count`ని కేవలం ఒక్కసారి లేదా కండిషన్ ప్రకారం పెంచాలనుకుంటే ఇలా చేయాలి:
+
+**1. కేవలం ఒక్కసారి మాత్రమే పెంచాలంటే (Mount అయినప్పుడు):**
+
+```javascript
 useEffect(() => {
-  setCount(count + 1);
-}, [count]);
+  setCount((prevCount) => prevCount + 1);
+}, []); // ఖాళీ array ఇస్తే సరిపోతుంది
 ```
 
-**Why it fails:**
+**2. ఒక కండిషన్ ఉంటే (ఉదాహరణకు: count 10 లోపు ఉంటేనే పెంచాలి):**
 
-- `setCount()` is called **immediately during the effect**.
-- That causes a **state update**, which triggers another render.
-- Since `count` changes, the effect runs **again** → another `setCount()` → another render → infinite loop.
-
-💥 This leads to a **render loop**, and React detects this and throws a warning/error like:
-
-> "Too many re-renders. React limits the number of renders to prevent an infinite loop."
-
----
-
-### 🔁 Summary of the difference
-
-| Code Version         | Behavior              | Reason                                |
-| -------------------- | --------------------- | ------------------------------------- |
-| With `setTimeout`    | Works (infinite loop) | Update is deferred until after render |
-| Without `setTimeout` | Crashes (error)       | Update happens during render cycle    |
-
----
-
-### ✅ Safe Fixes
-
-To avoid infinite loops:
-
-1. **Use `setTimeout` / `setInterval` cautiously**
-2. **Use guards / conditions**
-3. **Use functional state updates** when needed
-
-Or, if you just want to increment once after initial mount:
-
-```js
+```javascript
 useEffect(() => {
-  setCount((c) => c + 1);
-}, []);
+  if (count < 10) {
+    setCount(count + 1);
+  }
+}, [count]); // కండిషన్ రాస్తే లూప్ ఆగిపోతుంది
 ```
+
+**సారాంశం:** `useEffect` లో స్టేట్ అప్‌డేట్ చేస్తున్నప్పుడు, అది మళ్ళీ అదే ఎఫెక్ట్‌ను ట్రిగ్గర్ చేయకుండా జాగ్రత్త పడాలి. లేకపోతే అనంతమైన లూప్ ఏర్పడుతుంది.
 
 ---
 
@@ -115,62 +112,48 @@ function Counter() {
 
 ### ✅ Solution
 
-### 🧠 The Code
+ఈ React కోడ్‌లో "Increment" బటన్‌ని ఒకసారి క్లిక్ చేస్తే `count` విలువ **1** అవుతుంది (2 కాదు). ఇది ఎందుకు జరుగుతుందో వివరంగా చూద్దాం:
 
-```js
+### అసలు ఏం జరుగుతోంది?
+
+మీరు `handleIncrement` ఫంక్షన్‌లో ఇలా రాశారు:
+
+```javascript
 function handleIncrement() {
   setCount(count + 1);
   setCount(count + 1);
 }
 ```
 
-You're calling `setCount(count + 1)` **twice** in a row.
+ఇక్కడ `count` ప్రస్తుతం `0` అనుకుందాం.
 
-Now the key point:
+1. **మొదటి `setCount(count + 1)`:** ఇది `0 + 1` ని లెక్కించి, `count` ని `1` చేయడానికి ప్రయత్నిస్తుంది.
+2. **రెండవ `setCount(count + 1)`:** ఇది కూడా `0 + 1` ని మాత్రమే లెక్కిస్తుంది (ఎందుకంటే అప్పటికి మొదటి అప్‌డేట్ ఇంకా జరగలేదు, `count` విలువ ఇంకా `0` గానే ఉంది).
 
-> React **batches state updates** from event handlers and will **not immediately update** the `count` value after the first `setCount`.
-
-So both `setCount(count + 1)` are calculated based on the **same old value of `count`**.
-
----
-
-### 🧪 Example:
-
-Let’s assume `count = 0`.
-
-1. First call: `setCount(0 + 1)` → sets count to `1` (in the queue)
-2. Second call: `setCount(0 + 1)` → again sets count to `1` (not 2)
-
-React applies both updates, but they’re both telling it to set `count = 1`.
+దీనిని **"Batching"** అంటారు. React ఈవెంట్ హ్యాండ్లర్‌లలో జరిగే స్టేట్ అప్‌డేట్‌లను వెంటనే అప్‌డేట్ చేయకుండా, వాటిని ఒక క్యూ (queue) లాగా పంపి చివర్లో ఒకేసారి అప్‌డేట్ చేస్తుంది. కాబట్టి, రెండు సార్లు `setCount` పిలిచినా, రెండు సార్లూ `0 + 1` అనే సమాచారమే React కి అందుతుంది. ఫలితంగా `count` 1 అవుతుంది.
 
 ---
 
-### ✅ Final Output After Clicking "Increment" Once:
+### దీన్ని ఎలా సరిచేయాలి? (2 రావాలంటే ఏం చేయాలి?)
 
-```
-Count: 1
-```
+మీకు ప్రతిసారి అప్‌డేట్ అయిన వాల్యూ కావాలంటే, `setCount` కి ఒక ఫంక్షన్‌ని పంపాలి (దీనిని **Functional Update** అంటారు).
 
-Even though you called `setCount` twice, the state only incremented **by 1** due to **state batching and stale closures**.
+**సరిదిద్దిన కోడ్:**
 
----
-
-### 💡 How to fix this?
-
-If you **really want to increment twice**, use the **functional update form** of `setCount`:
-
-```js
+```javascript
 function handleIncrement() {
-  setCount((prev) => prev + 1);
-  setCount((prev) => prev + 1);
+  setCount((prevCount) => prevCount + 1); // prevCount అంటే అప్పటికప్పుడు ఉన్న లేటెస్ట్ విలువ
+  setCount((prevCount) => prevCount + 1);
 }
 ```
 
-Now each update uses the **latest** value of `count`, so you'll get:
+**ఇప్పుడు ఏమవుతుంది?**
 
-```
-Count: 2
-```
+1. మొదటి `setCount`: `prevCount` (0) తీసుకుని, దానికి 1 కలిపి, `count` ని 1 చేస్తుంది.
+2. రెండవ `setCount`: ఇది మళ్ళీ పాత 0 ని చూడదు. ఇప్పుడు `prevCount` స్థానంలో అప్డేట్ అయిన `1` ని తీసుకుంటుంది, దానికి 1 కలిపి, `count` ని 2 చేస్తుంది.
+
+**ముఖ్యమైన విషయం:**
+మీరు `setCount(count + 1)` అని వాడితే, అది పాత విలువను మాత్రమే చూస్తుంది. కానీ `setCount((c) => c + 1)` అని వాడితే, అది అప్డేట్ అయిన లేటెస్ట్ విలువను తీసుకుంటుంది.
 
 ---
 
@@ -197,59 +180,41 @@ export function CleanupTest() {
 
 ### ✅ Solution
 
-### 🧠 Code Overview
+React లో `useEffect` లోపల మనం ఒక ఫంక్షన్‌ని `return` చేస్తే, దాన్ని **Cleanup function** అంటారు. ఇది ఎప్పుడు రన్ అవుతుందంటే, కాంపోనెంట్ అప్‌డేట్ అవ్వడానికి ముందు లేదా అది అన్‌మౌంట్ (Unmount) అయినప్పుడు రన్ అవుతుంది.
 
-```js
-useEffect(() => {
-  console.log("Effect triggered");
-  return () => {
-    console.log("Cleanup triggered");
-  };
-}, [toggle]);
-```
+దీని వెనుక ఉన్న లాజిక్ ఇది:
 
-- `useEffect` runs:
-  - on **initial mount** ✅
-  - on every **change to `toggle`** ✅
-- The **cleanup function** runs:
-  - **before** the next effect re-runs (on dependency change)
-  - or **on component unmount**
+### 1. ప్రారంభంలో (Initial Mount)
+
+మొదటిసారి పేజీ లోడ్ అయినప్పుడు, `toggle` విలువ `false` గా ఉంటుంది. అప్పుడు `useEffect` మొదటిసారి రన్ అవుతుంది.
+
+- **లాగ్:** `Effect triggered`
 
 ---
 
-### 📋 Initial Mount
+### 2. బటన్ క్లిక్ చేసినప్పుడు (On Click)
 
-When the component first mounts:
+మీరు "Toggle Effect" బటన్‌ని క్లిక్ చేసినప్పుడు:
 
-- `toggle = false`
-- `useEffect` runs once:
-  - ✅ Logs: `"Effect triggered"`
+1. **Cleanup:** React `toggle` డిపెండెన్సీ మారింది అని గుర్తిస్తుంది. కొత్త ఎఫెక్ట్‌ను రన్ చేయడానికి ముందు, పాత ఎఫెక్ట్ (గతంలో ఉన్నది) క్లీన్ అవ్వాలి. అందుకే మొదట `return` చేసిన ఫంక్షన్ రన్ అవుతుంది.
 
----
+- **లాగ్:** `Cleanup triggered`
 
-### 🖱️ On Click
+2. **Re-run:** క్లీనప్ పూర్తయిన తర్వాత, కొత్త `toggle` విలువతో `useEffect` మళ్ళీ రన్ అవుతుంది.
 
-User clicks **"Toggle Effect"**:
-
-- `toggle` changes from `false` ➝ `true`
-- `useEffect` runs again, but **before that**, the previous effect’s cleanup is called
-
-**Logs:**
-
-1. `"Cleanup triggered"`
-2. `"Effect triggered"`
-
-### ✅ Final Log Sequence
-
-```
-Effect triggered
-Cleanup triggered
-Effect triggered
-```
-
-Let me know if you want to visualize this with a timeline diagram or want to see how this changes if you click 3 times or more!
+- **లాగ్:** `Effect triggered`
 
 ---
+
+### క్లుప్తంగా లాగ్ సీక్వెన్స్ (Sequence):
+
+| సమయం                               | ఏం జరుగుతుంది?              | లాగ్ (Output)       |
+| ---------------------------------- | --------------------------- | ------------------- |
+| **మొదట (Mounting)**                | ఎఫెక్ట్ రన్ అవుతుంది        | `Effect triggered`  |
+| **క్లిక్ చేసినప్పుడు (Re-render)** | ముందు పాతది క్లీన్ అవుతుంది | `Cleanup triggered` |
+| **ఆ వెంటనే**                       | కొత్త ఎఫెక్ట్ రన్ అవుతుంది  | `Effect triggered`  |
+
+#### **ముఖ్య గమనిక:** `useEffect` డిపెండెన్సీ (ఇక్కడ `[toggle]`) మారిన ప్రతిసారీ, React "పాత ఎఫెక్ట్‌ని క్లీన్ చేసి → కొత్త ఎఫెక్ట్‌ని రన్ చేయడం" అనే పద్ధతిని పాటిస్తుంది. ఇదే కారణం వల్ల మీరు క్లిక్ చేసినప్పుడు మొదట Cleanup, ఆ తర్వాత Effect కనిపిస్తాయి.
 
 ## Explain the code?
 
@@ -359,167 +324,123 @@ export default function App() {
 
 ### ✅ Solution
 
-- You're calling `computeComplexOperation()` directly inside `useState(...)`. This means **every time the component renders**, `computeComplexOperation()` is executed—even though `useState` only uses the value during the initial render.
-- memoize the `computeComplexOperation` using `useCallback`.
+మీరు అడిగిన ఈ కోడ్‌లో ఉన్న ప్రధాన సమస్య **"Performance" (పనితీరు)**. దీన్ని ఎందుకు మార్చాలో, ఎందుకు సమస్య వస్తుందో తెలుగులో సులభంగా అర్థం చేసుకుందాం.
 
-```jsx
-import { useCallback, useState } from "react";
+### అసలు సమస్య ఏమిటి?
 
-export default function App() {
-  const computeComplexOperation = useCallback(() => {
-    // Expensive computation logic here
-    console.log("Computing...");
-    return 0;
-  }, []); // Add dependencies if any inputs affect the computation
+మీరు `useState(computeComplexOperation())` అని రాసినప్పుడు, బ్రాకెట్స్ `()` పెట్టి ఫంక్షన్‌ని పిలుస్తున్నారు.
 
-  const [count, setCount] = useState(computeComplexOperation);
-
-  const handleCount = () => {
-    setCount(count + 1);
-  };
-
-  return (
-    <div className="App">
-      <h1>{count}</h1>
-      <button onClick={handleCount}>+</button>
-    </div>
-  );
-}
-```
+1. **ప్రతి రెండరింగ్‌లో రన్ అవుతుంది:** React కాంపోనెంట్ ఏదైనా కారణం వల్ల (ఉదాహరణకు `count` మారినప్పుడు) రీ-రెండర్ అయిన ప్రతిసారీ, `useState` లైన్ మళ్ళీ ఎగ్జిక్యూట్ అవుతుంది.
+2. **అనవసరమైన గణన:** మీ ఫంక్షన్ పేరు `computeComplexOperation` అంటేనే అది చాలా సమయం తీసుకునే (Expensive) ఆపరేషన్ అని అర్థం. కాంపోనెంట్ ప్రతిసారీ రీ-రెండర్ అయినప్పుడు, ఈ హెవీ ఆపరేషన్ మళ్ళీ మళ్ళీ రన్ అవ్వడం వల్ల మీ వెబ్‌సైట్ **స్లో అయిపోతుంది**.
+3. **అవసరం లేకున్నా రన్ అవుతుంది:** `useState` కి మొదటిసారి కాంపోనెంట్ లోడ్ అయినప్పుడు మాత్రమే ఆ వాల్యూ కావాలి. ఆ తర్వాత స్టేట్ అప్‌డేట్ అయినప్పుడు ఆ ఫంక్షన్ మళ్ళీ రన్ అవ్వాల్సిన అవసరం లేదు.
 
 ---
 
-### 🔍 Why use `useCallback()` here?
+### దీన్ని ఎలా సరిచేయాలి? (రెండు మార్గాలు)
 
-- It ensures `computeComplexOperation` maintains the **same function reference** between renders.
-- Useful when passing the function to children or using it as a dependency elsewhere (e.g., in `useEffect()` or `useMemo()`).
-- It prevents unnecessary recalculations or re-renders caused by function identity changes.
+#### 1. "Lazy Initialization" (చాలా సులభమైన మార్గం)
+
+మీరు కేవలం ఆ ఫంక్షన్ పేరును, బ్రాకెట్స్ లేకుండా `useState` కి పంపితే సరిపోతుంది:
+
+```javascript
+const [count, setCount] = useState(computeComplexOperation);
+// బ్రాకెట్స్ () లేవు!
+```
+
+- **ఎందుకు ఇది పనిచేస్తుంది?** మీరు `()` తీసేస్తే, ఫంక్షన్‌ని ఇప్పుడే రన్ చేయమని చెప్పడం లేదు. ఆ ఫంక్షన్‌ని React కి ఇస్తున్నారు. React దీన్ని కేవలం **మొదటిసారి (Initial mount)** మాత్రమే కాల్ చేస్తుంది. ఆ తర్వాత రీ-రెండర్ అయినప్పుడు అది దీన్ని పట్టించుకోదు. ఇది పర్ఫార్మెన్స్‌ని బాగా పెంచుతుంది.
+
+---
+
+#### 2. `useCallback` ఎందుకు వాడాలి?
+
+- **ఎందుకు వాడాలి?** `useCallback` ఆ ఫంక్షన్‌ని "Memoize" చేస్తుంది. అంటే, కాంపోనెంట్ రీ-రెండర్ అయినా, ఆ ఫంక్షన్ పాత రిఫరెన్స్‌నే (Reference) పట్టుకుని ఉంటుంది.
+- **లాభం:** మీరు ఈ ఫంక్షన్‌ను వేరే `useEffect` లలో డిపెండెన్సీగా వాడినా, లేదా చైల్డ్ కాంపోనెంట్స్‌కి పంపినా, అనవసరంగా అవి రీ-రెండర్ అవ్వవు.
+
+### సారాంశం (Summary)
+
+- **తప్పు:** `useState(computeComplexOperation())` - ఇది ప్రతి రెండరింగ్‌లో ఆ కాంప్లెక్స్ ఫంక్షన్‌ని రన్ చేస్తుంది.
+- **ఒరిజినల్ ఫిక్స్:** `useState(computeComplexOperation)` - బ్రాకెట్స్ తీసేస్తే సరిపోతుంది, దీనిని **Lazy Initialization** అంటారు.
+- **అడ్వాన్స్‌డ్ ఫిక్స్:** `useCallback` - ఫంక్షన్ స్టేబిలిటీ కోసం (ఇది కూడా చాలా మంచి ప్రాక్టీస్).
+
+### మీరు కేవలం స్టేట్ ఇనిషియలైజ్ చేయడానికి మాత్రమే అయితే, **మొదటి పద్ధతి (Lazy Initialization)** సరిపోతుంది. ఒకవేళ ఆ ఫంక్షన్‌ని వేరే చోట కూడా వాడుతుంటే `useCallback` వాడటం ఉత్తమం.
 
 ---
 
 # 1. `useEffect` & `useLayoutEffect` With differences and code example
 
-## Overview
+Reactలో `useEffect` మరియు `useLayoutEffect` అనేవి ఫంక్షనల్ కాంపోనెంట్లలో "side effects" (ఉదాహరణకు: డేటా ఫెచింగ్, DOM మానిప్యులేషన్) నిర్వహించడానికి ఉపయోగించే రెండు ముఖ్యమైన హుక్స్.
 
-React provides two hooks for handling side effects in functional components: **useEffect** and **useLayoutEffect**. While they are similar, they differ in when they execute within the component lifecycle.
-
-- **useLayoutEffect** executes **before** the browser repaints, ensuring that users do not see any intermediate state changes.
-- **useEffect** executes **after** the browser has painted the UI, making it suitable for non-blocking operations.
+వీటి మధ్య ప్రధాన తేడా అవి ఎప్పుడు రన్ అవుతాయి అనే దానిపై ఆధారపడి ఉంటుంది. వీటి గురించి వివరంగా తెలుసుకుందాం:
 
 ---
 
-## useEffect
+### 1. useEffect
 
-### Key Points
+ఇది సర్వసాధారణంగా మనం వాడే హుక్.
 
-- If no dependency array is provided, `useEffect` runs on **every render**.
-  ```jsx
-  useEffect(() => {
-    console.log("useEffect called");
-  });
-  ```
-- If an empty dependency array (`[]`) is provided, `useEffect` runs **only once** after the initial render.
-  ```jsx
-  useEffect(() => {
-    console.log("useEffect called");
-  }, []);
-  ```
-- It is asynchronous and does **not** block rendering.
-- Ideal for data fetching, subscriptions, and interacting with external APIs.
+- **ఎప్పుడు రన్ అవుతుంది:** బ్రౌజర్ స్క్రీన్‌ను పెయింట్ (Render/Paint) చేసిన **తర్వాత** ఇది రన్ అవుతుంది. కాబట్టి, ఇది యూజర్ అనుభవాన్ని (UI rendering) ఏమాత్రం ఆపదు (Non-blocking).
+- **ఎందుకు వాడాలి:** API కాల్స్, డేటా ఫెచింగ్, సబ్‌స్క్రిప్షన్స్ వంటి పనులకు ఇది ఉత్తమం.
+- **ఉదాహరణ:**
 
-### Example
-
-```jsx
-import React, { useEffect, useState } from "react";
-
-function Example() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    document.title = `You clicked ${count} times`;
-  }, [count]); // Runs only when count changes
-
-  return (
-    <div>
-      <p>You clicked {count} times</p>
-      <button onClick={() => setCount(count + 1)}>Click me</button>
-    </div>
-  );
-}
+```javascript
+useEffect(() => {
+  console.log("ఇది UI పెయింట్ అయిన తర్వాత రన్ అవుతుంది");
+}, [count]);
 ```
 
 ---
 
-## useLayoutEffect
+### 2. useLayoutEffect
 
-### Key Points
+ఇది `useEffect` లాగే ఉంటుంది, కానీ దీని సమయం వేరు.
 
-- **Runs synchronously** after all DOM mutations but **before** the browser repaints.
-- Ensures that DOM measurements or updates happen **before** the user sees changes.
-- Similar to `componentDidMount` and `componentDidUpdate` in class components.
+- **ఎప్పుడు రన్ అవుతుంది:** React అన్ని DOM మార్పులను పూర్తి చేసిన **తర్వాత**, కానీ బ్రౌజర్ స్క్రీన్‌పై కొత్త మార్పులను చూపించడానికి (Paint) **ముందే** ఇది రన్ అవుతుంది.
+- **ఎందుకు వాడాలి:** ఏదైనా ఎలిమెంట్ యొక్క కొలతలు (Measurements) తీసుకోవాలన్నా లేదా DOMలో ఏదైనా మార్పు చేసి, అది యూజర్‌కు కనిపించే లోపే సరిచేయాలన్నా దీనిని వాడాలి. ఇది సింక్రోనస్ (Synchronous) గా పనిచేస్తుంది, కాబట్టి జాగ్రత్తగా వాడాలి.
+- **ఉదాహరణ:**
 
-### Example
-
-```jsx
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-
-function Example() {
-  const textRef = useRef();
-
-  // change useLayoutEffect to useEffect to see the ui rendering difference.
-  // text wil render two times before the useEffect execution and after useEffect execution.
-  useLayoutEffect(() => {
-    if (textRef.current !== null) {
-      const dimension = textRef.current.getBoundingClientRect();
-      console.log(dimension);
-      textRef.current.style.paddingTop = `${dimension.height}px`;
-    }
-  }, []); // Runs once after the initial render
-
-  return <h4 ref={textRef}>useLayoutEffect</h4>;
-}
-
-export default Example;
+```javascript
+useLayoutEffect(() => {
+  // DOM కొలతలు తీసుకుని, మార్పులు చేయడానికి ఉపయోగపడుతుంది
+  const dimension = textRef.current.getBoundingClientRect();
+  console.log(dimension);
+}, []);
 ```
 
 ---
 
-## Key Differences
+### ప్రధాన తేడాలు (Key Differences)
 
-| Feature       | useEffect                               | useLayoutEffect                       |
-| ------------- | --------------------------------------- | ------------------------------------- |
-| **Timing**    | After render is committed               | Before the browser paints             |
-| **Blocking**  | Non-blocking                            | Blocks rendering until completed      |
-| **Use Cases** | Data fetching, subscriptions, API calls | Layout calculations, DOM measurements |
+| ఫీచర్        | useEffect                         | useLayoutEffect                         |
+| ------------ | --------------------------------- | --------------------------------------- |
+| **టైమింగ్**  | పెయింట్ అయిన తర్వాత (After Paint) | పెయింట్ అవ్వడానికి ముందు (Before Paint) |
+| **Blocking** | నాన్-బ్లాకింగ్ (Non-blocking)     | బ్లాకింగ్ (Blocking)                    |
+| **ఉపయోగం**   | డేటా ఫెచింగ్, API కాల్స్          | DOM మెజర్మెంట్స్, లేఅవుట్ మార్పులు      |
 
-### When to Use What?
+---
 
-- Use **useEffect** for most side effects, especially those that **don’t require immediate layout calculations**.
-- Use **useLayoutEffect** when you need to **read from or modify the DOM** before the browser paints (e.g., animations, measuring elements).
+### ఒక చిన్న ఉదాహరణ (Code Example)
 
-By understanding these differences, you can optimize the performance and behavior of your React applications effectively!
+ఈ కోడ్‌లో `useEffect` మరియు `useLayoutEffect` ఎలా పని చేస్తాయో చూడవచ్చు:
 
-### **Code Example with useEffect & useLayoutEffect**
-
-```jsx
+```javascript
 import React, { useEffect, useLayoutEffect, useState } from "react";
 
 const Example = () => {
   const [color, setColor] = useState("blue");
 
   useEffect(() => {
-    console.log("useEffect: Color changed");
+    console.log("useEffect: UI పెయింట్ అయిన తర్వాత రన్ అయింది");
   }, [color]);
 
   useLayoutEffect(() => {
-    console.log("useLayoutEffect: Color changed");
+    console.log("useLayoutEffect: UI పెయింట్ అవ్వకముందే రన్ అయింది");
   }, [color]);
 
   return (
     <div>
       <h1 style={{ color }}>Hello, World!</h1>
       <button onClick={() => setColor(color === "blue" ? "red" : "blue")}>
-        Toggle Color
+        రంగు మార్చు
       </button>
     </div>
   );
@@ -528,12 +449,15 @@ const Example = () => {
 export default Example;
 ```
 
-### **Execution Order**
+**Execution Order (ముందు ఏది జరుగుతుంది?):**
+మీరు బటన్ నొక్కినప్పుడు, ముందు `useLayoutEffect` రన్ అవుతుంది, ఆ తర్వాత `useEffect` రన్ అవుతుంది.
 
-When clicking the button:
+### ఏది ఎప్పుడు వాడాలి?
 
-1. **`useLayoutEffect` runs first** (before the browser repaints).
-2. **`useEffect` runs afterward** (after the DOM update is painted).
+- **90% సందర్భాల్లో `useEffect` నే వాడండి.** ఇది అప్లికేషన్ పర్ఫార్మెన్స్‌కు మంచిది.
+- ఒకవేళ మీరు ఏదైనా ఎలిమెంట్ సైజు లేదా పొజిషన్ (DOM measurement) ఆధారంగా స్క్రీన్‌పై ఏదైనా మార్పు చేయాల్సి వస్తే, అప్పుడు మాత్రమే `useLayoutEffect` ని వాడండి. లేదంటే యూజర్‌కు స్క్రీన్ flicker (మెరిసినట్లు) అయ్యే అవకాశం ఉంది.
+
+---
 
 # 2. **`useRef`, `useMemo`, `useCallback` in React**
 
@@ -653,55 +577,73 @@ export default App;
 
 ## **2️⃣ `useMemo` - Optimize Expensive Calculations**
 
-**What is `useMemo`?**
+Reactలో `useMemo` అనేది **పెర్ఫార్మెన్స్ ఆప్టిమైజేషన్ (Performance Optimization)** కోసం ఉపయోగించే ఒక హుక్. దీనిని "Memoization" అని కూడా అంటారు.
 
-- `useMemo` **memoizes the result of a computation** and only recalculates it when dependencies change.
-- This helps in preventing unnecessary recalculations.
+### `useMemo` అంటే ఏమిటి?
 
-### 📌 **Example: Memoizing a Computed Value**
+ఒక ఫంక్షనల్ కాంపోనెంట్‌లో ఏదైనా పెద్ద కాలిక్యులేషన్ (ఉదాహరణకు: పెద్ద లూప్‌లు, డేటా ఫిల్టరింగ్) చేస్తున్నప్పుడు, ఆ కాంపోనెంట్ ప్రతిసారి రీ-రెండర్ (Re-render) అయినప్పుడు ఆ కాలిక్యులేషన్ మళ్ళీ మళ్ళీ జరుగుతుంది. దీనివల్ల యాప్ స్లో అవ్వచ్చు.
 
-In this example, number is memoized using useMemo. It will only recompute when the number state changes.
+`useMemo` ఆ కాలిక్యులేషన్ యొక్క **ఫలితాన్ని (result) మెమరీలో దాచుకుంటుంది**. డిపెండెన్సీలు మారనంత వరకు, ఆ పాత ఫలితాన్నే తిరిగి ఇస్తుంది. దీనివల్ల అనవసరమైన కాలిక్యులేషన్స్ ఆగిపోతాయి.
 
-```jsx
-import React, { useMemo, useState } from "react";
+---
 
-function UseMemoExample() {
-  const [number, setNumber] = useState(0);
-  const [dark, setDark] = useState();
+### కోడ్ ఉదాహరణ
 
-  // syntax for useMemo and useState is same. useEffect cant return the value and cant assign to the variable
-  // useMemo remembers the result of expensiveFunction(number) until number changes.
-  const memoCalculation = useMemo(() => {
-    return expensiveFunction(number);
-  }, [number]); // Runs once after the initial render
+ఈ ఉదాహరణలో `expensiveCalculation` అనే ఫంక్షన్ చాలా సమయం తీసుకుంటుందని అనుకుందాం.
 
-  // Every time dark changes (theme toggle), expensiveFunction runs again—even though number hasn't changed.
-  // const calculation = expensiveFunction(number);
-  const cssStyes = {
-    backgroundColor: dark ? "black" : "white",
-    color: dark ? "white" : "black",
+```javascript
+import React, { useState, useMemo } from "react";
+
+const App = () => {
+  const [count, setCount] = useState(0);
+  const [text, setText] = useState("");
+
+  // ఒక కష్టమైన కాలిక్యులేషన్ అనుకుందాం
+  const expensiveCalculation = (num) => {
+    console.log("కాలిక్యులేషన్ జరుగుతోంది...");
+    for (let i = 0; i < 1000000000; i++) {} // సమయం తీసుకునే లూప్
+    return num * 2;
   };
 
+  // useMemo లేకుండా ఉంటే, 'text' మారినప్పుడు కూడా ఈ ఫంక్షన్ రన్ అవుతుంది
+  // కానీ useMemo వాడటం వల్ల 'count' మారినప్పుడు మాత్రమే ఇది రన్ అవుతుంది
+  const calculationResult = useMemo(() => {
+    return expensiveCalculation(count);
+  }, [count]);
+
   return (
-    <div style={cssStyes}>
-      <input type="number" onClick={({ target }) => setNumber(target.value)} />
-      {/* <h3>calculation:{calculation}</h3> */}
-      <h3>calculation:{memoCalculation}</h3>
-      <button onClick={() => setDark((prv) => !prv)}>theme</button>
+    <div>
+      <h3>Result: {calculationResult}</h3>
+      <button onClick={() => setCount(count + 1)}>
+        Count పెంచండి ({count})
+      </button>
+      <br />
+      <br />
+      <input
+        type="text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="ఏదైనా టైప్ చేయండి..."
+      />
+      <p>మీరు టైప్ చేసింది: {text}</p>
     </div>
   );
-}
+};
 
-function expensiveFunction(num) {
-  console.log("for loop started");
-  for (let index = 0; index < 200000000; index++) {}
-  return num;
-}
-
-export default UseMemoExample;
+export default App;
 ```
 
-✅ **Best use cases**: Optimizing expensive computations, filtering/sorting large datasets.
+### ఈ కోడ్‌లో ఏమవుతుంది?
+
+1. **`useMemo` లేకపోతే:** మీరు "టైప్" చేసినప్పుడల్లా కాంపోనెంట్ రీ-రెండర్ అవుతుంది. అప్పుడు `expensiveCalculation` ఫంక్షన్ ప్రతిసారీ రన్ అయ్యి, యాప్ హ్యాంగ్ అయినట్లు (slow) అనిపిస్తుంది.
+2. **`useMemo` ఉంటే:** `[count]` అనే డిపెండెన్సీని మనం ఇచ్చాం. కాబట్టి, `count` మారినప్పుడు మాత్రమే ఆ కాలిక్యులేషన్ జరుగుతుంది. మీరు ఇన్పుట్ బాక్స్‌లో టైప్ చేసినప్పుడు `text` స్టేట్ మారుతుంది, కానీ `count` మారదు కాబట్టి, `expensiveCalculation` మళ్ళీ రన్ అవ్వదు. ఫలితంగా యాప్ వేగంగా పనిచేస్తుంది.
+
+---
+
+### గుర్తుంచుకోవాల్సినవి:
+
+- **ప్రతిచోటా వాడకండి:** చిన్న చిన్న లెక్కలకు (ఉదా: 2+2) `useMemo` అవసరం లేదు. ఇది కూడా ఒక రకమైన మెమరీని తీసుకుంటుంది. కేవలం చాలా ఎక్కువ సమయం తీసుకునే కాలిక్యులేషన్స్ (Expensive calculations) కోసం మాత్రమే దీన్ని వాడండి.
+- **డిపెండెన్సీ అర్రే:** `useEffect` లాగే, ఇందులో కూడా మీరు ఏ వాల్యూ మీదైతే మీ కాలిక్యులేషన్ ఆధారపడి ఉందో, ఆ వాల్యూని డిపెండెన్సీ అర్రేలో `[]` ఇవ్వాలి.
 
 ---
 
@@ -841,70 +783,78 @@ export default ParentComponent;
 
 # 3. **🆚 `useState` vs `useReducer` in React**
 
-React provides two powerful hooks for managing state: `useState` and `useReducer`. While both serve the same purpose, they are designed for different use cases. Let's dive deeper into their differences.
+Reactలో స్టేట్ (State) నిర్వహణ కోసం `useState` మరియు `useReducer` అనేవి రెండు ముఖ్యమైన హుక్స్. వీటి మధ్య వ్యత్యాసాన్ని మరియు దేనిని ఎప్పుడు వాడాలో సులభంగా అర్థం చేసుకుందాం.
 
 ---
 
-## **📌 Key Differences Between `useState` and `useReducer`**
+### 📌 ప్రధాన తేడాలు (Key Differences)
 
-| Feature                       | `useState` 🟢                                        | `useReducer` 🔴                                           |
-| ----------------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
-| **Best For**                  | Simple state management (booleans, numbers, strings) | Complex state logic with multiple sub-values              |
-| **State Updates**             | Directly set the new state value                     | Uses a reducer function to determine the next state       |
-| **Handling Multiple States**  | Requires multiple `useState` calls                   | Can handle multiple state changes in a single reducer     |
-| **Readability & Maintenance** | Simple and concise for basic state                   | More structured and scalable for complex logic            |
-| **Performance**               | Similar to `useReducer` for simple state             | Preferred for optimizing performance in complex scenarios |
-| **Use Case Examples**         | Form inputs, toggles, counters                       | Todo lists, authentication state, API data management     |
+| ఫీచర్               | useState                                       | useReducer                                           |
+| ------------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| **ఎప్పుడు వాడాలి?** | సింపుల్ స్టేట్ (ఉదా: `true/false`, నంబర్లు)    | క్లిష్టమైన స్టేట్ లాజిక్ (ఉదా: Objects, Arrays)      |
+| **అప్డేట్ విధానం**  | నేరుగా స్టేట్ వాల్యూని మార్చవచ్చు (`setState`) | ఒక `reducer` ఫంక్షన్ ద్వారా మారుస్తుంది              |
+| **నిర్వహణ**         | చిన్న కాంపోనెంట్లకు సులభం                      | క్లిష్టమైన లాజిక్ ఉన్నప్పుడు చాలా పద్ధతిగా ఉంటుంది   |
+| **సామర్థ్యం**       | సింపుల్ పనులకు సరిపోతుంది                      | చాలా స్టేట్ మార్పులు ఒకేసారి జరిగేటప్పుడు ఇది ఉత్తమం |
 
 ---
 
-## **📌 When to Use Which?**
+### 1. useState: చిన్న చిన్న పనుల కోసం
 
-### ✅ **Use `useState` when:**
+`useState` అనేది మనం ఎక్కువగా వాడే హుక్. మీ స్టేట్ చాలా సరళంగా (Simple) ఉన్నప్పుడు, అంటే కేవలం ఒక నంబర్ లేదా ఒక స్ట్రింగ్ మాత్రమే ఉన్నప్పుడు `useState` వాడటం ఉత్తమం.
 
-- You are managing **simple** and **independent** state variables.
-- The state updates are **straightforward** and do not depend on previous values.
-- Example: A toggle button (`true` / `false`), counter, or form input.
+- **ఎప్పుడు వాడాలి?**: ఒక కౌంటర్, టోగుల్ బటన్, లేదా సింపుల్ ఫామ్ ఇన్పుట్ వంటి వాటికి.
+- **ఎందుకు?**: ఇది చాలా క్లుప్తంగా (Concise) ఉంటుంది మరియు కోడ్ సులభంగా అర్థమవుతుంది.
 
-### ✅ **Use `useReducer` when:**
+**ఉదాహరణ:**
 
-- Your state **transitions** are **complex** or interdependent.
-- You need to **manage state changes** using a **single function** (reducer).
-- Your state consists of **multiple sub-values** (e.g., object, array).
-- You want to **avoid prop drilling** by passing the reducer's `dispatch` function to child components.
-
----
-
-## **📌 Code Examples for `useState` vs `useReducer`**
-
-### **1️⃣ `useState` Example (Simple Counter)**
-
-```jsx
-import React, { useState } from "react";
-
-const Counter = () => {
-  const [count, setCount] = useState(0);
-
-  return (
-    <div>
-      <h2>Count: {count}</h2>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-      <button onClick={() => setCount(count - 1)}>Decrement</button>
-    </div>
-  );
-};
-
-export default Counter;
+```javascript
+const [count, setCount] = useState(0); // కేవలం ఒక నంబర్
 ```
 
-**Why use `useState` here?**
+---
 
-- The state is simple (just a number).
-- Each update is **independent** and does not require complex logic.
+### 2. useReducer: పెద్ద మరియు క్లిష్టమైన పనుల కోసం
+
+`useReducer` అనేది పెద్ద ప్రాజెక్టులలో, ముఖ్యంగా స్టేట్ (State) లో చాలా డేటా లేదా ఆబ్జెక్ట్స్ ఉన్నప్పుడు వాడతారు. ఇది `Redux` పనితీరును పోలి ఉంటుంది.
+
+- **ఎప్పుడు వాడాలి?**: ఒక టోడో లిస్ట్, యూజర్ ఆథెంటికేషన్, లేదా ఒకే ఫామ్‌లో చాలా ఇన్పుట్ ఫీల్డ్స్ ఉన్నప్పుడు.
+- **ఎందుకు?**: ఇక్కడ లాజిక్ అంతా ఒక `reducer` ఫంక్షన్‌లో కేంద్రీకృతమై ఉంటుంది. దీనివల్ల పెద్ద పెద్ద ఫంక్షన్స్ రాసే అవసరం ఉండదు, కోడ్ మెయింటెనెన్స్ ఈజీ అవుతుంది.
+
+**ఉదాహరణ (Todo App లాజిక్):**
+ఇక్కడ మనం `ADD_TODO` (యాడ్ చేయడం) లేదా `REMOVE_TODO` (తొలగించడం) వంటి వివిధ పనులను ఒకే ఫంక్షన్‌లో రాస్తాం.
+
+```javascript
+const todoReducer = (state, action) => {
+  switch (action.type) {
+    case "ADD_TODO":
+      return [...state, { id: Date.now(), description: action.payload }];
+    case "REMOVE_TODO":
+      return state.filter((todo) => todo.id !== action.payload);
+    default:
+      return state;
+  }
+};
+```
 
 ---
 
-### **2️⃣ `useReducer` Example (Todo List)**
+### 🎯 ముగింపు (ఎప్పుడు దేనిని ఎంచుకోవాలి?)
+
+1. **`useState` వాడండి, ఎప్పుడు అంటే:**
+
+- మీ స్టేట్ సింపుల్‌గా (Number, String, Boolean) ఉంటే.
+- స్టేట్ అప్డేట్స్ వేటికవే స్వతంత్రంగా (Independent) ఉంటే.
+- కోడ్ తక్కువగా, క్లుప్తంగా ఉండాలనుకుంటే.
+
+2. **`useReducer` వాడండి, ఎప్పుడు అంటే:**
+
+- మీ స్టేట్ ఆబ్జెక్ట్స్ (Objects) లేదా అర్రేస్ (Arrays) తో నిండి ఉంటే.
+- స్టేట్ అప్డేట్స్ ఒకదానిపై ఒకటి ఆధారపడి ఉంటే (Interdependent).
+- మీరు చాలా రకాల యాక్షన్స్ (Actions) ను ఒకే చోట నిర్వహించాలనుకుంటే.
+
+క్లుప్తంగా చెప్పాలంటే, **చిన్న పనులకు `useState`, పెద్ద మరియు క్లిష్టమైన ప్రాజెక్టులకు `useReducer`** వాడటం మంచిది.
+
+### **`useReducer` Example (Todo List)**
 
 ```jsx
 import React, { useReducer, useState } from "react";
@@ -958,21 +908,7 @@ const TodoApp = () => {
 export default TodoApp;
 ```
 
-**Why use `useReducer` here?**
-
-- The state has multiple objects (`id`, `description`).
-- Different **actions** (`ADD_TODO`, `REMOVE_TODO`) need to be handled.
-- Centralized logic in the **reducer function** makes it easy to modify and scale.
-
 ---
-
-## **🎯 Conclusion**
-
-- **Use `useState`** when managing **simple, independent state values**.
-- **Use `useReducer`** when dealing with **complex state logic** that requires structured updates.
-
-🚀 If you're building a **small component** with a simple state, **go with `useState`**.  
-💡 If your state management involves **multiple related states or complex updates**, **use `useReducer`**.
 
 # 4. Create a React Counter: Increment 0 to 5, Reset to 0, and Stop
 
@@ -1060,22 +996,38 @@ componentInstance.functionalIncrement();
 
 ### **Explanation and Important Notes:**
 
-1. **Closure:**
-   - The `currentState` variable is held in a closure. This means it persists between calls to `setState`. This is how React remembers the state between renders.
-2. **`setState` Function:**
-   - The `setState` function is responsible for updating the state.
-   - It accepts either a new state value directly or a function that takes the previous state as an argument and returns the new state (functional updates). Functional updates are crucial for avoiding stale closures and race conditions when dealing with asynchronous updates.
-3. **Re-rendering (Simplified):**
-   - In a real React application, `setState` would trigger a complex reconciliation process that compares the virtual DOM before and after the state change and updates the actual DOM efficiently.
-   - In this simplified example, I've just added `console.log` to simulate the state update.
-   - The key part that is missing from this example is the actual triggering of the component function to run again, which is the re-render.
-4. **No React Engine:**
-   - This code snippet is a simplified illustration. It doesn't include the React engine, virtual DOM, or reconciliation logic.
-   - It demonstrates the core concept of how `useState` manages state using closures.
-5. **Functional Updates:**
-   - Functional updates, like `setCount(prevCount => prevCount + 1)`, are the preferred way to update state when the new state depends on the previous state. This ensures that you're working with the most up-to-date state value.
+React `useState`లో `const` ఉపయోగించినప్పటికీ స్టేట్ (state) ఎలా మారుతుందో అర్థం చేసుకోవడానికి ఒక ముఖ్యమైన విషయం గుర్తుంచుకోవాలి: **`const` వేరియబుల్‌ని మనం రీ-అసైన్ (re-assign) చేయలేము, కానీ React లో మనం ప్రతిసారీ పాత వేరియబుల్‌ని మార్చడం లేదు, కొత్త వాల్యూతో కాంపోనెంట్‌ని మళ్ళీ రన్ చేస్తున్నాము.**
 
-This example provides a basic understanding of the inner workings of `useState`. Remember that the actual React implementation is much more complex and optimized for performance.
+దీనిని సులభంగా అర్థం చేసుకోవడానికి కింద వివరణ చూడండి:
+
+### 1. `const` ఎందుకు ఉంటుంది?
+
+మనం `const [count, setCount] = useState(0);` అని రాసినప్పుడు, ఆ `count` అనే వేరియబుల్ ఆ నిర్దిష్ట రెండర్ (render) కి మాత్రమే సంబంధించింది. అంటే ఆ పర్టికులర్ ఫంక్షన్ కాల్ జరిగినప్పుడు `count` విలువ `0` గా స్థిరంగా ఉంటుంది. మనం `count = 5` అని మార్చడానికి ప్రయత్నిస్తే ఎర్రర్ వస్తుంది. కానీ మనం అలా చేయడం లేదు.
+
+### 2. 'Closure' (క్లోజర్) మ్యాజిక్
+
+React లో `useState` ఎలా పనిచేస్తుందంటే:
+
+- మీరు `setCount` పిలిచినప్పుడు, అది ఆ స్టేట్ విలువను అప్‌డేట్ చేసి, ఆ తర్వాత **మొత్తం కాంపోనెంట్ ఫంక్షన్‌ని మళ్ళీ రన్ చేస్తుంది (Re-render)**.
+- ఇప్పుడు, కొత్తగా రన్ అయిన కాంపోనెంట్‌లో `useState` మళ్ళీ కాల్ అవుతుంది. అప్పుడు React పాత స్టేట్ వాల్యూను గుర్తుపెట్టుకుని (Closure ద్వారా), మీకు కొత్త `count` విలువను ఇస్తుంది.
+- అంటే, పాత `count` మారడం లేదు, బదులుగా **కొత్త `count`తో కాంపోనెంట్ కొత్తగా పుడుతోంది**.
+
+### 3. ఒక ఉదాహరణతో అర్థం చేసుకుందాం:
+
+దీనిని ఇలా ఊహించుకోండి:
+
+- **మొదటి సారి:** React ఒక ఫోటో తీసింది. అందులో `count` విలువ `0`.
+- **మీరు `setCount(1)` అని పిలిచారు:** React ఆ ఫోటోను పక్కన పెట్టి, మరొక కొత్త ఫోటో తీసింది. ఈ కొత్త ఫోటోలో `count` విలువ `1`.
+
+ఇక్కడ పాత ఫోటోలోని `0` మారలేదు, మీరు కేవలం కొత్త ఫోటోని (Re-render) చూస్తున్నారు. కాబట్టి `const` కి ఎటువంటి ఇబ్బంది లేదు.
+
+### ముఖ్యమైన పాయింట్లు:
+
+- **Immutable (మార్చలేనిది):** React స్టేట్ అంటే పాత వాల్యూని మార్చడం కాదు, కొత్త వాల్యూతో మళ్ళీ రెండర్ చేయడం.
+- **Closure:** `useState` లోపల ఉన్న `currentState` వేరియబుల్, ఫంక్షన్ బయట (అంటే React ఇంటర్నల్‌గా) స్టోర్ అవుతుంది. కాబట్టి మీరు `setCount` ద్వారా స్టేట్ మార్చినప్పుడు, ఆ క్లోజర్ లో ఉన్న విలువ మారుతుంది.
+- **Re-render:** `setCount` పిలిచినప్పుడు React మీ కాంపోనెంట్ ఫంక్షన్‌ని మళ్ళీ పిలుస్తుంది. అప్పుడు `const [count, setCount] = ...` లైన్ మళ్ళీ ఎగ్జిక్యూట్ అయ్యి, కొత్త `count` విలువని తెచ్చుకుంటుంది.
+
+**సారాంశం:** `const` అనేది ఆ ఒక్క రెండర్ కి మాత్రమే పరిమితం. React ప్రతిసారీ కొత్త రెండర్ చేస్తున్నప్పుడు, ఆ `const` వేరియబుల్‌కి కొత్త విలువను ఇస్తుంది. కాబట్టి మనం `const` వాడినా, స్టేట్ అప్‌డేట్ అవుతుంది.
 
 # **6. Controlled vs. Uncontrolled Components in React**
 
@@ -1577,7 +1529,7 @@ ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 ```
 
@@ -1762,7 +1714,7 @@ ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 ```
 
@@ -1914,7 +1866,7 @@ ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 ```
 
@@ -2090,7 +2042,7 @@ const ProfileCard = React.memo(
       </div>
     );
   },
-  (prevProps, nextProps) => prevProps.user.name === nextProps.user.name
+  (prevProps, nextProps) => prevProps.user.name === nextProps.user.name,
 );
 
 export default ProfileCard;
@@ -2171,7 +2123,7 @@ import useFetch from "./useFetch";
 
 function UserList() {
   const { data, loading, error } = useFetch(
-    "https://jsonplaceholder.typicode.com/users"
+    "https://jsonplaceholder.typicode.com/users",
   );
 
   if (loading) return <p>Loading...</p>;

@@ -29,7 +29,7 @@ Project:
 
 ---
 
-# 2: Learn AI Fundamentals (No Math Required)
+# [2: Learn AI Fundamentals (No Math Required)](#2-learn-ai-fundamentals-no-math-required-1)
 
 Understand what AI actually is.
 
@@ -95,7 +95,7 @@ You don't need Django.
 
 ---
 
-# 4: LLM APIs
+# [4: LLM APIs](#4-llm-apis-1)
 
 Learn how to call models.
 
@@ -138,7 +138,7 @@ AI Chatbot
 
 ---
 
-# 5: Prompt Engineering
+# [5: Prompt Engineering](#5-prompt-engineering-1)
 
 Learn
 
@@ -157,7 +157,7 @@ Customer Support AI
 
 ---
 
-# 6: AI SDKs for Node.js
+# [6: AI SDKs for Node.js](#6-ai-sdks-for-nodejs-1)
 
 Learn
 
@@ -192,7 +192,7 @@ ChatGPT Clone
 
 ---
 
-# 7: Embeddings
+# [7: Embeddings](#7-embeddings-1)
 
 Understand
 
@@ -224,7 +224,7 @@ Search Documents
 
 ---
 
-# 8: Vector Databases
+# [8: Vector Databases](#8-vector-databases-1)
 
 Learn
 
@@ -254,7 +254,7 @@ Company Knowledge Search
 
 ---
 
-# 9: RAG (Most Important)
+# [9: RAG (Most Important)](#9-rag-most-important-1)
 
 Learn
 
@@ -304,7 +304,7 @@ Projects
 
 ---
 
-# 10: AI Agents
+# [10: AI Agents](#10-ai-agents-1)
 
 Understand
 
@@ -421,7 +421,7 @@ Serverless AI Chatbot
 
 ---
 
-# 13: AI Memory
+# [13: AI Memory](#13-ai-memory-1)
 
 Learn
 
@@ -441,7 +441,7 @@ Vector Memory
 
 ---
 
-# 14: AI Streaming
+# [14: AI Streaming](#14-ai-streaming-1)
 
 Implement
 
@@ -481,7 +481,7 @@ Real-time ChatGPT Clone
 
 ---
 
-# 15: AI Security
+# [15: AI Security](#15-ai-security-1)
 
 Topics
 
@@ -496,7 +496,7 @@ Topics
 
 ---
 
-# 16: AI Observability
+# [16: AI Observability](#16-ai-observability-1)
 
 Since you've worked with Datadog:
 
@@ -513,7 +513,7 @@ Learn
 
 ---
 
-# 17: AI Testing
+# [17: AI Testing](#17-ai-testing-1)
 
 Learn
 
@@ -526,7 +526,7 @@ Learn
 
 ---
 
-# 18: Production Architecture
+# [18: Production Architecture](#18-production-architecture-1)
 
 ```
                 React

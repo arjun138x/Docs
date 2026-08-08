@@ -14,7 +14,7 @@ Here’s a **Python roadmap from beginner to advanced**, with a focus on becomin
 
 ![Image](https://images.openai.com/static-rsc-4/WQoXQJzDCLP2LqhcZ8uspEFq5g8-OeSSzSSCsdSYUKryNTZHOTv_-22tW5DAFqmOAj9NqgW4h8cG8Edvx-nzTgnrZPFB3T-Y7ckKs3AgonoX8EW26R7QvfInnsVtUkWHdMrIYLHArTKr3TVDNPNE21uHu1RSWinWBGQW2M0O6A8In2FNfetbdqlHIhPCQxdF?purpose=fullsize)
 
-# 1. Python Fundamentals
+# [1. Python Fundamentals](#1-python-fundamentals-1)
 
 Start here if you're new to Python.
 
@@ -46,7 +46,7 @@ Start here if you're new to Python.
 
 ---
 
-# 2. Python Data Structures
+# [2. Python Data Structures](#2-python-data-structures-1)
 
 Master these very well for interviews.
 
@@ -105,7 +105,7 @@ Learn:
 
 ---
 
-# 3. Object-Oriented Programming
+# [3. Object-Oriented Programming](#3-object-oriented-programming-1)
 
 This is **very important for Python interviews**.
 
@@ -146,7 +146,7 @@ print(user.greet())
 
 ---
 
-# 4. Intermediate Python
+# [4. Intermediate Python](#4-intermediate-python-1)
 
 Now move beyond basic syntax.
 
@@ -194,7 +194,7 @@ Learn:
 
 ---
 
-# 5. Exception Handling
+# [5. Exception Handling](#5-exception-handling-1)
 
 Learn:
 
@@ -225,7 +225,7 @@ class InvalidAgeError(Exception):
 
 ---
 
-# 6. Modules & Packages
+# [6. Modules & Packages](#6-modules--packages-1)
 
 Understand how real Python applications are structured.
 
@@ -250,7 +250,7 @@ Then learn:
 
 ---
 
-# 7. File Handling
+# [7. File Handling](#7-file-handling-1)
 
 Learn:
 
@@ -274,7 +274,7 @@ with open("users.json") as file:
 
 ---
 
-# 8. Python Standard Library
+# [8. Python Standard Library](#8-python-standard-library-1)
 
 You don't need to memorize everything, but become comfortable with:
 
@@ -326,7 +326,7 @@ permutations
 
 ---
 
-# 9. Type Hints
+# [9. Type Hints](#9-type-hints-1)
 
 Modern Python development uses type hints extensively.
 
@@ -359,7 +359,7 @@ class User:
 
 ---
 
-# 10. Testing
+# [10. Testing](#10-testing-1)
 
 Learn testing early.
 
@@ -383,7 +383,7 @@ def test_add():
 
 ---
 
-# 11. Databases
+# [11. Databases](#11-databases-1)
 
 For backend development, learn:
 
@@ -413,7 +413,7 @@ Then Python database access:
 
 ---
 
-# 12. Web Development
+# [12. Web Development](#12-web-development-1)
 
 If your goal is **Python backend development**, this is your next major section.
 
@@ -451,7 +451,7 @@ Understand:
 
 ---
 
-# 13. FastAPI
+# [13. FastAPI](#13-fastapi-1)
 
 For modern Python backend development, learn **FastAPI**.
 
@@ -484,7 +484,7 @@ async def get_users():
 
 ---
 
-# 14. Django
+# [14. Django](#14-django-1)
 
 After FastAPI, learn Django if you're targeting companies that use Django.
 
@@ -518,7 +518,7 @@ Learn:
 
 ---
 
-# 15. Async Python
+# [15. Async Python](#15-async-python-1)
 
 This is especially important if you're coming from **Node.js**.
 
@@ -562,7 +562,7 @@ Also understand:
 
 ---
 
-# 16. Concurrency & Parallelism
+# [16. Concurrency & Parallelism](#16-concurrency--parallelism-1)
 
 Learn:
 
@@ -599,7 +599,7 @@ Also learn the **GIL (Global Interpreter Lock)**.
 
 ---
 
-# 17. Caching & Messaging
+# [17. Caching & Messaging](#17-caching--messaging-1)
 
 For backend systems:
 
@@ -625,7 +625,7 @@ Learn one or more:
 
 ---
 
-# 18. System Design
+# [18. System Design](#18-system-design-1)
 
 Once you're comfortable with Python backend development, start system design.
 
@@ -662,7 +662,7 @@ Important topics:
 
 ---
 
-# 19. Docker & Cloud
+# [19. Docker & Cloud](#19-docker--cloud-1)
 
 Learn Docker:
 
@@ -712,7 +712,7 @@ Worker
 
 ---
 
-# 20. DevOps for Python
+# [20. DevOps for Python](#20-devops-for-python-1)
 
 Learn:
 
@@ -738,7 +738,7 @@ For production Python:
 
 ---
 
-# 21. Data Structures & Algorithms
+# [21. Data Structures & Algorithms](#21-data-structures--algorithms-1)
 
 For interviews, don't skip this.
 
@@ -797,7 +797,7 @@ Start with:
 
 ---
 
-# 22. Python Interview Preparation
+# [22. Python Interview Preparation](#22-python-interview-preparation-1)
 
 Focus heavily on these:
 
@@ -1684,9 +1684,7 @@ print(dev.get_salary())        # Encapsulation -> 70000
 
 ```
 
----
-
-పైథాన్‌లో బేసిక్ అంశాలు నేర్చుకున్న తర్వాత, తదుపరి స్థాయికి వెళ్లడానికి అత్యంత ముఖ్యమైన **Intermediate Python** భావనలను ఈ రోజు సులభమైన ఉదాహరణలతో తెలుగులో తెలుసుకుందాం!
+# 4. Intermediate Python
 
 ---
 

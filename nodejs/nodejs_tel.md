@@ -310,6 +310,28 @@ V8 అనేది గూగుల్ క్రోమ్ బ్రౌజర్ �
 - **ఇది ఏం చేస్తుంది?:** మనం రాసే JavaScript కోడ్ కంప్యూటర్‌కు నేరుగా అర్థం కాదు. V8 ఇంజిన్ మన JavaScript కోడ్‌ని తీసుకుని, దానిని కంప్యూటర్ కి అర్థమయ్యే **Machine Code (0s and 1s)** లోకి మారుస్తుంది.
 - **Just-In-Time (JIT) Compilation:** V8 ఇంజిన్ కోడ్‌ని రన్ చేసేటప్పుడే చాలా వేగంగా కంపైల్ చేస్తుంది. అందుకే Node.js ఇంత ఫాస్ట్ గా పనిచేస్తుంది.
 
+### V8 కోడ్‌ను ఎలా అమలు చేస్తుంది?
+
+```text
+JavaScript కోడ్
+      │
+      ▼
+పార్స్ చేయడం (Syntax ను తనిఖీ చేసి AST తయారు చేయడం)
+      │
+      ▼
+Ignition: Bytecode తయారు చేసి అమలు చేయడం
+      │
+      ├── తరచుగా అమలయ్యే కోడ్‌ను గుర్తిస్తుంది (Hot Code)
+      │
+      ▼
+TurboFan: Hot Code ను ఆప్టిమైజ్ చేసి Machine Code గా కంపైల్ చేయడం
+      │
+      ▼
+CPU ఆ Machine Code ను అమలు చేస్తుంది
+```
+
+మొదట V8 JavaScript ను Bytecode గా మార్చి అమలు చేస్తుంది. తరచుగా రన్ అయ్యే కోడ్‌ను గుర్తించినప్పుడు, దాన్ని TurboFan ఆప్టిమైజ్ చేసి Machine Code గా మార్చుతుంది. కోడ్ గురించి చేసిన అంచనాలు సరిపోకపోతే, V8 మళ్లీ Bytecode అమలుకు వెనక్కి వెళ్లవచ్చు.
+
 ---
 
 ## 3. Single-threaded Architecture (సింగిల్-థ్రెడెడ్ ఆర్కిటెక్చర్)
@@ -342,6 +364,79 @@ Node.js లో జరిగే ప్రతి పనీ ఒక **Event** ఆధ
 - "ఒక యూజర్ బటన్ క్లిక్ చేశాడు" లేదా "సర్వర్‌కి రిక్వెస్ట్ వచ్చింది" అనేది ఒక ఈవెంట్.
 
 బ్యాక్‌గ్రౌండ్‌లో ఒక పని పూర్తి కాగానే, ఒక ఈవెంట్ ట్రిగ్గర్ అవుతుంది. ఆ ఈవెంట్ కి లింక్ అయి ఉన్న **Callback Function** రన్ అవుతుంది. దీనంతటినీ మేనేజ్ చేయడానికి Node.js లో **Event Loop** అనే ఒక మెకానిజం ఉంటుంది (దీని గురించి ముందు ముందు ఇన్-డెప్త్ గా నేర్చుకుందాం).
+
+### Node.js Architecture: Call Stack, libuv & Event Loop
+
+క్రింది డయాగ్రామ్ ఒక అసింక్రోనస్ ఆపరేషన్ మొదలైన దగ్గరి నుంచి, దాని Callback మళ్లీ JavaScript లో రన్ అయ్యే వరకు జరిగే ప్రయాణాన్ని చూపిస్తుంది:
+
+```text
+┌──────────────────── Node.js Process ─────────────────────┐
+│                                                          │
+│  JavaScript Application                                  │
+│          │                                               │
+│          ▼                                               │
+│  V8: Call Stack + Heap                                   │
+│  (ప్రస్తుతం నడుస్తున్న JavaScript)                              │
+│          │                                               │
+│          │ Node.js API / C++ Bindings ద్వారా async పని     |
+│          ▼                                               │
+│  ┌──────────────────── libuv ─────────────────────────┐  │
+│  │                                                    │  │
+│  │  Event Loop — ప్రధాన JavaScript థ్రెడ్‌పై                 │  │
+│  │  Timers → Pending Callbacks → Idle/Prepare → Poll  │  │
+│  │     ↑                                │             │  │
+│  │     └── Close Callbacks ← Check ←────┘             │  │
+│  │                                                    │  │
+│  │  Async I/O కోసం రెండు సాధారణ మార్గాలు:                  │  │
+│  │  ┌────────────────────┐  ┌─────────────────────┐   │  │
+│  │  │ OS / Kernel        │  │ libuv Thread Pool   │   │  │
+│  │  │ Network sockets,   │  │ కొన్ని File System,    │   │  |
+│  │  │ readiness events   │  │ dns.lookup, crypto, │   │  │
+│  │  │                    │  │ zlib పనులు          │   │  |
+│  │  └─────────┬──────────┘  └──────────┬──────────┘   │  │
+│  └────────────┼────────────────────────┼──────────────┘  │
+│               └──── పని పూర్తయింది ────┘                    │
+│                              │                           │
+│                              ▼                           │
+│           సరైన Event Loop Phase లో Callback               │
+│                              │                           │
+│                              ▼                           │
+│           V8 Call Stack లో Callback అమలు                │
+│             │                            │               │
+│             ├─ Node.js: process.nextTick Queue           │
+│             └─ V8: Promise / queueMicrotask Queue        │
+└──────────────────────────────────────────────────────────┘
+```
+
+#### భాగాలు ఏం చేస్తాయి?
+
+- **Call Stack:** ప్రస్తుతం అమలవుతున్న JavaScript ఫంక్షన్లను ట్రాక్ చేస్తుంది. JavaScript Callback ను అమలు చేసేటప్పుడు అది ప్రధాన థ్రెడ్‌పైనే నడుస్తుంది; ఒకేసారి ఆ థ్రెడ్‌లో ఒక JavaScript పని మాత్రమే నడుస్తుంది.
+- **V8:** JavaScript ను అమలు చేస్తుంది. Promise reactions, `queueMicrotask()` వంటి JavaScript microtasks ను కూడా V8 నిర్వహిస్తుంది.
+- **Node.js APIs / C++ bindings:** `fs`, `net`, `crypto` వంటి Node.js APIs ను JavaScript మరియు native కోడ్ మధ్య కలుపుతాయి.
+- **libuv:** Event Loop ను, OS తో అసింక్రోనస్ I/O సమన్వయాన్ని, అలాగే కొన్ని పనుల కోసం Thread Pool ను నిర్వహిస్తుంది. Event Loop అనేది ప్రత్యేకమైన మరో JavaScript thread కాదు; ఇది ప్రధాన థ్రెడ్‌పై ఏ Callback ఎప్పుడు అమలవాలో సమన్వయం చేస్తుంది.
+- **OS / Kernel:** నెట్‌వర్క్ socket I/O వంటి పనులను OS మెకానిజమ్‌లతో గమనిస్తుంది. ఈ రకం async I/O కోసం ప్రతి ఆపరేషన్‌కు libuv Thread Pool worker అవసరం ఉండదు.
+- **libuv Thread Pool:** కొన్ని file-system ఆపరేషన్లు, `dns.lookup()`, అలాగే కొన్ని crypto/zlib పనులకు ఉపయోగపడుతుంది. ఇది అన్ని async పనులకూ ఉపయోగించే సాధారణ pool కాదు. దీని default పరిమాణం 4; Node.js ప్రారంభించే ముందు `UV_THREADPOOL_SIZE` ద్వారా మార్చవచ్చు. ఒకే pool ను ఉపయోగించే పనులు పరిమిత worker slots కోసం పోటీ పడవచ్చు.
+
+#### Event Loop Phases — త్వరిత పరిచయం
+
+- **Timers:** గడువు తీరిన `setTimeout()` / `setInterval()` Callbacks అమలవుతాయి. ఇచ్చిన delay అనేది కనీస సమయం మాత్రమే; Callback ఖచ్చితంగా అదే క్షణంలో నడుస్తుందని హామీ కాదు.
+- **Pending Callbacks:** కొన్ని సిస్టమ్ లేదా I/O Callbacks ను తదుపరి iteration కోసం అమలు చేస్తుంది.
+- **Idle / Prepare:** libuv అంతర్గతంగా ఉపయోగించే phases.
+- **Poll:** సిద్ధమైన I/O సంఘటనలను పరిశీలించి, సంబంధిత I/O Callbacks ను అమలు చేస్తుంది. పని లేకపోతే తదుపరి Timer లేదా I/O కోసం వేచి ఉండవచ్చు.
+- **Check:** `setImmediate()` Callbacks అమలవుతాయి.
+- **Close Callbacks:** `socket.on('close', ...)` వంటి close సంఘటనల Callbacks అమలవుతాయి.
+
+#### ఒక Async I/O ఆపరేషన్ క్రమం
+
+1. JavaScript లో `fs.readFile()` వంటి async API పిలిచినప్పుడు, దానికి సంబంధించిన పని Node.js/libuv లేదా OS కు అప్పగించబడుతుంది. Timer API అయితే గడువు ముగిసే సమయాన్ని Event Loop గమనిస్తుంది; దాని కోసం Thread Pool worker తప్పనిసరి కాదు.
+2. పని అప్పగించిన తర్వాత Call Stack ఖాళీ అయితే, ప్రధాన థ్రెడ్ ఇతర JavaScript కోడ్‌ను కొనసాగిస్తుంది. Async పని ముగిసే వరకు అది ఆగి ఉండదు.
+3. I/O లేదా timer సిద్ధమైనప్పుడు, దాని Callback సంబంధిత Event Loop phase లో అమలుకు సిద్ధమవుతుంది. Event Loop ఆ Callback ను Call Stack లోకి పంపిస్తుంది.
+4. Callback పూర్తయ్యాక `process.nextTick()` Queue మరియు Promise/`queueMicrotask()` microtasks drain అవుతాయి; ఆ తర్వాత Event Loop తదుపరి పనివైపు వెళ్తుంది. ఈ Queues ను నిరంతరం నింపడం వల్ల ఇతర I/O పనులు ఆలస్యం కావచ్చు.
+5. Active handles లేదా requests ఉన్నంత వరకు Event Loop కొనసాగుతుంది. అవి లేకపోతే Node.js process సాధారణంగా ముగుస్తుంది.
+
+> **గుర్తుంచుకోండి:** “Non-blocking” అంటే JavaScript పని కూడా parallel గా నడుస్తుందని కాదు. CPU ఎక్కువగా ఉపయోగించే JavaScript loop లేదా synchronous API ప్రధాన థ్రెడ్‌ను block చేస్తుంది; ఆ సమయంలో ఇతర Callbacks ఆలస్యమవుతాయి. CPU-intensive పనుల కోసం `worker_threads` లేదా వేరు process‌ను పరిగణించండి. Event Loop phases గురించి మరింత వివరాలకు [Timers & Event Loop](#19-timers--event-loop-1) అధ్యాయాన్ని చూడండి.
+>
+> Event Loop లో ఒకే సాధారణ Callback Queue ఉండదు: Timer, I/O, `setImmediate()` మరియు close Callbacks వేర్వేరు phases లో నిర్వహించబడతాయి. `Idle/Prepare` phases అంతర్గత libuv పనుల కోసం ఉంటాయి. Phase క్రమం లేదా timer processing ప్రవర్తన Node.js/libuv వెర్షన్‌ను బట్టి మారే వివరాలు ఉండవచ్చు.
 
 ---
 

@@ -1,24 +1,25 @@
 PLAN:
   - nodejs 
-    - nodejs/nodejs_tel.md 
-    - nodejs/expressJs_tel.md
-    - nodejs/jsCodingQuestions.md
-    - nodejs/nodejsQuestions.MD
-    - nodejs/nestjs/nestJs._tel.md
-    - nodejs/nestjs/nestjs_interview_questions_tel.md
-    - orm/typeORM_tel.md
+    - nodejs/nodejs_tel.md ==>  done
+    - nodejs/expressJs_tel.md ==> done
+    - nodejs/jsCodingQuestions.md ==> done
+    - nodejs/nodejsQuestions.md  ==> done
+    - nodejs/nestjs/nestJs._tel.md ==> Final Capstone Projects (PREPARE BEFORE THE INTERVIEWS )
+    - nodejs/nestjs/nestjs_interview_questions_tel.md ==> (PREPARE BEFORE THE INTERVIEWS )
+    - orm/typeORM_tel.md ==> STUDY THIS 
     - orm/prisma_orm.md
-    - typescript/typeScript_tel.md
+    - typescript/typeScript_tel.md ==>  done
+    - graphQl/graphQl_tel.md ==> 3 – Queries
     - testing/jest_tel.md
     - system_design/be_system_design_tel.md
     - system_design/micro-services_tel.md
 
 
   - reactjs
-    - react/reactjs_tel.md
-    - react/reactJs_interview_questions_tel.md
+    - react/reactjs_tel.md ==> done
+    - react/reactJs_interview_questions_tel.md ==> done
     - css/css_tel.md
-    - react/reactJsQuestions.MD
+    - react/reactJsCodingQuestions.md ==> done
     - system_design/fn_system_design_tel.md
     - system_design/micro-frontend_tel.md
     - css/mui_tel.md
@@ -26,7 +27,7 @@ PLAN:
 
 
   - database 
-    - db/postgres_tel.md
+    - db/postgres_tel.md ==> 7. Network Types (నెట్‌వర్క్ అడ్రస్‌లు)
     - db/postgres_features_tel.md
     - db/MySQL_basics.pdf
     - db/mongodb_tel.md
@@ -34,12 +35,14 @@ PLAN:
 
 
   - other 
-    - datadog/datadog_tel.md
+    - datadog/datadog_tel.md ==>  done
     - aws/aws_tel.md
     - data_structures/dataStructures.md
     - system_design/docker_tel.md
     - system_design/k8s_tel.md
-    - 
+    - system_design/ui_api_security_tel.md
+    - AI/ai_basics_tel.md ==> RAG (Retrieval-Augmented Generation)
+
 
 
 

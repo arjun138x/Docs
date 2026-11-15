@@ -1,6 +1,12 @@
 ffmpeg -i input.ac3 -acodec libmp3lame output.mp3
 
+moviebox-tui -> watch movies
 
+
+udemy course downloader
+--------------------------
+chmod +x Udeler_Setup-v1.14.0_linux-x86_64.AppImage
+./Udeler_Setup-v1.14.0_linux-x86_64.AppImage --no-sandbox
 
 sudo systemctl start elasticsearch
 
@@ -106,7 +112,13 @@ DOCKER COMMANDS
 
 
 
+NPM & NVM
+--------------------
+  - to update all the npm version in package.json
+    npx npm-check-updates -u
+    npm install   
 
+  - 
 
 
 

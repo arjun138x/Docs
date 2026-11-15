@@ -219,33 +219,21 @@ Learn
 Understand
 
 ```
-Master Node
-
-│
-
-├── API Server
-
-├── Scheduler
-
-├── Controller Manager
-
-└── etcd
-
-↓
-
-Worker Node
-
-↓
-
-Kubelet
-
-↓
-
-Container Runtime
-
-↓
-
-Pods
+Client (kubectl / CI)
+       │ Kubernetes API
+       ▼
+┌────────────── Control Plane ──────────────┐
+│ API Server ↔ etcd                        │
+│ Scheduler + Controllers (reconcile state) │
+└──────────────────┬────────────────────────┘
+                   │ API watches / assignments
+         ┌─────────┴─────────┐
+         ▼                   ▼
+   Worker Node           Worker Node
+   kubelet               kubelet
+   CRI runtime           CRI runtime
+   CNI / Pod network     CNI / Pod network
+   Pods                  Pods
 ```
 
 Know each component in detail.
@@ -1156,55 +1144,134 @@ Kubernetes ఇవన్నీ ఎలా చేస్తుందంటే దా
 
 ## Kubernetes Architecture
 
-Kubernetes ఆర్కిటెక్చర్ అనేది ఒక **'Brain and Body'** కాన్సెప్ట్ లాంటిది. ఇక్కడ Master Node అనేది "Brain" (నిర్ణయాలు తీసుకునేది), Worker Node అనేది "Body" (పని చేసేది).
+Kubernetes క్లస్టర్‌ను రెండు స్థాయిల్లో చూడండి: **Control Plane** అనేది క్లస్టర్ యొక్క desired state ను అంగీకరించి సమన్వయం చేస్తుంది; **Worker Nodes** ఆ state ను అమలు చేసి మీ Pods ను నడుపుతాయి. ఇది ఒకే సర్వర్‌లో ఉండాల్సిన నిర్మాణం కాదు—Production క్లస్టర్‌లో Control Plane కాంపోనెంట్లు సాధారణంగా High Availability కోసం పలువురు నోడ్‌లపై అమర్చబడతాయి.
 
-వీటిని విడివిడిగా అర్థం చేసుకుందాం:
+### పూర్తి ఆర్కిటెక్చర్ డయాగ్రామ్
 
----
+```text
+  Developer / CI
+       │  kubectl apply -f app.yaml  (HTTPS / Kubernetes API)
+       ▼
+┌──────────────────────────── Control Plane ───────────────────────────┐
+│                                                                      │
+│  ┌───────────────────────────────────────────────────────────────┐   │
+│  │ kube-apiserver                                                │   │
+│  │ AuthN → AuthZ → Admission → Validation / API operations       │   │
+│  └──────────────┬─────────────────────────────┬──────────────────┘   │
+│                 │ read / write               │ watch API objects     │
+│                 ▼                             ▼                      │
+│          ┌────────────┐          ┌─────────────────────────────┐     │
+│          │   etcd     │          │ Controllers                 │     │
+│          │ durable    │          │ Deployment / Node / Job ... │     │
+│          │ cluster    │          │ desired state ↔ actual state│     │
+│          │ state      │          └──────────────┬──────────────┘     │
+│          └────────────┘                         │ create Pod objects │
+│                                                 ▼                    │
+│                                   ┌─────────────────────────────┐    │
+│                                   │ kube-scheduler              │    │
+│                                   │ filter → score → bind Node  │    │
+│                                   └──────────────┬──────────────┘    │
+└──────────────────────────────────────────────────┼───────────────────┘
+                                                   │ Pod assigned to Node
+                             API watches / status  │
+             ┌────────────────────────────────────┴────────────────────┐
+             │                                                         │
+             ▼                                                         ▼
+┌──────────────────────── Worker Node A ───────────┐  ┌── Worker Node B ──┐
+│ kubelet                                          │  │ kubelet           │
+│   │ CRI (gRPC)                                   │  │   │ CRI           │
+│   ▼                                              │  │   ▼               │
+│ containerd / CRI-O → Pod sandboxes + containers  │  │ runtime → Pods    │
+│   │                                              │  │                   │
+│   ├─ CNI plugin: Pod interfaces / IP / routes    │  │ CNI plugin        │
+│   └─ CSI: attach / mount volumes (when needed)   │  │ CSI (if needed)   │
+│                                                  │  │                   │
+│ kube-proxy or an alternative Service dataplane   │  │ Service dataplane │
+└──────────────────────────────────────────────────┘  └───────────────────┘
+           │                           │
+           └──── Pod-to-Pod network ───┘
 
-### 1. Master Node (Control Plane - "మెదడు")
+External client → Load Balancer → Ingress / Gateway → Service → ready Pod endpoints
+                                      (controller)    (ClusterIP, etc.)
+```
 
-ఇది క్లస్టర్‌ను మొత్తం నియంత్రిస్తుంది. దీనిలో ఉండే ముఖ్యమైన భాగాలు:
+### Control Plane భాగాలు
 
-- **API Server (The Gatekeeper):** ఇది క్లస్టర్‌కు మెయిన్ ఎంట్రీ పాయింట్. మనం `kubectl` ద్వారా ఏ కమాండ్ ఇచ్చినా, అది ముందుగా API సర్వర్‌కే వెళ్తుంది. ఇది క్లస్టర్ లోపల ఉన్న ఇతర కాంపోనెంట్లతో కమ్యూనికేట్ అవుతుంది.
-- **etcd (The Database):** ఇది క్లస్టర్ యొక్క 'స్టోరేజ్'. క్లస్టర్ యొక్క ప్రస్తుత స్టేట్ (ఏ పాడ్ ఎక్కడ ఉంది, ఎన్ని నోడ్స్ ఉన్నాయి) మొత్తం ఈ కీ-వాల్యూ డేటాబేస్‌లో సేవ్ అవుతుంది.
-- **Scheduler (The Planner):** మీరు ఒక పాడ్‌ని క్రియేట్ చేయమని కోరినప్పుడు, ఏ Worker Node ఖాళీగా ఉందో చూసి, అక్కడ ఆ పాడ్‌ను షెడ్యూల్ చేసేది ఈ షెడ్యూలర్.
-- **Controller Manager (The Watchman):** ఇది క్లస్టర్‌లో అన్నీ అనుకున్నట్టు జరుగుతున్నాయా లేదా అని నిరంతరం గమనిస్తుంది. (ఉదా: 3 పాడ్స్ ఉండాలని సెట్ చేస్తే, నిజంగా 3 పాడ్స్ ఉన్నాయా లేదా అని చూస్తుంది. ఒకటి లేకపోతే కొత్తదాన్ని క్రియేట్ చేయమని చెప్తుంది).
+- **kube-apiserver:** క్లస్టర్ API కి ప్రధాన entry point. `kubectl`, controllers, scheduler, kubelet వంటి క్లయింట్లు API Server ద్వారానే Kubernetes objects చదవడం లేదా మార్చడం చేస్తాయి. ఇది authentication (ఎవరు?), authorization (ఏం చేయవచ్చు?), admission (ఈ మార్పును అనుమతించాలా?), validation వంటి దశలను అమలు చేసి, అవసరమైన మార్పులను etcd లో persist చేస్తుంది. Kubernetes లో వేరువేరు కాంపోనెంట్లు సాధారణంగా ఒకదానితో ఒకటి నేరుగా మాట్లాడకుండా API Server ను ఉపయోగిస్తాయి.
+- **etcd:** క్లస్టర్ state ను నిల్వ చేసే consistent, distributed key-value datastore. ఇందులో API objects యొక్క persisted state ఉంటుంది; ఇది container images లేదా application files నిల్వ చేసే చోటు కాదు. Production లో etcd backup, access control, encryption మరియు quorum/availability ముఖ్యమైనవి.
+- **kube-scheduler:** `nodeName` ఇంకా కేటాయించని కొత్త Pod కోసం సరిపోయే Node ను ఎంచుకుంటుంది. ముందుగా resource requests, node selectors/affinity, taints/tolerations వంటి నియమాలతో అభ్యర్థి Nodes ను filter చేసి, మిగిలిన వాటికి scoring చేసి ఎంపిక చేస్తుంది. ఆ తర్వాత API Server ద్వారా Pod కు Node assignment ను నమోదు చేస్తుంది. Scheduler స్వయంగా container ను start చేయదు.
+- **kube-controller-manager:** పలువురు controllers ను నడుపుతుంది. ప్రతి controller API objects ను watch చేసి **desired state** మరియు కనిపిస్తున్న **actual state** మధ్య తేడాను తగ్గించడానికి API మార్పులు చేస్తుంది. ఉదా: Deployment controller ReplicaSet ను నిర్వహిస్తుంది; ReplicaSet controller అవసరమైన సంఖ్యలో Pods ఉండేలా చూస్తుంది; Node controller Node పరిస్థితులను పర్యవేక్షిస్తుంది. Controllers సాధారణంగా kubelet కు నేరుగా “ఈ కంటైనర్‌ను start చేయి” అని చెప్పవు.
+- **cloud-controller-manager (ఉంటే):** Cloud provider-సంబంధిత పనులను—ఉదా. cloud load balancers, routes, లేదా node metadata—కోర్ Kubernetes controllers నుండి వేరు నిర్వహిస్తుంది. ఇది ప్రతి క్లస్టర్‌లో ఉండాల్సిందేనని కాదు.
 
----
+### Worker Node భాగాలు
 
-### 2. Worker Node (The Body - "పని చేసేవాడు")
+- **kubelet:** ప్రతి Node లో నడిచే agent. API Server నుండి Node-కి schedule అయిన Pod specification-లను గమనించి, అవసరమైన Pod ను నడపడానికి container runtime తో పని చేస్తుంది. Container status, readiness/liveness probe ఫలితాలు మరియు Node status ను తిరిగి report చేస్తుంది.
+- **Container runtime:** CRI (Container Runtime Interface) ద్వారా kubelet తో మాట్లాడి container lifecycle ను నిర్వహిస్తుంది. సాధారణ runtime ఉదాహరణలు `containerd`, `CRI-O`. Docker Engine ను నేరుగా runtime గా వాడిన పాత పద్ధతి ఇప్పుడు సాధారణం కాదు; Docker-built images మాత్రం OCI image format ద్వారా సాధారణంగా పనిచేస్తాయి.
+- **kube-proxy / Service dataplane:** Service traffic ను సరైన Pod endpoints కు మళ్లించే network rules అమలు చేయడంలో kube-proxy సాధారణంగా ఉపయోగపడుతుంది. కొన్ని క్లస్టర్లలో CNI లేదా eBPF ఆధారిత ప్రత్యామ్నాయం ఈ పనిని నిర్వహించవచ్చు; అందువల్ల ప్రతి క్లస్టర్‌లో kube-proxy తప్పనిసరిగా ఉంటుందని అనుకోకూడదు.
+- **CNI plugin:** Pod networking ను అమలు చేస్తుంది—Pod interfaces/IP, Node మధ్య routing, మరియు అమలు ఆధారంగా NetworkPolicy enforcement. Kubernetes స్వయంగా ఒక నిర్దిష్ట CNI ను ఎంచుకోదు; క్లస్టర్ అమరికను బట్టి Calico, Cilium, Flannel వంటి plugin ఉండవచ్చు.
+- **CSI driver:** అవసరమైనప్పుడు PersistentVolume ను provision, attach లేదా mount చేయడానికి Storage వ్యవస్థతో అనుసంధానమవుతుంది.
+- **Pods:** Scheduling మరియు deployment జరిగే అతి చిన్న యూనిట్. ఒక Pod లోని containers network namespace/IP ను పంచుకుంటాయి; సాధారణంగా `localhost` ద్వారా ఒకదానితో ఒకటి మాట్లాడగలవు.
+- **Cluster add-ons:** CoreDNS వంటి DNS service సాధారణంగా Pods ను Service పేర్లను resolve చేయనిస్తుంది. CNI, CSI, Ingress/Gateway controllers, metrics వంటి add-ons క్లస్టర్ అమరికను బట్టి ఉంటాయి; ఇవన్నీ Kubernetes core Control Plane లో భాగాలు కావు.
 
-ఇక్కడే అసలైన అప్లికేషన్లు (Pods) రన్ అవుతాయి. ఇందులో ఉండేవి:
+### `kubectl apply` నుండి Running Pod వరకు — Control Loop
 
-- **Kubelet (The Agent):** ఇది ప్రతి వర్కర్ నోడ్‌లో ఉంటుంది. API సర్వర్ నుండి వచ్చే ఆదేశాలను ఇది స్వీకరిస్తుంది. అంటే, "ఈ పాడ్ ఇక్కడ రన్ అవ్వాలి" అని మాస్టర్ చెప్తే, దాన్ని అమల్లోకి తెచ్చేది Kubelet. ఇది Pods ఆరోగ్యంగా ఉన్నాయో లేదో చూసి మాస్టర్‌కి రిపోర్ట్ ఇస్తుంది.
-- **Container Runtime:** కంటైనర్లను నడపడానికి కావాల్సిన సాఫ్ట్‌వేర్. (ఉదా: Docker, containerd, CRI-O). ఇది ఇమేజ్‌ని డౌన్‌లోడ్ చేసి కంటైనర్‌ను రన్ చేస్తుంది.
-- **Pods:** ఇది Kubernetes లో అతి చిన్న యూనిట్. ఒక పాడ్ లోపల ఒకటి లేదా అంతకంటే ఎక్కువ కంటైనర్లు ఉంటాయి.
+```text
+1. kubectl / CI
+      │ Manifest: Deployment, replicas=3, image=...
+      ▼
+2. API Server ── authenticate / authorize / admit / validate
+      │
+      ├── persist object ──► etcd
+      │
+      ▼
+3. Deployment Controller observes Deployment
+      │ creates/updates ReplicaSet
+      ▼
+4. ReplicaSet Controller observes replica count
+      │ creates Pod objects (initially without a Node)
+      ▼
+5. Scheduler filters + scores Nodes
+      │ writes Pod-to-Node binding through API Server
+      ▼
+6. Chosen Node's kubelet observes assigned Pod
+      │ asks runtime via CRI; image pull / sandbox / containers
+      │ CNI configures network; CSI mounts storage if requested
+      ▼
+7. kubelet reports Pod status ──► API Server ──► etcd
+      │
+      └── Controllers keep reconciling; if a Pod is lost,
+          a replacement Pod object is created to restore replicas
+```
 
----
+1. Manifest లో మీరు **ఏం కావాలి** (ఉదా. మూడు replicas) అని ప్రకటిస్తారు; `kubectl apply` ఆ object ను API Server కు పంపుతుంది.
+2. API Server request ను తనిఖీ చేసి, అనుమతిస్తే object state ను etcd లో save చేస్తుంది. ఇది “అన్ని పనులు పూర్తయ్యాయి” అనే అర్థం కాదు—ఇది desired state నమోదు అయిన దశ.
+3. Deployment మరియు ReplicaSet controllers తమ watches ద్వారా మార్పును గమనించి, అవసరమైన Pod objects ను సృష్టిస్తాయి. Controllers నిరంతరం reconcile చేస్తాయి; ఒక పెద్ద command ను ఒక్కసారి అమలు చేసి ఆగిపోవు.
+4. Scheduler ఇంకా Node కేటాయించని Pods ను గమనించి తగిన Node ను ఎంచుకుంటుంది. సరిపడా resource లేదా constraints కు సరిపోయే Node లేకపోతే Pod `Pending` లో ఉండవచ్చు.
+5. ఆ Node లోని kubelet API Server ద్వారా Pod assignment ను గమనించి, runtime కు CRI ద్వారా containers ను సృష్టించమని చెబుతుంది. అవసరాన్ని బట్టి CNI network ను, CSI storage ను అమర్చుతాయి.
+6. kubelet health/status ను నివేదిస్తుంది. Controller loops desired state ను కొనసాగిస్తూ, Node లేదా Pod విఫలమైతే recovery ప్రయత్నిస్తాయి. Recovery సమయం, storage/network స్థితి మరియు failure రకాన్ని బట్టి మారుతుంది.
 
-### క్లుప్తంగా ఎలా పనిచేస్తాయి? (Workflow)
+### Application Traffic ఎలా చేరుతుంది?
 
-1. మీరు `kubectl` ద్వారా ఒక పాడ్‌ను రన్ చేయమంటారు.
-2. **API Server** ఈ రిక్వెస్ట్‌ని తీసుకొని **etcd** లో సేవ్ చేస్తుంది.
-3. **Scheduler** ఏ వర్కర్ నోడ్ ఖాళీగా ఉందో చూస్తుంది.
-4. **Kubelet** ఆ నోడ్‌లో ఉన్న **Container Runtime** ని ఆదేశిస్తుంది.
-5. **Container Runtime** ఇమేజ్‌ని తీసుకొని **Pod** ని స్టార్ట్ చేస్తుంది.
-6. **Controller Manager** ఆ పాడ్ రన్ అవుతుందో లేదో ఎప్పుడూ గమనిస్తూనే ఉంటుంది.
+`Service` ఒక స్థిరమైన virtual endpoint/name ను అందించి, label selector / EndpointSlice ద్వారా ready Pods ను గుర్తిస్తుంది. ClusterIP Service traffic ను kube-proxy లేదా ప్రత్యామ్నాయ Service dataplane అందుబాటులో ఉన్న endpoints కు మళ్లిస్తుంది. Cluster లోని DNS సాధారణంగా Service పేరు resolve చేయడానికి CoreDNS ను ఉపయోగిస్తుంది.
 
----
+బయటి HTTP/HTTPS traffic కోసం సాధారణంగా:
 
-### ఒక సింపుల్ అనాలజీ:
+```text
+Client → External Load Balancer → Ingress / Gateway implementation
+       → Service virtual endpoint → ready Pod endpoint
+```
 
-- **Master Node** = ఒక సాఫ్ట్‌వేర్ కంపెనీలోని **Manager**.
-- **API Server** = **Receptionist** (అందరితో మాట్లాడతారు).
-- **etcd** = **Company Records** (సమాచారం మొత్తం ఇక్కడే).
-- **Scheduler** = **HR** (ఎవరు ఏ పని చేయాలో కేటాయిస్తారు).
-- **Worker Node** = **Employee** (పని చేసేవారు).
-- **Kubelet** = **Employee's Monitor** (మేనేజర్ చెప్పిన పనిని కచ్చితంగా చేస్తారు).
-- **Container/Pod** = **The actual work/Project**.
+**Ingress** మరియు **Gateway API** నియమాలు మాత్రమే; వాటిని అమలు చేసే Ingress/Gateway controller మరియు అవసరమైన load balancer విడిగా ఉండాలి. ప్రతి Service కు Ingress తప్పనిసరి కాదు; `LoadBalancer`, `NodePort`, లేదా internal-only Service వంటి అవసరాన్ని బట్టి exposure మారుతుంది.
 
-ఈ ఆర్కిటెక్చర్ అర్థమైతే, Kubernetes లో ట్రబుల్ షూటింగ్ చేయడం చాలా సులభం అవుతుంది. ఇందులో మీకు ఏదైనా పాయింట్ దగ్గర సందేహం ఉందా? లేక తదుపరి అంశం "Objects (Pods, Deployments, Services)" లోకి వెళ్దామా?
+### Advanced గా గుర్తుంచుకోవాల్సిన విషయాలు
+
+- Kubernetes **declarative**: మీరు desired state ను API లో ఉంచుతారు; controllers actual state ను దానికి దగ్గర చేయడానికి ప్రయత్నిస్తాయి. ఇది control loop, ఒకసారి జరిగే imperative script కాదు.
+- Control Plane మరియు application data plane వేర్వేరు పనులు చేస్తాయి. API Server/scheduler/control loops నిర్వహణకు; Node runtime మరియు network dataplane app Pods, traffic నిర్వహణకు.
+- `kubelet` ప్రతి Node లో ఉంటుంది; API Server, scheduler, controller manager, etcd ఇవి Control Plane పాత్రలు. Managed Kubernetes లో provider Control Plane ను నిర్వహించవచ్చు.
+- High Availability అమరికలో సాధారణంగా API Server instances కు stable endpoint/load balancer ఉంటుంది; `etcd` quorum కోసం majority members అందుబాటులో ఉండాలి. కాబట్టి `etcd` backup మరియు restore ప్రక్రియను వేరుగా ప్రణాళిక చేయాలి.
+- సాధారణంగా kubelet API Server ను చేరి తన Node/Pod స్థితిని సమన్వయం చేస్తుంది. కొన్ని operations (ఉదా. `kubectl exec`, logs, port-forward) కోసం Control Plane నుండి Node వైపు kubelet endpoint కు కనెక్టివిటీ కూడా అవసరం కావచ్చు.
+- CSI అనేది ఒకే Node component కాదు: storage implementation లో controller-side మరియు node-side plugins ఉండవచ్చు. Node-side భాగం volume ను mount చేయడంలో సహాయపడుతుంది; provisioning/attach వంటివి driver మరియు storage backend పై ఆధారపడతాయి.
+- Kubernetes architecture లో ప్రతి component ఎక్కడ ఉందో తెలుసుకోవడం troubleshooting కు ఉపయోగపడుతుంది: Pod `Pending` అయితే scheduler/events/resources చూడండి; image pull లేదా container start అయితే kubelet/runtime; Service reachability అయితే endpoints, DNS, CNI మరియు Service dataplane ను పరిశీలించండి.
 
 ---
 
@@ -3077,18 +3144,12 @@ Kubernetes ఇంటర్వ్యూలలో అడిగే ప్రాథ�
 
 ### Kubernetes Architecture (క్లస్టర్ ఎలా పనిచేస్తుంది?)
 
-క్లస్టర్‌లో రెండు ప్రధాన భాగాలు ఉంటాయి:
+వివరణాత్మక డయాగ్రామ్, Control Plane మరియు Worker Node భాగాలు, అలాగే `kubectl apply` నుండి Pod నడిచే వరకు Control Loop కోసం పై [Kubernetes Architecture](#kubernetes-architecture-1) విభాగాన్ని చూడండి.
 
-- **Control Plane (Master Node):** ఇది క్లస్టర్‌కి "మెదడు".
-- **kube-apiserver:** క్లస్టర్ యొక్క కమ్యూనికేషన్ పాయింట్. మనం ఇచ్చే `kubectl` కమాండ్స్ అన్నీ దీని ద్వారానే వెళ్తాయి.
-- **etcd:** క్లస్టర్ యొక్క 'స్టేట్' (డేటా) మొత్తం ఇందులో స్టోర్ అవుతుంది (కీ-వాల్యూ స్టోర్).
-- **kube-scheduler:** ఏ పాడ్ ఏ నోడ్ మీద రన్ అవ్వాలో ఇది నిర్ణయిస్తుంది.
-- **kube-controller-manager:** క్లస్టర్ యొక్క స్థితిని ఎప్పుడూ కాపాడటం (ఉదా: పాడ్ పడిపోతే కొత్తది క్రియేట్ చేయడం).
-
-- **Worker Nodes:** ఇక్కడ మన అప్లికేషన్ పాడ్స్ రన్ అవుతాయి.
-- **kubelet:** ప్రతి నోడ్ మీద ఉండే ఏజెంట్. కంట్రోల్ ప్లేన్ చెప్పినట్లు పాడ్స్ రన్ చేస్తుంది.
-- **kube-proxy:** క్లస్టర్ లోని నెట్‌వర్కింగ్ మరియు ట్రాఫిక్ రూలింగ్ చూసుకుంటుంది.
-- **Container Runtime:** (Docker, containerd) కంటైనర్లను రన్ చేస్తుంది.
+- **Control Plane:** `kube-apiserver` API అభ్యర్థనలను పరిశీలించి, state ను `etcd` లో persist చేస్తుంది. Scheduler Pods కు Node ఎంపిక చేస్తుంది; Controllers desired state ను నిరంతరం reconcile చేస్తాయి.
+- **Worker Node:** `kubelet` API లో తనకు కేటాయించిన Pods ను గమనించి, CRI ద్వారా `containerd` లేదా `CRI-O` వంటి runtime తో containers ను నడిపిస్తుంది. CNI Pod networking ను అందిస్తుంది.
+- **Service traffic:** `kube-proxy` లేదా దానికి బదులుగా అమర్చిన Service dataplane Service ను Pod endpoints కు మళ్లిస్తుంది.
+- Kubernetes కంటైనర్ image లను నడుపుతుంది; `etcd` లో cluster object state నిల్వ అవుతుంది. రెండూ వేర్వేరు పనులు.
 
 ---
 

@@ -1,5 +1,17 @@
 # Material UI (MUI) Roadmap (2026) – Beginner to Expert
 
+
+```mermaid
+mindmap
+  root((Material UI MUI Roadmap 2026 – Beginner to Expert))
+    1. Prerequisites
+    2. Introduction to Material UI
+    What is Material UI?
+    3. Typography
+    4. Layout Components
+    Box
+    Container
+```
 If you're a **React.js developer**, learning **Material UI (MUI)** is one of the fastest ways to build modern, responsive, and accessible applications.
 
 ---

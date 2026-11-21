@@ -4,6 +4,18 @@ OWASP's current web-app guidance is the **OWASP Top 10:2025**, while the dedicat
 
 # 🔐 Web Security Roadmap — UI + API
 
+
+```mermaid
+mindmap
+  root((🔐 Web Security Roadmap — UI + API))
+    1. First understand the attack surface
+    2. UI / Frontend Attacks
+    A. XSS — Cross-Site Scripting
+    3. CSRF — Cross-Site Request Forgery
+    4. Clickjacking
+    5. UI Authentication Problems
+    6. Don't Trust Frontend Authorization
+```
 ![Image](https://images.openai.com/static-rsc-4/rbQF9mcWKRwta4lu5Zi-JOAda0e7-GLoIYHRKxHEoX948ZBBcjxYkWAVVFS26bqfQkL25u4EI40J3-0oFuczEMtR0PA83nR5QolDVBYD9Pbo4edtbFUnUSb4sMFIJ6XNjPiaAwnAFvFe2nz_NnQ18h3PFxtyAmUX3uXsTSc0O7HNCBdhNyAQGyalD7SEAK0z?purpose=fullsize)
 
 ![Image](https://images.openai.com/static-rsc-4/-7FSPx0OpaiHlO5H6XjPhcArjI3TQdm6trbk5mvlK-Ziiadyozbb9RLFyNUq0KM7QyegimP90sfjs_B2F-STMtARjbaPcAF6SzLrm5ke03VryZXTP3qoq_m84V-18N3uUA5w7TMnNobTdjG5MOXvFXJpABhM7yFFok-IvNSKLeVjECHShunPbXBRAoFmpogA?purpose=fullsize)

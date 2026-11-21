@@ -1,5 +1,17 @@
 # Guess the output?
 
+
+```mermaid
+mindmap
+  root((Guess the output?))
+    Why Maximum update depth exceeded error is throwing for be
+    What is the value of count after clicking the Increment bu
+    What is the log sequence after clicking of Toggle Effect b
+    Explain the code?
+    Before rendering the component i need to call the computeC
+    1. useEffect & useLayoutEffect With differences and code e
+    2. useRef, useMemo, useCallback in React
+```
 ## Why `Maximum update depth exceeded` error is throwing for below code? Why it won't throw error if we wrap with `setTimeout`.
 
 ```js

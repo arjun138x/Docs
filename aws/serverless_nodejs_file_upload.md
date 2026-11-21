@@ -1,5 +1,17 @@
 # 🚀 **AWS Serverless With Node.js – Complete Explanation + DLD + LLD**
 
+
+```mermaid
+mindmap
+  root((🚀 AWS Serverless With Node.js – Complete Explanation + DLD))
+    🟦 What is AWS Serverless?
+    🟩 📌 Real-Time Use-case Example
+    🟧 1️⃣ HLD – High-Level Design
+    🟧 📘 HLD Diagram Explanation
+    🟩 2️⃣ LLD – Low-Level Design
+    📂 Folder Structure
+    🟧 LLD: serverless.yml
+```
 ## 🟦 **What is AWS Serverless?**
 
 AWS Serverless allows you to build and run applications **without managing servers**. You deploy small, event-driven components like Lambda, API Gateway, DynamoDB, SQS, SNS, S3, etc.

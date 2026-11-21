@@ -218,6 +218,18 @@ If your goal is to become a **frontend developer**, the ideal learning path is:
 
 # 1. CSS Fundamentals
 
+
+```mermaid
+mindmap
+  root((1. CSS Fundamentals))
+    2. Colors & Units
+    3. Text & Fonts
+    4. Box Model
+    5. Backgrounds
+    6. Display & Positioning
+    7. Flexbox
+    8. CSS Grid
+```
 ఖచ్చితంగా! CSS ఫండమెంటల్స్ గురించి సులభంగా అర్థమయ్యేలా ఇక్కడ వివరించాను.
 
 ---

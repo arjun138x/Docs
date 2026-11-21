@@ -1,5 +1,10 @@
 # Links for videos
 
+
+```mermaid
+mindmap
+  root((Links for videos))
+```
 ### [React Hooks in ONE Shot 2025 [ EASIEST Explanation ] | React JS Tutorial ](https://www.youtube.com/watch?v=HnXPKtro4SM&t=1942s)
 
 Topics Covered in This Tutorial

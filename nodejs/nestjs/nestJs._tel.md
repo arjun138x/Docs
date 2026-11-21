@@ -1,5 +1,17 @@
 # NestJS Expert Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((NestJS Expert Roadmap 2026))
+    1 - TypeScript Mastery Mandatory
+    2 - NestJS Fundamentals
+    3 - Dependency Injection Deep Dive
+    4 - Request Lifecycle
+    5 - Validation
+    6 - Authentication
+    7 - Authorization
+```
 ## [1 - TypeScript Mastery (Mandatory)](#1---typescript-mastery-mandatory-1)
 
 Before NestJS, become very comfortable with TypeScript.

@@ -1,5 +1,17 @@
 # NestJS Interview Questions (Expert Roadmap)
 
+
+```mermaid
+mindmap
+  root((NestJS Interview Questions Expert Roadmap))
+    1. Introduction to NestJS
+    2. Project Structure
+    3. Modules
+    4. Controllers
+    5. Providers & Services
+    6. Dependency Injection
+    7. Middleware
+```
 Below is a comprehensive list of **NestJS interview questions only**, organized by topic, from beginner to expert.
 
 ---

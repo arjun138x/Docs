@@ -293,6 +293,18 @@ These 25 core questions cover the topics most frequently asked in React intervie
 
 # 1. What is React?
 
+
+```mermaid
+mindmap
+  root((1. What is React?))
+    2. What is Virtual DOM?
+    3. What is JSX?
+    4. Explain Components in React.
+    5. What are Props?
+    6. What is State?
+    7. Difference between Props and State.
+    8. What are React Hooks?
+```
 ---
 
 ### 1. React అంటే ఏమిటి? (What is React?)

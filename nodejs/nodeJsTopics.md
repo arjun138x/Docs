@@ -4,6 +4,18 @@ Node.js is a vast topic, covering backend development, server-side scripting, an
 
 # **1. Introduction to Node.js**
 
+
+```mermaid
+mindmap
+  root((1. Introduction to Node.js))
+    2. Node.js Fundamentals
+    Node.js Global Objects
+    Node.js Modules
+    Core Modules
+    Importing & Exporting Modules
+    Node.js REPL Read-Eval-Print Loop
+    3. File System fs Module
+```
 - What is Node.js?
 - Features of Node.js
 - How Node.js works (Single-threaded, Event Loop, Non-blocking I/O)

@@ -6,6 +6,18 @@ I'll explain it from **power button pressed → Node.js application running** in
 
 # Complete Computer Flow
 
+
+```mermaid
+mindmap
+  root((Complete Computer Flow))
+    1. What is Hardware?
+    2. Motherboard అంటే ఏమిటి?
+    3. CPU అంటే ఏమిటి?
+    CPU లోపల ఏముంటుంది?
+    ALU Arithmetic Logic Unit
+    Registers
+    CPU Cache
+```
 ```text
                 Power Button
                      │

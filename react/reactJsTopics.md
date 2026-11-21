@@ -2,6 +2,18 @@ React.js covers a wide range of topics, from the basics to advanced concepts. He
 
 # **1. Fundamentals**
 
+
+```mermaid
+mindmap
+  root((1. Fundamentals))
+    2. React Core Concepts
+    3. State Management
+    1. React Context API
+    2. Redux Actions, Reducers, Store
+    3. Redux Toolkit RTK
+    4. Zustand, Recoil, Jotai Alternative State Management
+    4. React Router
+```
 - What is React?
 - JSX (JavaScript XML)
 - Components (Functional & Class Components)

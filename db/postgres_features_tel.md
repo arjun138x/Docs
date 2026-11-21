@@ -6,6 +6,35 @@ PostgreSQL అనేది ప్రపంచంలోనే అత్యంత 
 
 ## భాగం 1: PostgreSQL ముఖ్యమైన ఫీచర్లు (1 - 55)
 
+```mermaid
+mindmap
+  root((PostgreSQL))
+    ACID & MVCC
+    Advanced Data Types
+      JSONB
+      Arrays
+      UUID
+      Geometric
+    Indexing
+      B-Tree
+      GIN
+      GiST
+      BRIN
+    Scalability
+      Partitioning
+      Replication
+      Connection Pooling
+    Extensibility
+      Extensions
+      Custom Types
+      Stored Procedures
+    Operations
+      PITR
+      WAL
+      VACUUM
+      EXPLAIN
+```
+
 ### 1. ఆబ్జెక్ట్-రిలేషనల్ డేటాబేస్ (Object-Relational Database)
 సాధారణ SQL డేటాబేస్‌లలా కాకుండా, Postgres ఒక Object-Relational డేటాబేస్. అంటే ఇది సాంప్రదాయ టేబుల్స్‌తో పాటు, Object-Oriented Programming (OOP) కాన్సెప్ట్‌లను కూడా సపోర్ట్ చేస్తుంది.
 * **Table Inheritance:** ఒక టేబుల్ ఫీచర్లను మరొక టేబుల్‌లోకి వారసత్వంగా (Inherit) తెచ్చుకోవచ్చు.
@@ -19,6 +48,21 @@ Postgres కేవలం నంబర్లు, టెక్స్ట్‌ల�
 * **Other Types:** `UUID`, `XML`, `ARRAY` (ఒకే కాలమ్‌లో మల్టిపుల్ వాల్యూస్ స్టోర్ చేయడానికి).
 
 ### 3. కాన్‌కరెన్సీ మరియు MVCC (Concurrency & MVCC)
+
+```mermaid
+sequenceDiagram
+    participant TX1 as Transaction A
+    participant PG as PostgreSQL MVCC
+    participant TX2 as Transaction B
+
+    TX1->>PG: UPDATE row
+    PG->>PG: Create new row version
+    TX2->>PG: SELECT row
+    PG-->>TX2: Return version visible under its snapshot
+    TX1->>PG: COMMIT
+    TX2->>PG: Continue reading consistent snapshot
+```
+
 చాలా మంది యూజర్లు ఒకే సమయంలో డేటాను రీడ్ మరియు రైట్ చేస్తున్నప్పుడు డేటాబేస్ స్లో అవ్వకుండా ఉండటానికి Postgres **Multi-Version Concurrency Control (MVCC)** ని ఉపయోగిస్తుంది.
 * దీని వల్ల ఒకరు డేటాను అప్‌డేట్ చేస్తున్నప్పుడు (Write), మరొకరు ఆ డేటాను ఎలాంటి అభ్యంతరం లేకుండా చదువుకోవచ్చు (Read). ఒకరి పనిని మరొకరు లాక్ (Lock) చేయరు.
 
@@ -204,12 +248,25 @@ Write-Ahead Logs (WAL) ఫైల్స్ సైజ్ పెరిగిపో�
 * **MongoDB:** సొంత **MQL (MongoDB Query Language)** మరియు Aggregation Pipelines వాడుతుంది. ఇది పూర్తిగా JSON స్టైల్‌లో ఉంటుంది.
 
 ### 3. స్కేలబిలిటీ (Scalability)
+
+```mermaid
+flowchart LR
+    subgraph Relational[PostgreSQL]
+        PG[(Postgres Primary)] <--> Standby[(Standby / Replica)]
+        PG -.-> Vertical[Vertical scaling]
+    end
+    subgraph Document[MongoDB]
+        Router[Mongos] --> S1[(Shard 1)]
+        Router --> S2[(Shard 2)]
+        Router --> Config[(Config Server)]
+    end
+```
 * **PostgreSQL:** ప్రధానంగా **Vertical Scaling** (CPU/RAM పెంచడం). ఎక్స్‌టెన్షన్స్ ద్వారా హారిజాంటల్ స్కేలింగ్ చేయవచ్చు కానీ కాంప్లెక్స్.
 * **MongoDB:** మొదటి నుండి **Horizontal Scaling** కోసం డిజైన్ చేయబడింది. ఇన్-బిల్ట్ **Sharding** ద్వారా డేటాను వందలాది సర్వర్లలోకి విభజించగలదు.
 
 ### 4. ACID కంప్లయన్స్
 * **PostgreSQL:** 100% పటిష్టమైన ACID రూల్స్ పాటిస్తుంది. బ్యాంకింగ్, ఫైనాన్స్ రంగానికి మొదటి ప్రాధాన్యత.
-* **MongoDB:** ఇప్పుడు ట్రాన్సాక్షన్స్ సపోర్ట్ చేస్తుంది, కానీ భారీ లోడ్ ఉన్నప్పుడు స్పీడ్ కోసం Eventual Consistency వైపు మొగ్గు చూపుతుంది.
+* **MongoDB:** Replica Set-లో majority write/read concern మరియు transactional sessions సపోర్ట్ చేస్తుంది. Read preference మరియు write concern ఆధారంగా consistency/performance మధ్య ఎంపిక చేయవచ్చు; distributed deploymentsలో network latency మరియు replication lag కూడా పరిగణించాలి.
 
 ### ముఖ్యాంశాల పోలిక పట్టిక (Comparison Table)
 

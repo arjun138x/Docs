@@ -13,6 +13,18 @@ It means _you don’t manage servers_ — AWS automatically handles:
 
 # 🏗️ **Key AWS Serverless Services (Complete List for Backend Developers)**
 
+
+```mermaid
+mindmap
+  root((🚀 What is Serverless? Simple Definition))
+    🏗️ Key AWS Serverless Services Complete List for Backend D
+    🔍 Comparing Serverless vs Server-Based – Clear Table
+    📦 Real-World Examples Serverless Patterns
+    🧩 When NOT to use Serverless
+    🎯 Summary Easy to Remember
+    🏗️ Architecture diagrams for each pattern
+    🏗️ 1️⃣ Serverless REST API Architecture
+```
 We will group them into categories:
 
 ---

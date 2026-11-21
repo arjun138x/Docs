@@ -66,6 +66,18 @@ This structured, 5-phase roadmap takes you from foundational messaging concepts 
 
 # 1: Foundations & Core Concepts
 
+
+```mermaid
+mindmap
+  root((Phase 1: Foundations & Core Concepts))
+    Phase 2: Messaging Patterns & Exchanges
+    Phase 3: Reliability & Message Guarantees
+    Phase 4: Advanced Architecture & Tuning
+    Phase 5: Production Operations & DevOps
+    Code example nodejs
+    1: Foundations & Core Concepts
+    1. Core Mental Model మొథటి భావన
+```
 RabbitMQ నేర్చుకోవడానికి **Phase 1 (Foundations & Core Concepts)** చాలా ముఖ్యం. ఇది దీనికి పునాది లాంటిది. మీరు ఇచ్చిన టాపిక్స్ ని తెలుగులో చాలా సులభంగా, రియల్-వరల్డ్ ఉదాహరణలతో అర్థం చేసుకుందాం!
 
 ---

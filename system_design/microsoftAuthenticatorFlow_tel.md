@@ -1,5 +1,17 @@
 # Microsoft Authenticator ఎలా పనిచేస్తుంది? (React UI నుండి AWS API Gateway వరకు)
 
+
+```mermaid
+mindmap
+  root((Microsoft Authenticator ఎలా పనిచేస్తుంది? React UI నుండి A))
+    మొత్తం Flow
+    Step 1: User React Application Open చేస్తాడు
+    Step 2: User Login Button Click చేస్తాడు
+    Step 3: User Username Enter చేస్తాడు
+    Step 4: Password Enter చేస్తాడు
+    Step 5: Microsoft Authenticator Approval
+    Step 6: Azure Tokens Generate చేస్తుంది
+```
 మీరు **React UI → AWS API Gateway → Lambda → Backend** అప్లికేషన్‌ను నిర్మిస్తున్నారని, అలాగే **Microsoft Authenticator** ఉపయోగిస్తున్నారని అనుకుందాం.
 
 సాధారణంగా రెండు విధాలుగా Microsoft Authenticator ఉపయోగిస్తారు:

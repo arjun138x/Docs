@@ -6,6 +6,18 @@ Below is a roadmap of array problems from beginner to advanced, along with the a
 
 # Level 1 – Easy (Basics)
 
+
+```mermaid
+mindmap
+  root((Level 1 – Easy Basics))
+    1. Find Maximum Element
+    2. Find Minimum Element
+    3. Sum of Array
+    4. Average of Array
+    5. Count Even Numbers
+    6. Reverse an Array
+    7. Check if Array is Sorted
+```
 ## 1. Find Maximum Element
 
 **Problem**

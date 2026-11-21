@@ -843,6 +843,18 @@ Be ready to answer questions on:
 
 # Recommended Learning Order (12 Weeks)
 
+
+```mermaid
+mindmap
+  root((1. Fundamentals Must Know))
+    2. Why Micro Frontends?
+    3. Micro Frontend Architecture
+    4. Different Micro Frontend Approaches
+    5. Webpack Module Federation
+    6. React Integration
+    7. Routing
+    8. State Management
+```
 | Week | Topics                                                                                  |
 | ---- | --------------------------------------------------------------------------------------- |
 | 1    | Micro-Frontend fundamentals, architecture, and use cases                                |

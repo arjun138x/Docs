@@ -397,6 +397,18 @@ Given your experience, you could also prepare for the AWS Certified Developer �
 
 # 1. AWS Fundamentals
 
+
+```mermaid
+mindmap
+  root((1. AWS Fundamentals))
+    2. Identity & Security
+    3. Compute Services
+    4. Networking
+    5. Storage
+    6. Database Services
+    7. Load Balancing
+    8. CDN
+```
 మనం మొదటి టాపిక్ అయిన **AWS Fundamentals** (క్లౌడ్ బేసిక్స్) నుండి ప్రారంభించి, మీరు ఇచ్చిన లిస్ట్‌లోని ప్రతి పాయింట్‌ను తెలుగులో చాలా సులభంగా అర్థం చేసుకుందాం.
 
 ---

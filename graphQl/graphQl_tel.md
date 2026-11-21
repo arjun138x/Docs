@@ -6,6 +6,18 @@ Here's a **complete GraphQL Roadmap (2026)** from beginner to advanced.
 
 # GraphQL Roadmap
 
+
+```mermaid
+mindmap
+  root((GraphQL Roadmap))
+    1 – GraphQL Fundamentals
+    Learn
+    2 – GraphQL Schema
+    3 – Queries
+    4 – Mutations
+    5 – Resolvers
+    6 – Variables
+```
 ```
 1. GraphQL Basics
         ↓

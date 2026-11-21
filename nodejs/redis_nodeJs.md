@@ -4,6 +4,18 @@ Since you're learning **Node.js, NestJS, AWS Serverless, PostgreSQL, and System 
 
 # Redis అంటే ఏమిటి?
 
+
+```mermaid
+mindmap
+  root((Redis అంటే ఏమిటి?))
+    ఎందుకు Redis అవసరం?
+    Redis ఉపయోగిస్తే?
+    Cache అంటే ఏమిటి?
+    Redis ఎలా పని చేస్తుంది?
+    Node.js Flow
+    Example Flow
+    Node.js Example
+```
 **Redis (Remote Dictionary Server)** అనేది ఒక **In-Memory Data Store**.
 
 సాధారణ Database (PostgreSQL, MySQL) లో Data **Disk (SSD/HDD)** లో Store అవుతుంది.

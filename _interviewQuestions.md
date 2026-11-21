@@ -1,5 +1,17 @@
 # Node.js Interview Questions – Answers
 
+
+```mermaid
+mindmap
+  root((Node.js Interview Questions – Answers))
+    🔹 Core Concepts
+    🔹 Performance & Scalability
+    🔹 Error Handling & Security
+    🔹 Real-World Scenarios
+    React.js Interview Questions – Answers
+    🔹 Fundamentals
+    🔹 Hooks Very Important
+```
 ## 🔹 Core Concepts
 
 ### ✅ What is the Node.js event loop? Explain all phases.

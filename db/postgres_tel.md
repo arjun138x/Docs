@@ -2,6 +2,18 @@
 
 # PostgreSQL Complete Study Roadmap
 
+```mermaid
+flowchart LR
+    Client[SQL Client / Application] --> Server[PostgreSQL Server]
+    Server --> Parser[Parser]
+    Parser --> Planner[Planner / Optimizer]
+    Planner --> Executor[Executor]
+    Executor --> Buffer[Shared Buffers]
+    Buffer --> Disk[(Heap / Index / WAL)]
+    Executor --> Result[Result Set]
+    Result --> Client
+```
+
 ## [1. Introduction](#1-introduction-1)
 
 - What is PostgreSQL?
@@ -2824,6 +2836,22 @@ CREATE INDEX idx_email_cover_status ON users(email) INCLUDE (status);
 
 # 17. Query Optimization
 
+```mermaid
+flowchart LR
+    SQL[SQL statement] --> Parse[Parser]
+    Parse --> Plan[Query planner]
+    Plan --> Stats[Table statistics / ANALYZE]
+    Stats --> Choices{Scan strategy}
+    Choices --> Seq[Sequential scan]
+    Choices --> Index[Index scan]
+    Choices --> Bitmap[Bitmap heap scan]
+    Choices --> Parallel[Parallel scan]
+    Seq --> Explain[EXPLAIN ANALYZE]
+    Index --> Explain
+    Bitmap --> Explain
+    Parallel --> Explain
+```
+
 PostgreSQL పర్ఫార్మెన్స్ ట్యూనింగ్‌లో అత్యంత కీలకమైన మరియు ఇంటర్వ్యూలలో సీనియర్ డెవలపర్లను కచ్చితంగా అడిగే చాప్టర్ **Query Optimization**.
 
 మీ Node.js యాప్‌లో ఏదైనా ఒక క్వెరీ రన్ అవ్వడానికి 5-10 సెకన్లు తీసుకుంటున్నప్పుడు, అసలు బ్యాక్‌గ్రౌండ్‌లో ఏం జరుగుతుందో తెలుసుకోవడానికి మరియు ఆ స్పీడ్‌ని మిల్లీసెకన్లలోకి తగ్గించడానికి ఈ కాన్సెప్ట్స్ వాడతాం. వీటిని చాలా ప్రాక్టికల్‌గా, సులభంగా తెలుగులో నేర్చుకుందాం.
@@ -2912,6 +2940,16 @@ SELECT * FROM orders WHERE customer_id = 54321;
 ఈ Query Optimization కాన్సెప్ట్స్ మరియు స్కానింగ్ మెథడ్స్ మీకు క్లియర్ గా అర్థమయ్యాయా? మీ ప్రాజెక్ట్ లో ఎప్పుడైనా `EXPLAIN ANALYZE` అవుట్‌పుట్ చూసేటప్పుడు ఏమైనా కన్ఫ్యూజన్ ఫేస్ చేశారా, లేక మన **తదుపరి అడ్వాన్స్‌డ్ టాపిక్ (Transactions & Concurrency)** కి వెళ్దామా?
 
 # 18. Transactions
+
+```mermaid
+flowchart TD
+    Begin[BEGIN] --> Execute[Execute SQL operations]
+    Execute --> Save{SAVEPOINT / error?}
+    Save -->|SAVEPOINT| Partial[Partial rollback]
+    Partial --> Execute
+    Save -->|All operations succeed| Commit[COMMIT]
+    Save -->|Error / explicit rollback| Rollback[ROLLBACK]
+```
 
 PostgreSQL లో డేటా సమగ్రతను (Data Integrity) కాపాడటానికి అత్యంత ప్రాముఖ్యమైన కాన్సెప్ట్ **Transactions (లావాదేవీలు)**.
 
@@ -3020,6 +3058,21 @@ PostgreSQL యొక్క అత్యంత లోతైన మరియు �
 
 ### A. MVCC (Multi-Version Concurrency Control)
 
+```mermaid
+sequenceDiagram
+    participant T1 as Transaction 1
+    participant PG as PostgreSQL
+    participant T2 as Transaction 2
+
+    T1->>PG: UPDATE row
+    PG->>PG: Store old + new tuple versions
+    T2->>PG: SELECT row
+    PG-->>T2: Version visible in T2 snapshot
+    T1->>PG: COMMIT
+    T2->>PG: Continue using snapshot until transaction ends
+    PG->>PG: VACUUM removes versions no longer visible
+```
+
 - **Concept:** Postgres లో **"Readers do not block Writers, and Writers do not block Readers"**. అంటే ఒక యూజర్ డేటాని చదువుతుంటే (SELECT), ఇంకో యూజర్ దాన్ని అప్‌డేట్ చేయకుండా ఆగాల్సిన అవసరం లేదు.
 - **పనితీరు:** మీరు ఒక రో (Row) ని అప్‌డేట్ చేసినప్పుడు, Postgres పాత డేటాని అక్కడికక్కడే మార్చదు. దానికి బదులు ఆ రో యొక్క **కొత్త వర్షన్ (New Version)** ని క్రియేట్ చేస్తుంది. పాత వర్షన్ ని అలాగే ఉంచుతుంది. ట్రాన్సాక్షన్ ఐడీల (`xmin`, `xmax`) ఆధారంగా ఏ యూజర్‌కి ఏ వర్షన్ చూపించాలో Postgres డిసైడ్ చేస్తుంది.
 
@@ -3106,6 +3159,20 @@ PostgreSQL లో సిస్టమ్ స్థిరత్వానికి 
 ---
 
 # 💾 21. WAL (Write Ahead Logging - ముందస్తు లాగింగ్)
+
+```mermaid
+sequenceDiagram
+    participant Tx as Transaction
+    participant PG as PostgreSQL
+    participant WAL as WAL buffer / file
+    participant Heap as Heap / data page
+
+    Tx->>PG: UPDATE / COMMIT
+    PG->>WAL: Write WAL record first
+    WAL-->>PG: fsync confirmation
+    PG-->>Tx: COMMIT acknowledged
+    PG->>Heap: Writer applies dirty page later
+```
 
 డేటాబేస్ లో డేటా లాస్ అవ్వకుండా కాపాడే ఒక అత్యంత నమ్మకమైన సెక్యూరిటీ లేయర్ ఇది.
 
@@ -3765,6 +3832,15 @@ pg_restore -d new_database my_db_backup.dump
 ---
 
 # 🔄 30. Replication (డేటా ప్రతీకరణ)
+
+```mermaid
+flowchart LR
+    App[Application] --> Primary[(Primary)]
+    Primary -->|Streaming WAL| Standby1[(Physical Standby)]
+    Primary -->|Logical changes| Subscriber[(Logical Subscriber)]
+    Standby1 -->|Read-only| Reports[Reporting / HA]
+    Standby1 -.->|Promotion on failure| StandbyPrimary[(New Primary)]
+```
 
 ఒక ప్రధాన డేటాబేస్ (Primary/Master) లోని డేటాని ఒకటి లేదా అంతకంటే ఎక్కువ సహాయక డేటాబేస్ (Standby/Replica) సర్వర్లలోకి రియల్-టైమ్ లో కాపీ చేయడాన్నే **Replication** అంటారు. దీనివల్ల మాస్టర్ సర్వర్ క్రాష్ అయినా రెప్లికా సర్వర్ ని మాస్టర్ గా మార్చి యాప్ ని రన్ చేయవచ్చు (High Availability).
 

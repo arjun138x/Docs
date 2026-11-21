@@ -6,6 +6,18 @@ Since you've been working with **Node.js, AWS Lambda, Serverless Framework, Post
 
 # Datadog + Node.js Roadmap
 
+
+```mermaid
+mindmap
+  root((Datadog + Node.js Roadmap))
+    1. What is DataDog
+    2: Node.js Instrumentation
+    3: Logging
+    4: Custom Metrics
+    5: Distributed Tracing
+    6: Error Tracking
+    7: AWS Lambda Monitoring
+```
 ## [1. What is DataDog](#1-what-is-datadog-1)
 
 ### [What is Observability?](#what-is-observability-1)

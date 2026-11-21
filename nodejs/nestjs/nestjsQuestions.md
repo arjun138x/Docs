@@ -1,5 +1,16 @@
 # NestJS Interview Questions & Answers
 
+
+```mermaid
+mindmap
+  root((NestJS Interview Questions & Answers))
+    Important Links
+    What is the difference between extend and implements?
+    🔹 extends — Inheritance
+    🔹 implements — Interface Implementation
+    💡 NestJS Example Real-world Style
+    ✅ Summary:
+```
 > Welcome to the NestJS Interview Questions and Answers repository!
 
 - This repository aims to be a comprehensive resource for NestJS developers preparing for interviews. Whether you're a beginner or an experienced developer, this collection of questions and answers is designed to help you brush up on your NestJS knowledge and excel in interviews.

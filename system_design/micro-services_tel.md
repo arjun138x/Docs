@@ -4,6 +4,18 @@ If your goal is to become an **expert in Node.js Microservices** (suitable for s
 
 # Node.js Microservices Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((Node.js Microservices Roadmap 2026))
+    1. Strong Node.js Foundation
+    Topics
+    2. Web Framework
+    3. API Design
+    4. Database
+    5. Authentication
+    6. Learn Monolith First
+```
 ```text
 Node.js Fundamentals
         │

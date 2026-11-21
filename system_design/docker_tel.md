@@ -350,6 +350,18 @@ With consistent practice (1–2 hours daily), this roadmap can take you from beg
 
 # 1. Prerequisites
 
+
+```mermaid
+mindmap
+  root((1. Prerequisites))
+    2. Docker Basics
+    3. Docker Images & Containers
+    4. Dockerfile
+    5. Volumes
+    6. Docker Networking
+    7. Docker Compose
+    8. Real Projects
+```
 Docker నేర్చుకోవడానికి మీరు ఎంచుకున్న **Prerequisites (ముందస్తు అవసరాలు)** చాలా పర్ఫెక్ట్‌గా ఉన్నాయి. Docker కంటైనర్లు ఎక్కువగా Linux పర్యావరణంలోనే నడుస్తాయి కాబట్టి, ఈ కింది అంశాలు మీకు Dockerని సులభంగా అర్థం చేసుకోవడానికి సహాయపడతాయి.
 
 మీరు నేర్చుకోవాల్సిన టాపిక్స్‌ను తెలుగులో సులభంగా వివరిస్తాను:

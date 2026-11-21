@@ -1,5 +1,17 @@
 # Netflix లాంటి వీడియో స్ట్రీమింగ్ (Node.js) – పూర్తి ఫ్లో (తెలుగులో)
 
+
+```mermaid
+mindmap
+  root((Netflix లాంటి వీడియో స్ట్రీమింగ్ Node.js – పూర్తి ఫ్లో తెల))
+    మొత్తం Architecture
+    Step 1: User Netflix App Open చేస్తాడు
+    Step 2: Homepage Load
+    Step 3: User Play Button Click చేస్తాడు
+    Step 4: Authorization
+    Step 5: Playback Session Create
+    Step 6: Signed URL Generate
+```
 నేను ఇప్పుడు **Netflix App ఓపెన్ చేసిన దగ్గర నుండి 4K వీడియో ప్లే అయ్యే వరకు మొత్తం ఫ్లో** తెలుగులో వివరిస్తాను.
 
 ---

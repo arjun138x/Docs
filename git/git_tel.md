@@ -4,6 +4,18 @@ Here is a structured, step-by-step roadmap to take you from Git basics to advanc
 
 # [**Phase 1: Git Foundations (Beginner)**](#1-git-foundations-beginner)
 
+
+```mermaid
+mindmap
+  root((Phase 1: Git Foundations Beginner))
+    Phase 2: Remote Repositories & Collaboration Intermediate
+    Phase 3: Code Organization & Undo Operations Upper-Interme
+    Phase 4: History Rewriting & Inspection Advanced
+    Questions?
+    Push old repo code to new repo with commits
+    1: Git Foundations Beginner
+    1. Core Concepts ముఖ్యమైన భావనలు
+```
 Learn the core concepts of local version control and basic terminology.
 
 - **Core Concepts**

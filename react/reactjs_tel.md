@@ -203,6 +203,18 @@ Deploy on:
 
 # Projects by Level
 
+
+```mermaid
+mindmap
+  root((1. Prerequisites))
+    2. React Fundamentals
+    3. React Hooks
+    4. Routing
+    5. API Integration
+    6. State Management
+    7. Styling
+    8. Forms
+```
 ### Beginner
 
 - Counter

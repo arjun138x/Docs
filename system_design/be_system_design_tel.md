@@ -1,5 +1,17 @@
 # Backend System Design Roadmap
 
+
+```mermaid
+mindmap
+  root((Backend System Design Roadmap))
+    1: Backend Fundamentals
+    2: Databases
+    3: Caching
+    4: Messaging Systems
+    6: Authentication & Authorization
+    7: Distributed Systems
+    8: Microservices
+```
 ## [1: Backend Fundamentals](#1-backend-fundamentals-1)
 
 ### [1. HTTP & Web Fundamentals](#1-http--web-fundamentals-1)

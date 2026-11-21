@@ -2,6 +2,18 @@ Since you're already learning **AWS, Node.js, Express.js, NestJS, Serverless, Re
 
 # Kubernetes (K8s) Expert Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((Kubernetes K8s Expert Roadmap 2026))
+    1. Prerequisites
+    2. Docker Mandatory
+    3. Kubernetes Basics
+    4. Kubernetes Objects
+    5. Services
+    6. Config Management
+    7. Storage
+```
 ```
 Linux
    │

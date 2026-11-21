@@ -2,6 +2,18 @@ Since you're already learning **React**, **Node.js**, **AWS**, **Prisma**, **Nes
 
 # Next.js Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((Next.js Roadmap 2026))
+    1 — Next.js Fundamentals
+    1. What is Next.js?
+    2 — Installation & Project Structure
+    3 — Routing
+    4 — Layouts
+    5 — Components
+    6 — Data Fetching
+```
 > **Goal:** Become production-ready and crack Senior Frontend / Full Stack interviews.
 
 ---

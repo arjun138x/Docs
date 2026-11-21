@@ -2,6 +2,18 @@ If your goal is to become a **strong Software Engineer (SDE)** or crack intervie
 
 # Data Structures Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((Data Structures Roadmap 2026))
+    Phase 1 — Fundamentals
+    1. Programming Language
+    2. Time & Space Complexity
+    Phase 2 — Linear Data Structures
+    3. Arrays
+    4. Strings
+    5. Recursion
+```
 ```
 Programming Language
         │

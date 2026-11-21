@@ -1,3 +1,11 @@
+
+```mermaid
+mindmap
+  root((Core concepts))
+    Examples
+    Best practices
+    Interview preparation
+```
 system design foundations
 
 - starting phase to execution phase we call it as system design

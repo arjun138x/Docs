@@ -26,6 +26,18 @@ JFrog Artifactory can act as a central repository for these artifacts.
 
 # 1. Why do we need JFrog?
 
+
+```mermaid
+mindmap
+  root((What is JFrog?))
+    1. Why do we need JFrog?
+    2. Simple architecture
+    3. What is an Artifact?
+    4. Artifactory
+    5. Repositories
+    Local repository
+    Remote repository
+```
 Suppose you have a Node.js application.
 
 Your developer writes:

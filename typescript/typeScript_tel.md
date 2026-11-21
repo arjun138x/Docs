@@ -2,6 +2,18 @@ If your goal is to become job-ready with TypeScript (especially for React, Node.
 
 # 🚀 TypeScript Roadmap
 
+
+```mermaid
+mindmap
+  root((🚀 TypeScript Roadmap))
+    1. JavaScript Fundamentals
+    2. TypeScript Basics
+    3. Functions
+    4. Objects & Arrays
+    5. Interfaces ⭐
+    6. Type Aliases
+    7. Enums
+```
 ## 1. JavaScript Fundamentals
 
 Before TypeScript, make sure you're comfortable with:

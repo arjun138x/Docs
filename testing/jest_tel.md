@@ -2,6 +2,18 @@ Since you've been following roadmaps for **Node.js, NestJS, React, TypeORM, Post
 
 # Jest.js Expert Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((Jest.js Expert Roadmap 2026))
+    1. Testing Fundamentals
+    2. Jest Basics
+    3. Assertions Expect API
+    Equality
+    Truthiness
+    Numbers
+    Arrays
+```
 ## [1. Testing Fundamentals](#1-testing-fundamentals-1)
 
 ### Learn

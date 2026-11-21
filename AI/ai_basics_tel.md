@@ -6,6 +6,18 @@ This roadmap focuses on **Node.js + AI** from beginner to advanced.
 
 # 1: JavaScript & Node.js Foundations (Skip if comfortable)
 
+
+```mermaid
+mindmap
+  root((1: JavaScript & Node.js Foundations Skip if comfortable))
+    2: Learn AI Fundamentals No Math Required
+    3: Python Basics Just Enough
+    4: LLM APIs
+    5: Prompt Engineering
+    6: AI SDKs for Node.js
+    7: Embeddings
+    8: Vector Databases
+```
 You should already know:
 
 - ES6+

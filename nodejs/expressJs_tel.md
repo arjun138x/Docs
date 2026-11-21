@@ -4,6 +4,18 @@ If your goal is to become an **Expert Express.js Backend Developer** (especially
 
 # Express.js Expert Roadmap
 
+
+```mermaid
+mindmap
+  root((Express.js Expert Roadmap))
+    1. JavaScript Prerequisites
+    2. Node.js Fundamentals
+    3. Express.js Basics
+    Installation
+    Request & Response
+    HTTP Methods
+    Routing
+```
 ## [1. JavaScript Prerequisites](#1-javascript-prerequisites-1)
 
 Before Express, master JavaScript.

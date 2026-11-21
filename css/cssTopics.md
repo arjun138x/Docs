@@ -2,6 +2,18 @@ CSS is a vast topic, but here’s a structured breakdown of the key topics you s
 
 # **1. Basics of CSS**
 
+
+```mermaid
+mindmap
+  root((1. Basics of CSS))
+    1. Selectors
+    2. Specificity & Inheritance
+    3. Box Model
+    4. CSS Units
+    5. CSS Colors
+    2. Positioning & Layout
+    1. Display Property
+```
 - Selectors (Universal, Element, Class, ID, Attribute, Pseudo-selectors)
 - Specificity & Inheritance
 - Box Model (Content, Padding, Border, Margin)

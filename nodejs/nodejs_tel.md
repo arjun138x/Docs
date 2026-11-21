@@ -290,6 +290,18 @@
 
 # 1. Introduction
 
+
+```mermaid
+mindmap
+  root((1. Introduction))
+    2. JavaScript Runtime
+    3. Modules
+    4. npm
+    5. File System fs
+    6. Path Module
+    7. OS Module
+    8. Events
+```
 గ్రేట్! మొదటి చాప్టర్ లోని టాపిక్స్ అన్నీ Node.js కి అత్యంత ముఖ్యమైన పునాది (Foundation). వీటిని మనం ఒక్కొక్కటిగా, ఇన్-డెప్త్ గా మరియు రియల్-వరల్డ్ ఎగ్జాంపుల్స్ తో తెలుగులో నేర్చుకుందాం.
 
 ---

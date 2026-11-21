@@ -4,6 +4,18 @@ Since you've been following structured roadmaps (React, NestJS, Express, TypeORM
 
 # React Redux Roadmap (2026)
 
+
+```mermaid
+mindmap
+  root((React Redux Roadmap 2026))
+    1. JavaScript Fundamentals Prerequisite
+    2. React Fundamentals
+    3. Why Redux?
+    4. Redux Concepts
+    What is Redux?
+    Store
+    State
+```
 ## 1. JavaScript Fundamentals (Prerequisite)
 
 Before Redux, be comfortable with:

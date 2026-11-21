@@ -1,5 +1,17 @@
 # **1. What is a Closure in JavaScript?**
 
+
+```mermaid
+mindmap
+  root((1. What is a Closure in JavaScript?))
+    2. Callbacks, Promises, and Async-Await in JavaScript
+    Synchronous vs Asynchronous Code
+    Asynchronous Code Non-Blocking
+    1️⃣ Callbacks
+    2️⃣ Promises
+    3️⃣ Async-Await Modern Approach
+    Conclusion
+```
 A **closure** is a function that "remembers" the variables from its **outer scope** even after the outer function has finished executing.
 
 It allows a function to access variables from its **lexical scope** even when it's executed outside that scope.

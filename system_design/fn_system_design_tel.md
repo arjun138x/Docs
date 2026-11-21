@@ -2,6 +2,18 @@ If you want to become an **Expert Frontend System Design Engineer**, you need to
 
 # Frontend System Design Roadmap
 
+
+```mermaid
+mindmap
+  root((Frontend System Design Roadmap))
+    1. HTML, CSS & JavaScript Fundamentals
+    2. Browser Internals
+    3. Modern Framework
+    4. Component Design
+    5. State Management
+    6. API Communication
+    7. Performance Optimization
+```
 ```text
 1. HTML, CSS & JavaScript Fundamentals
         ↓

@@ -2,6 +2,19 @@ If you want to learn **MongoDB** from beginner to advanced (suitable for intervi
 
 # 📚 MongoDB Complete Study Roadmap
 
+```mermaid
+flowchart LR
+    Basics[MongoDB Basics] --> CRUD[CRUD]
+    CRUD --> Queries[Query Operators]
+    Queries --> Indexes[Indexes]
+    Indexes --> Aggregation[Aggregation]
+    Aggregation --> Schema[Schema / Relationships]
+    Schema --> Replica[Replication]
+    Replica --> Shard[Sharding]
+    Shard --> Security[Security / Backup]
+    Security --> Production[Production / Monitoring]
+```
+
 ## [1. Introduction to MongoDB](#1-introduction-to-mongodb-పరిచయం)
 
 - What is MongoDB?
@@ -1348,6 +1361,18 @@ db.users.find({ email: "test@test.com" }).explain("executionStats");
 
 # 11. Aggregation Framework
 
+```mermaid
+flowchart LR
+    Input[(Collection)] --> Match[$match]
+    Match --> Add[$set]
+    Add --> Lookup[$lookup]
+    Lookup --> Group[$group]
+    Group --> Project[$project]
+    Project --> Sort[$sort]
+    Sort --> Limit[$limit]
+    Limit --> Output[(Aggregation Result)]
+```
+
 ### 1. Basic Pipeline Stages (ప్రాథమిక స్టేజీలు)
 
 - **`$match`:** డేటాను ఫిల్టర్ చేయడానికి (నార్మల్ `find()` లాంటిదే). అగ్రిగేషన్ ఫాస్ట్ గా అవ్వడానికి దీన్ని వీలైనంత వరకు మొదటి స్టేజ్ లోనే వాడాలి.
@@ -1647,6 +1672,16 @@ MongoDB లో **Relationships (సంబంధాలు)** డిజైన్ �
 
 # 13. Relationships (డేటాబేస్ సంబంధాలు)
 
+```mermaid
+flowchart TD
+    Start[Relationship requirement] --> Cardinality{Cardinality / growth}
+    Cardinality -->|Small / bounded| Embed[Embed document]
+    Cardinality -->|Large / shared| Ref[Manual ObjectId reference]
+    Cardinality -->|Independent entities| Lookup[$lookup / populate]
+    Embed --> Fast[Fast single-document read]
+    Ref --> Normalized[Normalized / scalable updates]
+```
+
 ### 1. One-to-One Relationship (ఒకదానికి ఒకటి)
 
 ఒక రికార్డ్ కి కేవలం ఒకే ఒక్క రికార్డ్ లింక్ అయి ఉంటే దాన్ని One-to-One అంటాం. (ఉదాహరణకు: ఒక యూజర్ కి ఒకే ఒక ప్రొఫైల్ లేదా అడ్రస్ ఉండటం).
@@ -1756,6 +1791,24 @@ SQL లో డేటా డూప్లికేట్ అవ్వకూడద�
 ---
 
 # 14. Transactions (లావాదేవీలు)
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Session
+    participant Mongo as MongoDB
+
+    App->>Session: startSession()
+    Session->>Mongo: startTransaction()
+    App->>Mongo: update account A
+    App->>Mongo: update account B
+    alt All operations succeed
+        App->>Mongo: commitTransaction()
+    else Any operation fails
+        App->>Mongo: abortTransaction()
+        Mongo-->>App: All changes rolled back
+    end
+```
 
 SQL డేటాబేస్ లలో మాత్రమే ఉండే **ACID Properties** (ట్రాన్సాక్షన్స్) ఇప్పుడు MongoDB లో కూడా అందుబాటులో ఉన్నాయి. ఒకే కలెక్షన్ లో లేదా మల్టిపుల్ కలెక్షన్ లలో జరిగే గ్రూప్ ఆఫ్ ఆపరేషన్స్ అన్నీ కలిపి ఒకేసారి సక్సెస్ అవ్వాలి, లేదా ఏ ఒక్కటి ఫెయిల్ అయినా మొత్తం క్యాన్సిల్ అవ్వాలి అనుకున్నప్పుడు ఇది వాడతాం.
 
@@ -1871,6 +1924,16 @@ MongoDB లో నేరుగా స్కీమా వాలిడేటర్
 
 # 16. Schema Design (స్కీమా డిజైన్ ప్యాటర్న్స్)
 
+```mermaid
+flowchart TD
+    Workload[Application workload] --> Queries[Query patterns]
+    Queries --> Card{Cardinality / size growth}
+    Card -->|Small, bounded| Embed[Embedding]
+    Card -->|Large, frequently shared| Ref[Referencing]
+    Embed --> Duplicate[Accept bounded duplication]
+    Ref --> Lookup[Use $lookup / populate]
+```
+
 డేటాబేస్ పర్ఫార్మెన్స్ పెంచడానికి ప్రొడక్షన్ యాప్స్ లో వాడే డిజైన్ ప్యాటర్న్స్ ఇవి:
 
 ### **Embedding vs Referencing (పునశ్చరణ)**
@@ -1932,17 +1995,15 @@ MongoDB లో నేరుగా స్కీమా వాలిడేటర్
 
 ఒకే డేటాను కలిగి ఉండే మోంగోడీబే సర్వర్ల (Nodes) సమూహాన్ని **Replica Set** అంటారు. కనీసం **3 నోడ్స్** ఉండటం రికమండెడ్.
 
-```
-                  +------------------+
-                  |  Primary Node    | <--- (Writes & Reads)
-                  +------------------+
-                        /      \
-             (Replication)    (Replication)
-                      /          \
-  +--------------------+        +--------------------+
-  | Secondary Node 1   |        | Secondary Node 2   | <--- (Reads Only)
-  +--------------------+        +--------------------+
-
+```mermaid
+flowchart TD
+    App[Application] --> Primary[(Primary: writes)]
+    Primary -->|Oplog replication| Sec1[(Secondary)]
+    Primary -->|Oplog replication| Sec2[(Secondary)]
+    Primary -.->|Election heartbeats| Sec1
+    Primary -.->|Election heartbeats| Sec2
+    Sec1 -->|Optional read| App
+    Sec2 -->|Optional read| App
 ```
 
 ### **Primary vs Secondary vs Arbiter**
@@ -1985,6 +2046,16 @@ MongoDB లో నేరుగా స్కీమా వాలిడేటర్
 ---
 
 # 18. Sharding (షార్డింగ్ - డేటాను విస్తరించడం)
+
+```mermaid
+flowchart LR
+    App[Application] --> Router[mongos / Query Router]
+    Router --> Cfg[(Config Servers)]
+    Router --> S1[(Shard 1)]
+    Router --> S2[(Shard 2)]
+    Router --> S3[(Shard 3)]
+    Cfg --> Metadata[Shard key metadata]
+```
 
 ### **Horizontal Scaling (హారిజాంటల్ స్కేలింగ్)**
 
@@ -2149,6 +2220,16 @@ MongoDB లో అడ్మిన్ కి ఒక రూల్, డెవలప
 ---
 
 # 21. Backup & Restore (బ్యాకప్ & రీస్టోర్)
+
+```mermaid
+flowchart LR
+    Cluster[(MongoDB Cluster)] --> Snap[Volume / Cloud Snapshot]
+    Cluster --> Dum[mongodump]
+    Snap --> Restore[Restore to isolated cluster]
+    Dum --> Archive[(Backup Archive)]
+    Archive --> Validate[Restore validation]
+    Validate --> Drill[Periodic recovery drill]
+```
 
 సర్వర్ క్రాష్ అయినా, లేదా ఎవరైనా పొరపాటున డేటా డిలీట్ చేసినా బ్యాకప్ ఉంటే ప్రాణాలు లేచి వస్తాయి.
 
@@ -2397,6 +2478,19 @@ const Driver = User.discriminator(
 
 # 26. Change Streams (రియల్ టైమ్ అప్‌డేట్స్)
 
+```mermaid
+sequenceDiagram
+    participant App
+    participant Resume as Change Stream
+    participant Mongo as Replica Set / Cluster
+
+    App->>Resume: Open change stream
+    App->>Mongo: Insert / update / delete
+    Mongo-->>Resume: Change event
+    Resume-->>App: Resume token + fullDocument
+    App->>App: Publish to WebSocket / Kafka
+```
+
 **Change Streams** అనేది MongoDB కి ఉన్న ఒక అద్భుతమైన ఫీచర్. డేటాబేస్ లో ఏదైనా ఒక ఇన్సర్ట్, అప్‌డేట్, లేదా డిలీట్ ఆపరేషన్ జరగగానే, ఆ విషయాన్ని మీ Node.js అప్లికేషన్ కి **లైవ్ లో (Real-time)** నోటిఫికేషన్ లాగా చేరవేస్తుంది.
 
 > 💡 **రియల్ టైమ్ ఉదాహరణ:** ఒక చాట్ యాప్ లో మీ ఫ్రెండ్ మీకు మెసేజ్ పంపినప్పుడు, డేటాబేస్ లో కొత్త రికార్డ్ పడగానే... బ్యాకెండ్ లో ఆ చేంజ్ ని పట్టుకుని Socket.io ద్వారా స్క్రీన్ పై లైవ్ లో మెసేజ్ చూపించడానికి ఇది వాడుతాం.
@@ -2422,6 +2516,16 @@ changeStream.on("change", (next) => {
 ---
 
 # 27. GridFS (భారీ ఫైళ్ల మేనేజ్‌మెంట్)
+
+```mermaid
+flowchart LR
+    File[Large file] --> Split[Split into chunks]
+    Split --> Chunks[(fs.chunks)]
+    File --> Metadata[(fs.files metadata)]
+    App[Application] -->|Upload / download stream| Bucket[GridFSBucket]
+    Bucket --> Chunks
+    Bucket --> Metadata
+```
 
 మనం ముందే చెప్పుకున్నట్లు, MongoDB లో ఒక నార్మల్ JSON డాక్యుమెంట్ గరిష్ట సైజ్ **16MB** మాత్రమే. మరి మీ యాప్ లో యూజర్లు 50MB, 100MB లేదా అంతకంటే పెద్ద సైజ్ ఉన్న ఇమేజెస్, PDFలు, లేదా వీడియో ఫైళ్లను అప్‌లోడ్ చేయాల్సి వస్తే ఎలా? అందుకోసమే MongoDB **GridFS** ని డిజైన్ చేసింది.
 
@@ -3040,7 +3144,7 @@ MongoDB లో ప్రతి డాక్యుమెంట్ కి ఆట�
 1. **Never run with default port:** డీఫాల్ట్ పోర్ట్ `27017` ని మార్చడం మంచిది.
 2. **Enable Authentication:** `security.authorization: enabled` కచ్చితంగా ఉండాలి. యూజర్ నేమ్, పాస్‌వర్డ్ లేనిదే కనెక్షన్ అవ్వకూడదు.
 3. **IP Whitelisting:** డేటాబేస్ ని ఓపెన్ గా వదిలేయకుండా, కేవలం మీ బ్యాకెండ్ Node.js సర్వర్ IP కి మాత్రమే యాక్సెస్ ఇవ్వాలి.
-4. **Always use Indexes for Sort:** ఇండెక్స్ లేని సార్టింగ్ ఆపరేషన్లు 32MB దాటితే క్రాష్ అవుతాయి. కాబట్టి సార్ట్ ఫీల్డ్స్ కి ఇండెక్స్ తప్పనిసరి.
+4. **Always use Indexes for Sort:** MongoDB 100MB కంటే పెద్ద సరళమైన ఇన్-మెమరీ సార్ట్ ఆపరేషన్‌ను డీఫాల్ట్‌గా అనుమతించదు. పెద్ద లేదా సంతృప్త సార్ట్‌లకు సరైన ఇండెక్స్ లేదా `allowDiskUse` వాడాలి. కాబట్టి సార్ట్ ఫీల్డ్స్ కి ఇండెక్స్ తప్పనిసరి.
 5. **Set Connection Pool Limits:** మీ Node.js యాప్ లో `maxPoolSize` ని మీ సర్వర్ సామర్థ్యాన్ని బట్టి పర్ఫెక్ట్ గా సెట్ చేయాలి.
 
 ---

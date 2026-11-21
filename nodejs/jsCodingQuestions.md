@@ -1,3 +1,11 @@
+
+```mermaid
+mindmap
+  root((Core concepts))
+    Examples
+    Best practices
+    Interview preparation
+```
 ### **Numbers count**
 
 Method 1 (**using object**)

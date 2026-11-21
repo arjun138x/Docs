@@ -1,5 +1,15 @@
 ## 🔰 PART 1: Prisma Basics
 
+```mermaid
+flowchart LR
+    Schema[Prisma Schema] --> Migrate[Prisma Migrate]
+    Schema --> Generate[Generate Prisma Client]
+    Migrate --> DB[(Database)]
+    Generate --> Client[Type-safe Prisma Client]
+    App[Application Code] --> Client
+    Client --> DB
+```
+
 ---
 
 ### ✅ 1. **Installing Prisma and Initializing Project**
@@ -91,6 +101,17 @@ main()
 ---
 
 ## 🧩 PART 2: Relations in Prisma
+
+```mermaid
+flowchart TD
+    R[Prisma Relations] --> O1[One-to-One]
+    R --> O2[One-to-Many]
+    R --> M2[Many-to-Many]
+    O1 --> Profile[User ↔ Profile]
+    O2 --> Posts[User → Posts]
+    M2 --> I[Implicit Join Table]
+    M2 --> E[Explicit Join Model]
+```
 
 Prisma supports:
 
@@ -345,6 +366,17 @@ const stats = await prisma.post.aggregate({
 ---
 
 ## 🔄 PART 4: Transactions
+
+```mermaid
+flowchart TD
+    Start[Begin Transaction] --> Op1[Database Operation 1]
+    Op1 --> Op2[Database Operation 2]
+    Op2 --> Op3[Database Operation 3]
+    Op3 -->|All succeed| Commit[COMMIT]
+    Op1 -.->|Any operation fails| Rollback[ROLLBACK]
+    Op2 -.->|Any operation fails| Rollback
+    Op3 -.->|Any operation fails| Rollback
+```
 
 - A transaction is a sequence of one or more database operations—such as inserts, updates, or deletes—that are executed as a single, indivisible unit of work.
 - This concept ensures data integrity by guaranteeing that either all operations within the transaction succeed and are committed to the database, or if any operation fails, the entire transaction is rolled back, leaving the database in its original state.
@@ -793,6 +825,25 @@ const users = await prisma.user.findMany({
 
 #### ✅ 2. Avoid N+1 Query Problem (Use `include`)
 
+```mermaid
+sequenceDiagram
+    participant App
+    participant Prisma
+    participant DB
+
+    Note over App,DB: Bad: N+1 queries
+    App->>Prisma: findMany users
+    Prisma->>DB: SELECT users
+    loop For every user
+        App->>Prisma: findMany posts by user
+        Prisma->>DB: SELECT posts
+    end
+
+    Note over App,DB: Good: relation included
+    App->>Prisma: findMany users with include posts
+    Prisma->>DB: SELECT users JOIN posts
+```
+
 **❌ Bad**: Looping and calling separate queries
 
 ```ts
@@ -994,6 +1045,18 @@ Use PostgreSQL’s `EXPLAIN ANALYZE` or look at Prisma logs to identify:
 ---
 
 ## ⚙️ PART 9: DDATABASE OPERATIONS IN PRISMA
+
+```mermaid
+flowchart LR
+    Schema[schema.prisma] --> Dev[migrate dev]
+    Dev --> Migration[Migration SQL]
+    Migration --> Local[(Local Database)]
+    Migration --> Repo[Migration Folder]
+    Repo --> Deploy[migrate deploy]
+    Deploy --> Prod[(Production Database)]
+    Schema --> Push[db push]
+    Push --> Prototype[(Prototype / Test Database)]
+```
 
 #### ✅ 1. `prisma migrate dev` — **Development Migrations**
 

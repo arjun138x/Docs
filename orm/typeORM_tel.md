@@ -1,5 +1,18 @@
 If you want to become an **expert in TypeORM** (especially with **NestJS + Node.js + PostgreSQL + AWS**), here's a complete roadmap from beginner to advanced.
 
+```mermaid
+flowchart TD
+    A[TypeORM Basics] --> B[Entity & Columns]
+    B --> C[Relationships]
+    C --> D[Repository & QueryBuilder]
+    D --> E[CRUD Operations]
+    E --> F[Transactions]
+    F --> G[Migrations]
+    G --> H[Indexes & Performance]
+    H --> I[NestJS Integration]
+    I --> J[Testing & Production]
+```
+
 ---
 
 # TypeORM Complete Roadmap (2026)
@@ -126,6 +139,15 @@ Topics
 
 ## [3. Entity Relationships](#3-entity-relationships-1)
 
+```mermaid
+flowchart LR
+    U[User] -->|One-to-One| P[Profile]
+    U -->|One-to-Many| PO[Posts]
+    PO -->|Many-to-One| U
+    ST[Student] -->|Many-to-Many| CO[Course]
+    ST -.->|Join Table| CO
+```
+
 ### One-to-One
 
 ```ts
@@ -244,6 +266,21 @@ recover()
 
 ## [5. Query Builder](#5-query-builder-1)
 
+```mermaid
+flowchart LR
+    App[Application] --> Repo[Repository]
+    Repo --> QB[QueryBuilder]
+    QB --> Select[select / addSelect]
+    QB --> Where[where / andWhere / orWhere]
+    QB --> Join[leftJoin / innerJoin]
+    QB --> Order[orderBy / skip / take]
+    Select --> SQL[Generated SQL]
+    Where --> SQL
+    Join --> SQL
+    Order --> SQL
+    SQL --> DB[(Database)]
+```
+
 Most important topic.
 
 ### Select Query
@@ -360,6 +397,17 @@ Upsert
 
 ## [7. Transactions](#7-transactions-1)
 
+```mermaid
+flowchart TD
+    Start[Start Transaction] --> QR[Create QueryRunner]
+    QR --> Begin[startTransaction]
+    Begin --> Write1[Write Operation 1]
+    Write1 --> Write2[Write Operation 2]
+    Write2 -->|All success| Commit[commit]
+    Write1 -.->|Any error| Rollback[rollback]
+    Write2 -.->|Any error| Rollback
+```
+
 Very Important
 
 ### QueryRunner
@@ -396,6 +444,16 @@ manager.transaction();
 ---
 
 ## [8. Migrations](#8-migrations-1)
+
+```mermaid
+flowchart LR
+    Entity[Entity Changes] --> Generate[migration:generate]
+    Generate --> File[Migration File]
+    File --> Run[migration:run]
+    Run --> DB[(Database Schema)]
+    DB --> Revert[migration:revert]
+    Revert --> Previous[Previous Schema]
+```
 
 Never use synchronize in production.
 
@@ -512,6 +570,17 @@ Postgres specific
 ---
 
 ## [16. Performance Optimization](#16-performance-optimization-1)
+
+```mermaid
+flowchart LR
+    Bad[Bad: N+1] --> U[Load 1 list of users]
+    U --> L[For each user]
+    L --> P[Load posts separately]
+    P --> Slow[Many database queries]
+
+    Good[Good: JOIN / eager load] --> Join[Load users and relations]
+    Join --> Fast[Fewer database queries]
+```
 
 Avoid
 

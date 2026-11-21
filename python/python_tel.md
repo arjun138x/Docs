@@ -909,26 +909,14 @@ Authentication
 
 Architecture:
 
-```text
-             ┌──────────────┐
-             │    Client    │
-             └──────┬───────┘
-                    ↓
-             ┌──────────────┐
-             │ API Gateway  │
-             └──────┬───────┘
-                    ↓
-             ┌──────────────┐
-             │   FastAPI    │
-             └──────┬───────┘
-                    ↓
-          ┌─────────┴─────────┐
-          ↓                   ↓
-      PostgreSQL            Redis
-          ↓
-       RabbitMQ/SQS
-          ↓
-       Background Worker
+```mermaid
+flowchart LR
+    Client[Client] --> Gateway[API Gateway]
+    Gateway --> API[FastAPI]
+    API --> DB[(PostgreSQL)]
+    API --> Cache[(Redis)]
+    API --> Queue[(RabbitMQ / SQS)]
+    Queue --> Worker[Background Worker]
 ```
 
 ---
@@ -937,46 +925,27 @@ Architecture:
 
 If your goal is **Python Backend Developer**, follow this exact order:
 
-```text
-1. Python Basics
-       ↓
-2. Data Structures
-       ↓
-3. Functions
-       ↓
-4. OOP
-       ↓
-5. Exceptions
-       ↓
-6. Modules & Packages
-       ↓
-7. Advanced Python
-       ↓
-8. Type Hints
-       ↓
-9. pytest
-       ↓
-10. SQL + PostgreSQL
-       ↓
-11. SQLAlchemy
-       ↓
-12. FastAPI
-       ↓
-13. Async Python
-       ↓
-14. Redis
-       ↓
-15. Message Queues
-       ↓
-16. Microservices
-       ↓
-17. Docker
-       ↓
-18. AWS
-       ↓
-19. System Design
-       ↓
-20. DSA + Interviews
+```mermaid
+flowchart TD
+    A[Python Basics] --> B[Data Structures]
+    B --> C[Functions]
+    C --> D[OOP]
+    D --> E[Exceptions]
+    E --> F[Modules & Packages]
+    F --> G[Advanced Python]
+    G --> H[Type Hints]
+    H --> I[pytest]
+    I --> J[SQL + PostgreSQL]
+    J --> K[SQLAlchemy]
+    K --> L[FastAPI]
+    L --> M[Async Python]
+    M --> N[Redis]
+    N --> O[Message Queues]
+    O --> P[Microservices]
+    P --> Q[Docker]
+    Q --> R[AWS]
+    R --> S[System Design]
+    S --> T[DSA + Interviews]
 ```
 
 ### ⭐ If you're coming from Node.js
@@ -1356,6 +1325,21 @@ print(multiply(4, 5))  # అవుట్‌పుట్: 20
 
 పైథాన్ ఇంటర్వ్యూలలో అత్యంత కీలకమైన భాగం **Python Data Structures**. ఈ రోజు మనం లిస్ట్స్, ట్యూపుల్స్, సెట్స్ మరియు డిక్షనరీల గురించి చాలా స్పష్టంగా ఉదాహరణలతో తెలుగులో తెలుసుకుందాం!
 
+```mermaid
+flowchart LR
+    DS[Python Data Structures] --> Seq[Sequence]
+    DS --> Set[Set]
+    DS --> Map[Key-Value Mapping]
+
+    Seq --> L[List<br/>Mutable / Duplicate allowed]
+    Seq --> T[Tuple<br/>Immutable / Fixed]
+    Set --> S[Set<br/>Unique / Unordered]
+    Map --> D[Dictionary<br/>Unique keys]
+
+    L -->|Compare| T
+    S -->|Compare| D
+```
+
 ---
 
 ## 1. Lists (లిస్ట్స్)
@@ -1606,6 +1590,27 @@ class Student:
 ---
 
 ## 4. OOPs 4 Pillars (నాలుగు ప్రధాన స్తంభాలు)
+
+```mermaid
+mindmap
+  root((OOP))
+    Inheritance
+      Parent to Child
+      Code reuse
+      super()
+      Method overriding
+    Encapsulation
+      Data hiding
+      Private variables
+      Getter and setter
+    Abstraction
+      Hide implementation
+      ABC class
+      Abstract methods
+    Polymorphism
+      Same interface
+      Different behavior
+```
 
 ### I. Inheritance (ఇన్‌హెరిటెన్స్)
 
@@ -1901,6 +1906,16 @@ with ManagedFile("test.txt") as f:
 
 ప్రోగ్రామ్ రన్ అవుతున్నప్పుడు ఎర్రర్ వచ్చే అవకాశం ఉన్న కోడ్‌ను హ్యాండ్ చేయడానికి ఇవి వాడతారు:
 
+```mermaid
+flowchart TD
+    A[Start program] --> B[try block]
+    B -->|Exception occurs| C[except block]
+    B -->|No exception| D[else block]
+    C --> E[finally block]
+    D --> E
+    E --> F[Continue or stop]
+```
+
 - **`try`:** ఎర్రర్ రావచ్చని అనుమానించే కోడ్‌ను ఇందులో రాస్తాం.
 - **`except`:** `try` బ్లాక్‌లో ఎర్రర్ వస్తే, ఈ బ్లాక్ రన్ అయ్యి ప్రోగ్రామ్‌ను కాపాడుతుంది.
 - **`else`:** `try` బ్లాక్‌లో ఎలాంటి ఎర్రర్ రాకపోతే, ఈ బ్లాక్ రన్ అవుతుంది.
@@ -1975,6 +1990,18 @@ except InvalidAgeError as e:
 # 6. Modules & Packages
 
 పైథాన్‌లో పెద్ద పెద్ద రియల్-వరల్డ్ ప్రాజెక్ట్‌లను ఎలా నిర్మించాలి, కోడ్‌ను వేర్వేరు ఫైల్స్‌లో ఎలా నిర్వహించాలి, మరియు డిపెండెన్సీలను ఎలా మేనేజ్ చేయాలో తెలిపే అత్యంత కీలకమైన అంశం **Modules & Packages**. వీటిని తెలుగులో సులభంగా తెలుసుకుందాం!
+
+```mermaid
+flowchart TD
+    App[Application] --> Package[Package / Directory]
+    Package --> Init[__init__.py]
+    Package --> M1[module1.py]
+    Package --> M2[module2.py]
+    M1 --> Import1[from package import module1]
+    M2 --> Import2[import package.module2]
+    Import1 --> App
+    Import2 --> App
+```
 
 ---
 
@@ -2760,6 +2787,20 @@ async def get_users():
 
 సాధారణ పైథాన్ కోడ్ లైన్-బై-లైన్ (Synchronous) రన్ అవుతుంది. అంటే ఒక పని పూర్తియ్యే వరకు తదుపరి పని ఆగిపోతుంది. కానీ **Async** కోడ్‌లో ఒక పని నెట్‌వర్క్ రెస్పాన్స్ కోసం వెయిట్ చేస్తున్నప్పుడు, ఆ సమయాన్ని వృథా చేయకుండా వేరే పనిని చేసుకోవచ్చు.
 
+```mermaid
+sequenceDiagram
+    participant Main
+    participant EventLoop
+    participant IOTask
+
+    Main->>EventLoop: asyncio.run(main())
+    EventLoop->>IOTask: Start coroutine
+    IOTask-->>EventLoop: await / waiting for I/O
+    EventLoop->>EventLoop: Run other tasks
+    IOTask-->>EventLoop: I/O completed
+    EventLoop-->>Main: Resume coroutine and return result
+```
+
 - **`async def` vs `def`:**
 - `def` తో రాసే సాధారణ ఫంక్షన్‌లు సింక్రోనస్ (Synchronous) పద్ధతిలో పనిచేస్తాయి.
 - `async def` తో రాసే ఫంక్షన్‌లను **Coroutines** అంటారు. ఇవి మధ్యలో ఆగిపోయి (Pause), రిజల్ట్ రాగానే తిరిగి ప్రారంభం కాగలవు.
@@ -2832,6 +2873,17 @@ asyncio.run(main())
 - **Concurrency (కాన్కరెన్సీ):** ఒకే సమయంలో **ఒకటికి மேற்பட்ட పనులను మేనేజ్ చేయడం** (పనులను ముక్కలు చేసి కొద్దికొద్దిగా చేయడం). ఉదాహరణకు, ఒకే చేత్తో టీ తాగుతూ, మరో చేత్తో ఫోన్ మాట్లాడటం — ఇక్కడ పనులు వేర్వేరు కావచ్చు కానీ ఒకే టైమ్‌లో జరుగుతున్నట్లు అనిపిస్తాయి. (ఇది I/O-bound పనులకు వాడతారు).
 - **Parallelism (పారలలిజమ్):** ఒకే సమయంలో **నిజంగా బహుళ పనులను ఏకకాలంలో చేయడం** (ఉదాహరణకు నలుగురు వ్యక్తులు నలుగురు వేర్వేరు పనులు చేయడం). దీనికోసం కంప్యూటర్ యొక్క వేర్వేరు CPU కోర్లు (Cores) వాడతారు. (ఇది CPU-bound పనులకు వాడతారు).
 
+```mermaid
+flowchart TD
+    Start[Workload type] --> IO{I/O-bound?}
+    IO -->|Yes| Network[Network, file, database]
+    Network --> Async[AsyncIO - many tasks / one thread]
+    Network --> Threads[Threading - blocking libraries]
+    IO -->|No| CPU{CPU-bound?}
+    CPU -->|Yes| Math[Large calculations, ML, image processing]
+    Math --> Processes[Multiprocessing - multiple CPU cores]
+```
+
 **అవుట్‌లైన్:**
 
 - **Concurrency**
@@ -2871,6 +2923,15 @@ asyncio.run(main())
 
 **Redis** అనేది డేటాను హార్డ్ డిస్క్‌లో కాకుండా నేరుగా కంప్యూటర్ మెమరీలో (RAM) స్టోర్ చేసే ఒక సూపర్-ఫాస్ట్ డేటాబేస్. దీనిని బ్యాక్‌ఎండ్ సిస్టమ్స్‌లో రకరకాలుగా వాడతారు:
 
+```mermaid
+flowchart LR
+    App[Application] -->|1 Check cache| Redis[(Redis Cache)]
+    Redis -->|2 Cache hit| App
+    Redis -.->|Cache miss| DB[(Database)]
+    DB -->|3 Fetch data| App
+    App -->|4 Store with TTL| Redis
+```
+
 - **Cache (క్యాచింగ్):** పదే పదే డేటాబేస్ నుండి డేటాను తెచ్చి స్లో అవ్వకుండా, తరచుగా అడిగే డేటాను రెడిస్‌లో స్టోర్ చేసి క్షణాల్లో ఇస్తారు.
 - **TTL (Time to Live):** రెడిస్‌లో సేవ్ చేసే డేటా ఎంత కాలం ఉండాలో (ఉదాహరణకు 5 నిమిషాలు) ఒక గడువు (Expiration time) పెట్టవచ్చు. ఆ టైమ్ అయిపోగానే డేటా ఆటోమేటిక్‌గా డిలీట్ అవుతుంది.
 - **Pub/Sub (Publish/Subscribe):** ఒక సిస్టమ్ మెసేజ్ పబ్లిష్ చేస్తే, దానిని సబ్‌స్క్రైబ్ చేసుకున్న మిగతా అన్ని సిస్టమ్‌లు వెంటనే ఆ మెసేజ్‌ను అందుకునే రియల్-టైమ్ కమ్యూనికేషన్ పద్ధతి (ఉదాహరణకు చాట్ అప్లికేషన్లు).
@@ -2895,18 +2956,18 @@ asyncio.run(main())
 
 # 18. System Design
 
-```text
-Load Balancer
-      ↓
-API Servers
-      ↓
-Cache
-      ↓
-Database
-      ↓
-Message Queue
-      ↓
-Workers
+```mermaid
+flowchart LR
+    Client[Client] --> LB[Load Balancer]
+    LB --> API1[API Server 1]
+    LB --> API2[API Server 2]
+    API1 --> Cache[(Redis Cache)]
+    API2 --> Cache
+    Cache --> DB[(Database)]
+    API1 --> Queue[(Message Queue)]
+    API2 --> Queue
+    Queue --> Worker[Background Workers]
+    Worker --> DB
 ```
 
 కోట్లాది మంది యూజర్లు వాడే పెద్ద పెద్ద అప్లికేషన్లను (High Scalability & Performance Applications) ఎలా డిజైన్ చేయాలో తెలిపే అత్యంత కీలకమైన విభాగం **System Design**. మీరు ఇచ్చిన ఆర్కిటెక్చర్ ఫ్లో (Architecture Flow) ఆధారంగా, ప్రతి కాంపోనెంట్ ఎలా పనిచేస్తుందో తెలుగులో సులభంగా తెలుసుకుందాం!
@@ -3016,6 +3077,17 @@ Workers
 ---
 
 ## 2. ముఖ్యమైన డాకర్ భావనలు (Core Concepts)
+
+```mermaid
+flowchart LR
+    Code[Source Code] --> DF[Dockerfile]
+    DF -->|docker build| IMG[Docker Image]
+    IMG -->|docker run| CON[Container]
+    CON --> APP[Running Application]
+    IMG -->|Push| REG[(Container Registry)]
+    REG -->|Pull| SERVER[Production Server]
+    SERVER --> CON2[Container]
+```
 
 - **Dockerfile:** డాకర్ కంటైనర్‌ను ఎలా సృష్టించాలో దశలవారీగా సూచనలు రాసే ఒక టెక్స్ట్ ఫైల్. (ఉదాహరణకు: పైథాన్ వెర్షన్ ఏంటి, ఏయే ప్యాకేజీలు ఇన్‌స్టాల్ చేయాలి లాంటివి).
 - **Image (ఇమేజ్):** డాకర్‌ఫైల్ నుండి తయారైన ఒక రీడ్-ఓని టెంప్లేట్ లేదా బ్లూప్రింట్. దీనిని ఒక అప్లికేషన్ యొక్క కాపీ అనుకోవచ్చు.

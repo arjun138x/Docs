@@ -1,4 +1,242 @@
-React.js covers a wide range of topics, from the basics to advanced concepts. Here’s a structured list of topics to learn:
+# React.js — Complete Expert Guide
+
+ఈ డాక్యుమెంట్ React fundamentals నుండి modern React 18/19 rendering, concurrent features, Server Components, state architecture, performance, accessibility, testing, security మరియు microfrontends వరకు production-level coverage ఇస్తుంది.
+
+> **Core rule:** React changes UI as a function of state. Good architecture makes state ownership explicit, effects controlled, rendering efficient and user-visible behavior accessible and predictable.
+
+## React Learning Roadmap
+
+```mermaid
+flowchart LR
+    JS[JavaScript + ES modules] --> JSX[JSX / components / props]
+    JSX --> State[State / events / forms]
+    State --> Hooks[Hooks / effects / refs]
+    Hooks --> Router[Routing / data loading]
+    Router --> Architecture[Feature / state architecture]
+    Architecture --> Server[Server Components / SSR / streaming]
+    Server --> Performance[Memoization / bundles / profiling]
+    Performance --> Quality[Accessibility / testing / security]
+    Quality --> Scale[Microfrontends / observability]
+```
+
+## React Render and Commit Model
+
+```mermaid
+flowchart LR
+    State[State / props / context change] --> Trigger[Schedule render]
+    Trigger --> Render[Render component functions]
+    Render --> Diff[Reconcile / diff previous and next trees]
+    Diff --> Commit[Commit DOM / refs / layout effects]
+    Commit --> Browser[Browser paint / composite]
+
+    Render -. expensive work .-> Memo[Memo / useMemo / useDeferredValue]
+    Memo --> Diff
+
+    Commit --> Passive[useEffect / passive work]
+    Commit --> Cleanup[Effect cleanup]
+```
+
+- React render is a pure calculation; do not mutate external state or perform network side effects during render.
+- Reconciliation compares component tree and keys; it does not compare the entire DOM manually.
+- Commit changes real DOM, refs and layout effects.
+- Passive effects run after rendering/commit and require cleanup for subscriptions, timers and listeners.
+
+## Component and State Architecture
+
+```mermaid
+flowchart TD
+    State[State need] --> Local{Scope}
+
+    Local -->|Single component| Hook[useState / useReducer]
+    Local -->|Parent-child tree| Lifting[Lift state / props]
+    Local -->|Stable shared value| Context[Context provider]
+    Local -->|Server data| Query[Query cache / RSC]
+    Local -->|Complex shared client state| Store[Redux / Zustand / Jotai]
+
+    Store --> Derive[Memoized selectors]
+    Query --> Cache[Cache / dedupe / invalidation]
+```
+
+- Props are explicit component contracts; avoid context for values that are stable unless providers are frequently changing.
+- Context change rerenders context consumers, so split providers and memoize provider values when appropriate.
+- Server state should not be copied into local Redux state unless it is transformed client-only state.
+- URL state belongs in route/search params for shareable and navigable UI.
+
+## State Update and Concurrency Model
+
+```mermaid
+sequenceDiagram
+    participant Event
+    participant React
+    participant Render
+    participant Commit
+
+    Event->>React: setState / startTransition
+
+    alt Urgent update
+        React->>Render: Render urgent UI
+        Render->>Commit: Commit visible priority update
+    else Non-urgent transition
+        React->>Render: Work in background
+        Render-->>React: Preserve previous UI until ready
+        React->>Commit: Commit completed transition
+    end
+
+    Commit-->>Event: Browser paint and effects
+```
+
+- `useTransition` marks updates as non-urgent; `startTransition` preserves responsiveness for expensive UI.
+- `useDeferredValue` defers a derived value; it is useful for filtering/sorting but not a replacement for memoized algorithms.
+- `useOptimistic` can show intended state before server confirmation, then reconcile or rollback.
+- Concurrent rendering can pause, resume or discard work; effects and external subscriptions must remain cleanup-safe.
+
+```jsx
+const [isPending, startTransition] = useTransition();
+
+startTransition(() => {
+  setSearchResults(filterLargeDataset(search));
+});
+```
+
+## Modern Data and Rendering Model
+
+```mermaid
+flowchart LR
+    Server[Next.js server / RSC] --> Shell[Static / streamed shell]
+    Shell --> Client[Hydrated interactive islands]
+
+    Server --> ServerComp[Server Components]
+    ServerComp --> Payload[RSC payload / serialized props]
+    Payload --> ClientComp[Client Components]
+
+    ClientComp --> Suspense[Suspense loading boundary]
+    Suspense --> Stream[Streaming / partial rendering]
+
+    ClientComp --> Query[Client query cache]
+    Query --> Mutation[Mutation / optimistic UI]
+```
+
+- Use Server Components for server-owned data and non-interactive rendering boundaries.
+- Use Client Components only for browser hooks, event handlers, local state and browser APIs.
+- Stream independent sections with Suspense to reduce time-to-first-content; define meaningful fallbacks.
+- Hydration requires serialized props and rendered HTML to match at initial render.
+- Avoid secrets or database credentials in Client Component module graphs.
+
+## Effect and Resource Lifecycle
+
+```mermaid
+flowchart TD
+    Mount[Component mounts] --> Effect[Run effect]
+    Effect --> Resource[Acquire listener / request / subscription]
+
+    Resource --> Update{Dependencies change}
+    Update -->|Yes| Cleanup[Cleanup previous resource]
+    Cleanup --> Effect
+
+    Update -->|Unmount| Final[Final cleanup]
+```
+
+- Place only dependencies used by the effect in dependency arrays.
+- Abort fetches and remove event listeners/subscriptions in cleanup.
+- Do not use effects as an extra render/data synchronization primitive if derived state or event handlers are sufficient.
+- StrictMode development mount/effect replays can expose missing cleanup and impure setup code.
+- For expensive initialization, use memoized resources or framework lifecycle primitives appropriately.
+
+## Performance Architecture
+
+```mermaid
+flowchart LR
+    Bundle[Bundle analysis] --> Split[Route / component splitting]
+    Split --> Preload[Preload proven critical routes]
+
+    Render[Render profiling] --> State[Reduce state scope]
+    Render --> List[Virtualize large lists]
+    Render --> Memo[Memoize derived data]
+
+    Assets[Asset analysis] --> Image[Responsive / priority images]
+    Assets --> Font[Subset / preload fonts]
+
+    Split --> Metric[Core Web Vitals]
+    Memo --> Metric
+    Image --> Metric
+```
+
+- Profile before optimizing: React Profiler, Chrome Performance and bundle treemaps.
+- `React.memo` prevents rerender only when props and context remain unchanged; it is not caching a complete app.
+- `useMemo` should reduce expensive real calculations, not wrap every expression.
+- `useCallback` is useful for stable callback props consumed by memoized children and effect dependencies.
+- Virtualize only lists with meaningful row count and preserve keyboard/scroll behavior.
+- Code splitting and Suspense should improve route loading, not hide large synchronous work.
+
+## Accessibility and Internationalization
+
+```mermaid
+flowchart LR
+    Semantic[Semantic HTML] --> Keyboard[Keyboard navigation]
+    Keyboard --> Focus[Focus management]
+    Semantic --> SR[Screen reader names / roles]
+
+    Intl[Internationalization] --> Locale[Locale formatting]
+    Intl --> RTL[RTL layout]
+    Intl --> Content[Translated text expansion]
+
+    Focus --> Modal[Modal / dialog patterns]
+    Focus --> Route[Route announcement]
+
+    Modal --> TestAxe[axe / Playwright checks]
+    Route --> TestAxe
+```
+
+- Semantic elements and native controls are the first accessibility implementation.
+- Every interactive UI must be keyboard-operable with a visible focus indicator.
+- Dialogs, menus and toasts require focus transfer/restoration and appropriate announcements.
+- Test i18n, RTL, locale dates/numbers/currency, text expansion and missing translations.
+- Automated tools catch many issues but do not replace manual keyboard/screen-reader testing.
+
+## Testing Model
+
+```mermaid
+flowchart LR
+    Unit[Pure logic / hooks] --> RTL[React Testing Library]
+    RTL --> Integration[Component + provider + router]
+    Integration --> MSW[Mock Service Worker]
+    Integration --> E2E[Playwright / Cypress]
+
+    Unit --> Vitest[Vitest / Jest]
+    RTL --> Vitest
+    MSW --> Vitest
+
+    E2E --> Flows[Critical browser flows]
+    Flows --> CI[CI test matrix]
+```
+
+- Test behavior and accessible output instead of component implementation details.
+- RTL recommends queries by role/name/text and `user-event` for interactions.
+- Mock network boundaries with MSW, not every internal hook or child component.
+- Test loading, empty, error, optimistic, retry and permission states.
+- E2E tests should cover only critical journeys, authentication and cross-browser behavior.
+
+## Security and Deployment
+
+- Escape React text content by default; sanitize trusted rich HTML with DOMPurify and validate allowed protocols.
+- Keep tokens in HttpOnly/Secure cookies or platform-secure storage, not ordinary XSS-readable local storage.
+- Do not leak server-only secrets through props, public client bundles or analytics payloads.
+- Validate API responses, authorization and redirects at the backend; UI route guards are not authorization.
+- Add CSP, Trusted Types, CORS, Subresource Integrity and dependency scanning for third-party scripts.
+- Deploy immutable assets behind CDN, preserve cache-busting names and define HTML/API cache policies.
+
+## React Production Checklist
+
+- State ownership is explicit: local, URL, server cache, shared store or external system.
+- Effects acquire and clean up all external resources.
+- Keys are stable domain identifiers, not array indexes for reorderable data.
+- Route, list and image loading strategies are measured against budgets.
+- Components support keyboard, focus, screen readers and locale/RTL behavior.
+- Network and mutation boundaries have loading/error/timeout/retry behavior.
+- Tests cover public behavior and critical browser journeys.
+- Client bundles contain no server secrets and third-party scripts are governed.
+
+---
 
 # **1. Fundamentals**
 
@@ -139,7 +377,7 @@ function UserGreeting({ isLoggedIn }) {
 ### **8. Lists and Keys**
 
 - **Lists** are used to render multiple elements dynamically.
-- **Keys** help React identify and update elements efficiently.
+- **Keys** help React identify and update elements efficiently. Prefer a stable unique domain ID; array indexes are unsuitable for reorderable, insertable or deletable lists.
 
 Example:
 
@@ -150,7 +388,7 @@ function NameList() {
   return (
     <ul>
       {names.map((name, index) => (
-        <li key={index}>{name}</li>
+        <li key={name}>{name}</li>
       ))}
     </ul>
   );
@@ -1792,8 +2030,8 @@ const PrintTable = ({ calculateTable }) => {
     setRows(calculateTable());
   }, [calculateTable]);
 
-  return rows.map((row, index) => {
-    return <p key={index}>{row}</p>;
+  return rows.map((row) => {
+    return <p key={row}>{row}</p>;
   });
 };
 

@@ -1,673 +1,300 @@
-Since you've been following structured roadmaps (React, NestJS, Express, TypeORM, AWS, System Design, etc.), here's a **complete React Redux Roadmap (2026)** that takes you from beginner to expert level.
+# React + Redux Toolkit — Complete Expert Guide
 
----
+ఈ గైด์ React state ownership, Redux core concepts, Redux Toolkit, RTK Query, normalized data, middleware, async flows, SSR hydration, offline/optimistic updates, testing, performance మరియు production architecture cover చేస్తుంది.
 
-# React Redux Roadmap (2026)
+> **Architecture rule:** Redux is global application state, not every React state. Server/cache state belongs in RTK Query or a query cache, and local UI state belongs in components unless it is shared across features.
 
+## Redux Decision Map
 
 ```mermaid
-mindmap
-  root((React Redux Roadmap 2026))
-    1. JavaScript Fundamentals Prerequisite
-    2. React Fundamentals
-    3. Why Redux?
-    4. Redux Concepts
-    What is Redux?
-    Store
-    State
-```
-## 1. JavaScript Fundamentals (Prerequisite)
+flowchart TD
+    Need[State change needed] --> Scope{State scope}
 
-Before Redux, be comfortable with:
+    Scope -->|One component| Local[useState / useReducer]
+    Scope -->|Parent/child tree| Props[Props / context for stable values]
+    Scope -->|Shared UI across features| Redux[Redux Toolkit slice]
+    Scope -->|Server data/cache| RTK[RTK Query / server-state cache]
+    Scope -->|URL/shareable view| URL[Router / query params]
 
-- Variables
-- Functions
-- Arrow Functions
-- Objects
-- Arrays
-- Spread Operator
-- Rest Operator
-- Destructuring
-- map()
-- filter()
-- reduce()
-- async/await
-- Promises
-- Modules (import/export)
+    Redux --> Async{Async flow?}
+    Async -->|Simple custom flow| Thunk[createAsyncThunk / listener middleware]
+    Async -->|Fetch/cache/invalidation| RTK
 
-**Practice Goal**
-
-- Todo List
-- Shopping Cart using only React state
-
----
-
-## 2. React Fundamentals
-
-Learn
-
-- JSX
-- Functional Components
-- Props
-- State
-- Event Handling
-- Conditional Rendering
-- Lists
-- Forms
-- useState
-- useEffect
-- useRef
-- useMemo
-- useCallback
-- Context API
-
-Projects
-
-- Counter
-- Notes App
-- Todo App
-- Weather App
-
----
-
-## [3. Why Redux?](#3-why-redux-1)
-
-Understand the problems first.
-
-Without Redux
-
-```
-Parent
- |
- |----Child
-        |
-        |----GrandChild
-                 |
-                 |----GreatGrandChild
+    Redux --> State[Store + actions + reducers]
+    RTK --> State
 ```
 
-Passing props through every level is called
+## Redux Data Flow
 
-**Prop Drilling**
+```mermaid
+sequenceDiagram
+    participant UI
+    participant Dispatch
+    participant Middleware
+    participant Reducer
+    participant Store
+    participant Subscriber as React useSelector
 
-Problems
+    UI->>Dispatch: dispatch(action / thunk)
+    Dispatch->>Middleware: Run middleware chain
 
-- Difficult to maintain
-- Duplicate state
-- Hard debugging
-- Components tightly coupled
+    alt Async thunk / listener
+        Middleware->>Middleware: Side effect / API call
+        Middleware->>Dispatch: Dispatch pending / success / error
+    end
 
-Redux solves this.
-
----
-
-## [4. Redux Concepts](#4-redux-concepts-1)
-
-Learn these in order.
-
-## What is Redux?
-
-Single place to store application state.
-
-```
-Store
+    Dispatch->>Reducer: Calculate next state
+    Reducer-->>Store: Return immutable next state
+    Store-->>Subscriber: Notify subscriptions
+    Subscriber-->>UI: Render affected components
 ```
 
----
+- Redux state updates should be immutable and synchronous.
+- Middleware owns async side effects or external interactions, not the reducer.
+- Reducers are pure functions of `state + action` and must not call APIs or mutate inputs.
+- Redux DevTools replay/debug state changes when actions and payloads are serializable and meaningful.
 
-## Store
+## Store Architecture
 
-Contains
+```mermaid
+flowchart LR
+    Provider[React Redux Provider] --> Store[Redux Store]
 
-```
-Application State
-```
+    Store --> Auth[authSlice]
+    Store --> Cart[cartSlice]
+    Store --> UI[uiSlice]
+    Store --> API[RTK Query API slice]
 
-Example
+    Auth --> Root[RootState]
+    Cart --> Root
+    UI --> Root
+    API --> Root
 
-```
-{
-   user:{},
-   cart:[],
-   products:[],
-   theme:"dark"
-}
-```
+    ComponentA[Feature component] --> SelectorA[Typed memoized selectors]
+    ComponentB[Feature component] --> Hook[useSelector / useDispatch]
 
----
-
-## State
-
-Current data of application.
-
-Example
-
-```
-Cart Items
-
-Profile
-
-Authentication
-
-Theme
+    SelectorA --> Store
+    Hook --> Store
 ```
 
----
+### Slice Boundaries
 
-## Action
+- Feature slice owns feature-level UI and cross-component client state.
+- Entity normalization should prevent duplicate copies of the same server record.
+- API cache is separate from domain mutation state in RTK Query.
+- Authenticated identity, cart, feature flags and UI preferences can be root slice candidates only when they are truly shared.
+- Transient modal/loading state should remain local or feature-specific.
 
-An object describing
+## createSlice and Immer
 
-"What happened?"
+```ts
+import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
 
-Example
+interface CartItem { id: string; quantity: number }
 
-```javascript
-{
-   type:"ADD_PRODUCT",
-   payload:{
-      id:1
-   }
-}
+const cartSlice = createSlice({
+  name: "cart",
+  initialState: [] as CartItem[],
+  reducers: {
+    add(state, action: PayloadAction<{ id: string }>) {
+      const item = state.find((entry) => entry.id === action.payload.id);
+      if (item) item.quantity += 1;
+      else state.push({ id: action.payload.id, quantity: 1 });
+    },
+    reset: () => [],
+  },
+});
 ```
 
----
+- Immer lets reducers appear to mutate draft state; returned values must not also mutate the draft.
+- Use `nanoid()` or stable server IDs for event/optimistic identity.
+- Keep normalized entity IDs and relationship arrays stable.
+- Avoid storing class instances, functions, Promises or circular structures in Redux state.
 
-## Reducer
+## Async State Selection
 
-Function that updates state.
+| Mechanism | Use when | Advantages | Trade-offs |
+|---|---|---|---|
+| `createAsyncThunk` | Custom API workflow + existing local state | Explicit lifecycle, supports extra logic | Manual cache/invalidation design |
+| RTK Query | Server fetch/cache/mutation/invalidation | Cache, dedupe, polling, invalidation | Convention and endpoint model required |
+| Listener middleware | Complex action-to-effect workflows | Decouples listeners, cancellation | Another async abstraction |
+| Saga/Observable | Large legacy workflow ecosystem | Replay, cancellation, channels | Extra dependency/complexity |
 
-```javascript
-(state, action) => newState;
+```mermaid
+flowchart TD
+    UI[UI dispatch] --> Thunk[createAsyncThunk]
+    Thunk --> Pending[pending]
+    Pending --> API[API request]
+    API -->|Success| Fulfilled[fulfilled]
+    API -->|Failure| Rejected[rejected]
+
+    Fulfilled --> UI
+    Rejected --> UI
+
+    Query[RTK Query endpoint] --> Cache[Normalized API cache]
+    Cache --> Poll[Polling / refetch]
+    Cache --> Invalidate[tags / invalidation]
 ```
 
-Never modify state directly.
+## RTK Query Cache and Mutation Lifecycle
 
----
+- Each endpoint owns cache key, dedupe window, stale data and refetch policy.
+- Tags and `invalidatesTags` define server-state invalidation.
+- Mutations use `onQueryStarted`, pessimistic/optimistic updates and cache patch rollback.
+- `onQueryStarted` catch handlers must roll back patches if the mutation fails.
+- Polling and refetch intervals should stop on hidden pages when applicable.
+- Subscription lifetime is component-aware; tags and global invalidations handle cross-feature updates.
 
-## Dispatch
+```mermaid
+sequenceDiagram
+    participant UI
+    participant Query as RTK Query
+    participant Cache
+    participant API
 
-Sends action to Redux.
+    UI->>Query: useGetOrdersQuery(args)
+    Query->>Cache: Check key and freshness
 
-```javascript
-dispatch(addProduct(product));
+    alt Cache hit / fresh
+        Cache-->>UI: Cached data
+    else Cache miss / stale
+        Query->>API: Fetch
+        API-->>Query: Response
+        Query->>Cache: Store normalized result
+        Cache-->>UI: Updated data
+    end
+
+    UI->>Query: mutation + onQueryStarted
+    Query->>Cache: Apply optimistic patch
+    Query->>API: Send mutation
+
+    alt Success
+        API-->>Query: Success
+        Query->>Query: Invalidate tags / merge result
+    else Failure
+        API-->>Query: Error
+        Query->>Cache: Undo optimistic patch
+    end
 ```
 
----
+## Normalization and Entity Adapter
 
-## Selector
+```mermaid
+flowchart LR
+    API[API array of products] --> Normalize[Entity Adapter / normalize]
+    Normalize --> IDs[ids: [1,2,3]]
+    Normalize --> Entities[entities: id -> product]
 
-Read state.
+    IDs --> Selector[selectAll]
+    Entities --> Selector
+    Selector --> Component[React component]
 
-```javascript
-const cart = useSelector((state) => state.cart.items);
+    Update[Update product 2] --> Entities
+    Entities --> Memo[Memoized selectProduct]
 ```
 
----
+- Normalize collections for large or frequently updated entities.
+- Entity Adapter gives CRUD operations, sorted/unsorted selectors and immutable update helpers.
+- Avoid duplicating full server objects in many slices or components.
+- Memoize derived data with `createSelector`; invalidate cache only when source inputs change.
 
-## Middleware
+## Middleware and Side Effects
 
-Runs between
+- Middleware should validate action shape if cross-team boundaries need it, call APIs and schedule work.
+- Listener middleware is suitable for action reactions, debouncing, polling and cancellation.
+- Custom middleware should be serializable; never put side effects directly in reducers.
+- Redux Toolkit default middleware includes immutability and serializable checks in development.
+- Exceptions: non-serializable values such as uploaded files or WebSocket objects should not be placed in state; keep them outside or isolate with strict allowlists.
 
-```
-Dispatch
+## SSR and Store Hydration
 
-↓
+```mermaid
+flowchart TD
+    Request[Server request] --> Create[Create request-scoped store]
+    Create --> Fetch[Fetch server state]
+    Fetch --> Serialize[Serialize declassified state]
+    Serialize --> HTML[Render HTML + state payload]
 
-Middleware
+    HTML --> Browser[Browser bootstrap]
+    Browser --> Hydrate[Create browser store]
+    Hydrate --> Inject[Dehydrate / hydrate state]
+    Inject --> Render[Hydrate React UI]
 
-↓
-
-Reducer
-```
-
-Used for
-
-- API Calls
-- Logging
-- Authentication
-- Analytics
-
----
-
-## [5. Redux Toolkit (Recommended)](#5-redux-toolkit-recommended-1)
-
-Modern Redux uses **Redux Toolkit (RTK)**.
-
-Learn
-
-- configureStore()
-- createSlice()
-- PayloadAction
-- createAsyncThunk()
-- combineReducers
-- Middleware
-- DevTools
-
-Project
-
-Build Todo App using Redux Toolkit.
-
----
-
-## [6. React Redux](#6-react-redux-1)
-
-Install
-
-```
-npm install @reduxjs/toolkit react-redux
+    Render --> Query[RTK Query server cache rehydrate]
 ```
 
-Learn
+- Never reuse a module-level store for concurrent SSR requests.
+- Send only serializable and authorized server state to the browser.
+- Hydrate auth/feature state after environment-specific token and cookie validation.
+- Use dehydrate/rehydrate APIs for RTK Query server caches.
+- Prevent hydration mismatches between server and client locale/timezone/browser state.
 
-## Provider
+## Performance Architecture
 
-Wrap application.
+- Split state by feature and maintain stable selector inputs.
+- Use `createSelector` for derived filtering, sorting and aggregation.
+- Select scalar or shallow values to reduce React rerenders.
+- Use `shallowEqual` only where an object is intentionally returned and correctly memoized.
+- Avoid dispatching high-frequency actions for mouse/scroll data unless debounced or coalesced.
+- Use `react-redux` batching and separate UI-only state from large server caches.
+- Profile with React DevTools and Redux DevTools before optimizing.
 
-```jsx
-<Provider store={store}>
-  <App />
-</Provider>
+## Offline and Optimistic Updates
+
+```mermaid
+flowchart TD
+    Action[User action] --> Optimistic[Apply optimistic patch]
+    Optimistic --> Queue[Persist mutation queue / outbox]
+
+    Queue --> Online{Network online?}
+    Online -->|Yes| Send[Send mutation]
+    Online -->|No| Wait[Wait for reconnect]
+
+    Send --> Success{Server result}
+    Success -->|Success| Confirm[Confirm / reconcile]
+    Success -->|Conflict| Conflict[Conflict resolution]
+    Success -->|Failure| Rollback[Rollback + user feedback]
+
+    Wait --> Send
 ```
 
----
+- Store only non-sensitive state in browser persistence; encrypt or exclude auth tokens.
+- Persist migrations and allow unknown persisted state gracefully.
+- Offline mutation queues require stable operation IDs, retry policy and server reconciliation.
+- Race-prone optimistic updates need abort/patch rollback and last-write/conflict rules.
+- BroadcastChannel or storage events can synchronize tabs, but not replace server consistency.
 
-## useSelector()
+## Testing Redux
 
-Read state.
+```mermaid
+flowchart LR
+    Reducer[Reducer / slice test] --> Action[Action + state result]
+    Selector[Memoized selector test] --> Component[React component test]
 
-```javascript
-const user = useSelector(...)
+    Thunk[createAsyncThunk test] --> Middleware[Middleware mock boundary]
+    RTK[RTK Query test] --> MSW[Mock Service Worker / HTTP]
+
+    Component --> Store[Real Redux store]
+    Store --> MSW
 ```
 
----
-
-## useDispatch()
-
-Dispatch action.
-
-```javascript
-dispatch(login());
-```
-
----
-
-## [7. Store Structure](#7-store-structure-1)
-
-```
-src/
-
-store/
-
-    store.js
-
-features/
-
-    auth/
-
-        authSlice.js
-
-    user/
-
-        userSlice.js
-
-    cart/
-
-        cartSlice.js
-
-    products/
-
-        productSlice.js
-```
-
----
-
-## [8. createSlice()](#8-createslice-1)
-
-Learn
-
-```
-name
-
-initialState
-
-reducers
-
-extraReducers
-```
-
-Example
-
-```
-Counter Slice
-
-increment
-
-decrement
-
-reset
-```
-
----
-
-## [9. Async Redux](#9-async-redux-1)
-
-Learn
-
-```
-Loading
-
-Success
-
-Failure
-```
-
-Use
-
-```
-createAsyncThunk()
-```
-
-Example
-
-```
-Login API
-
-↓
-
-Pending
-
-↓
-
-Fulfilled
-
-↓
-
-Rejected
-```
-
-Projects
-
-- Fetch Products
-- Login
-- User Profile
-
----
-
-## [10. API Integration](#10-api-integration-1)
-
-Use
-
-- Fetch API
-- Axios
-
-Store
-
-```
-Loading
-
-Error
-
-Data
-```
-
-Practice
-
-- Pagination
-- Infinite Scroll
-- Search
-- Filters
-
----
-
-## [11. RTK Query (Modern)](#11-rtk-query-modern-1)
-
-Learn
-
-```
-createApi()
-
-fetchBaseQuery()
-
-Queries
-
-Mutations
-
-Caching
-
-Invalidation
-
-Polling
-```
-
-Benefits
-
-- Automatic caching
-- Auto refetch
-- Loading state
-- Error handling
-- No manual async thunks
-
----
-
-## [12. Advanced Redux](#12-advanced-redux-1)
-
-Learn
-
-### Entity Adapter
-
-Normalize state.
-
-```
-createEntityAdapter()
-```
-
----
-
-### Memoized Selectors
-
-```
-createSelector()
-```
-
----
-
-### Dynamic Reducers
-
-Useful for
-
-- Micro Frontends
-- Lazy Loading
-
----
-
-### Store Persistence
-
-Use
-
-```
-redux-persist
-```
-
-Persist
-
-- Login
-- Theme
-- Language
-
----
-
-### Custom Middleware
-
-Create middleware for
-
-- Logging
-- Analytics
-- Authentication
-
----
-
-## 13. Folder Structure
-
-```
-src/
-
-app/
-
-    store.js
-
-features/
-
-auth/
-
-cart/
-
-orders/
-
-products/
-
-shared/
-
-components/
-
-hooks/
-
-services/
-
-utils/
-
-pages/
-```
-
----
-
-## [14. Authentication Flow](#14-authentication-flow-1)
-
-Store
-
-```
-Token
-
-Refresh Token
-
-User
-
-Permissions
-```
-
-Actions
-
-```
-Login
-
-Logout
-
-Refresh Token
-```
-
----
-
-## [15. Performance Optimization](#15-performance-optimization-1)
-
-Learn
-
-- React.memo
-- useMemo
-- useCallback
-- createSelector
-- Entity Adapter
-- Lazy Loading
-- Code Splitting
-
----
-
-## [16. Error Handling](#16-error-handling-1)
-
-Manage
-
-- API Errors
-- Network Errors
-- Unauthorized (401)
-- Forbidden (403)
-- Global Error State
-
----
-
-## [17. Testing Redux](#17-testing-redux-1)
-
-Learn
-
-- Reducer Tests
-- Action Tests
-- Async Thunk Tests
-- Component Tests
-
-Tools
-
-- Jest
-- React Testing Library
-- Mock Service Worker (MSW)
-
----
-
-## [18. DevTools](#18-devtools-1)
-
-Use Redux DevTools to
-
-- Inspect actions
-- Inspect state
-- Time Travel Debugging
-- Replay actions
-
----
-
-## 19. Best Practices
-
-✅ Use Redux Toolkit instead of legacy Redux.
-
-✅ Keep state minimal.
-
-✅ Don't store derived data.
-
-✅ Normalize large collections.
-
-✅ Use selectors.
-
-✅ Keep reducers pure.
-
-✅ Avoid unnecessary global state.
-
-✅ Use RTK Query for server state.
-
----
-
-## 20. Real-world Projects
-
-### Beginner
-
-- Counter
-- Todo App
-- Notes App
-
----
-
-### Intermediate
-
-- Shopping Cart
-- Authentication
-- Movie App
-- Weather Dashboard
-
----
-
-### Advanced
-
-- E-commerce Application
-- Food Delivery App
-- CRM Dashboard
-- Admin Panel
-- Chat Application
-- Inventory Management System
+- Test reducers for state transitions and Immer behavior.
+- Test memoized selectors for outputs and recomputation behavior.
+- Test thunks with injected API dependencies and real lifecycle states.
+- Test RTK Query cache, invalidation and mutation rollback through MSW or request adapters.
+- Test React components with a real store and public UI interactions, not by asserting dispatch internals.
+- Reset persisted state, mocks, fake timers and listeners between tests.
+
+## Production Checklist
+
+- Feature slice boundaries and typed `RootState`/dispatch hooks.
+- Memoized selectors and normalized entity collections.
+- RTK Query cache versus mutation state separation.
+- Middleware cancellation, retry and action error handling.
+- SSR-safe store creation and authorized hydration.
+- Persist allowlist/blocklist and migration/rehydration strategy.
+- DevTools disabled in production or configured with filtered/sanitized state.
+- Test reducers, selectors, async flows and React integrations.
 
 ---
 

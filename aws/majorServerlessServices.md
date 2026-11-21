@@ -1,3 +1,285 @@
+# AWS Serverless — Complete Architecture Guide
+
+Serverless means AWS operates the underlying compute/runtime while the application owns code, data, identity, configuration and failure behavior. A serverless design can still contain servers; the team does not provision or manage them directly.
+
+> **Selection rule:** Choose serverless for event-driven, bursty or operationally independent workloads. Choose containers/EC2 for long-lived connections, steady high utilization, specialized runtimes or control requirements that exceed managed limits.
+
+## Serverless Service Map
+
+```mermaid
+flowchart TD
+    Client[Client / browser / mobile] --> CDN[CloudFront]
+    Client --> Auth[Cognito]
+    CDN --> S3[(S3 static / uploads)]
+
+    Client --> API[API Gateway]
+    API --> Lambda[Lambda]
+
+    Lambda --> DDB[(DynamoDB)]
+    Lambda --> Aurora[(Aurora Serverless)]
+    Lambda --> Cache[(ElastiCache / Redis)]
+
+    S3 -->|Object event| Process[Lambda processor]
+    Process --> Queue[(SQS)]
+    Queue --> Worker[Lambda worker]
+
+    Worker --> SNS[(SNS fan-out)]
+    Worker --> EventBridge[EventBridge]
+    EventBridge --> Step[Step Functions]
+
+    Lambda --> Secrets[Secrets Manager / KMS]
+    Lambda --> Observe[CloudWatch / X-Ray / OpenTelemetry]
+```
+
+## Serverless Compute Choices
+
+| Service | Execution model | Best for | Key trade-offs |
+|---|---|---|---|
+| Lambda | Short-lived event/invocation runtime | APIs, jobs, file/event processing | Timeout, cold start, package size, concurrency |
+| Fargate | Long-lived containers | Microservices, WebSockets, steady workloads | Less scale-to-zero but more runtime control |
+| App Runner | Managed container HTTP app | Simple web APIs/services | Less flexibility than ECS/EKS |
+| Step Functions | Workflow state machine | Saga, retry, wait, human approval | Additional workflow state/data limits |
+
+```mermaid
+flowchart TD
+    Need[Workload] --> Duration{Execution duration / runtime control}
+
+    Duration -->|Short/event-driven| Lambda[Lambda]
+    Duration -->|Long-lived/container| Fargate[ECS/Fargate]
+
+    Need --> Workflow{Orchestrated workflow?}
+    Workflow -->|Yes| SFN[Step Functions]
+    Workflow -->|No| Queue[Event-driven SQS/SNS]
+
+    Need --> Scale{Bursty?}
+    Scale -->|Yes| Lambda
+    Scale -->|Steady| Fargate
+```
+
+## Lambda Execution Architecture
+
+```mermaid
+sequenceDiagram
+    participant Source as API / S3 / SQS / schedule
+    participant Lambda
+    participant DDB as DynamoDB / DB
+    participant SQS
+
+    Source->>Lambda: invoke event
+    Lambda->>Lambda: cold start or reuse warm runtime
+    Lambda->>DDB: read/write with IAM role
+
+    alt Success
+        Lambda-->>Source: response / success acknowledgement
+    else Transient failure
+        Lambda->>SQS: DLQ / retry event
+    else Permanent / policy failure
+        Lambda->>SQS: poison/DLQ
+    end
+```
+
+- Initialize SDK clients and connection pools outside the handler for execution-environment reuse.
+- Keep Lambda packages small and use layers/monorepo bundling only for shared dependencies that improve cold start.
+- Set memory/CPU, timeout, reserved/provisioned concurrency and batch-size intentionally.
+- Validate event shape and reject malformed messages before side effects.
+- Retriable errors should use exponential backoff, bounded retries and idempotency.
+
+## API and Data Flow
+
+```mermaid
+flowchart LR
+    Browser[React / mobile] --> WAF[AWS WAF]
+    WAF --> APIGW[API Gateway]
+    APIGW --> JWT[JWT / Cognito authorizer]
+
+    JWT -->|Authorized| Lambda[Lambda]
+    JWT -->|Denied| Four[401 / 403]
+
+    Lambda --> DDB[(DynamoDB)]
+    Lambda --> RDS[(Aurora Serverless)]
+    Lambda --> Redis[(ElastiCache)]
+
+    Lambda --> CW[CloudWatch / X-Ray]
+```
+
+- API Gateway HTTP API is lower overhead; REST API provides more policies/features.
+- Cognito authorizers should be separate from application authorization/object-level checks.
+- API keys and usage plans are not user authentication and should not replace IAM/JWT authorization.
+- DynamoDB requires partition-key and access-pattern design before implementation.
+- Aurora Serverless v2 is suitable for variable SQL workloads but still has pool/connection/latency considerations.
+
+## File Upload and Processing
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant API as Lambda / API Gateway
+    participant S3
+    participant Event
+    participant Worker
+    participant DB
+
+    Browser->>API: request upload metadata
+    API->>S3: presign PUT URL
+    S3-->>Browser: signed URL
+    Browser->>S3: PUT file with expiry/size constraints
+    S3->>Event: ObjectCreated event
+    Event->>Worker: Lambda processor
+    Worker->>S3: validate / transform / virus scan
+    Worker->>DB: store metadata/status
+```
+
+- Use presigned URLs for direct upload instead of proxying large files through Lambda/API Gateway.
+- Enforce file size, content type, tenant prefix, malware/AV and storage lifecycle.
+- S3 event processing can be duplicated/retried; workers must be idempotent.
+- Processing jobs should write status and emit result events after commit.
+
+## Async Messaging Architecture
+
+```mermaid
+flowchart LR
+    Producer[Producer Lambda/API] --> SQS[(SQS queue)]
+    SQS --> Consumer[Consumer Lambda]
+
+    Consumer -->|Transient failure| Retry[Retry queue / redrive]
+    Retry --> SQS
+    SQS -->|Max receives| DLQ[(Dead-letter queue)]
+
+    Producer --> SNS[(SNS)]
+    SNS --> TopicA[Subscriber A]
+    SNS --> TopicB[Subscriber B]
+
+    Producer --> EB[EventBridge]
+    EB --> Rule[Event rule]
+    Rule --> Target[Workflow/queue/Lambda]
+```
+
+| Service | Delivery | Use |
+|---|---|---|
+| SQS | Durable queue, at-least-once | Decouple/order jobs/work queues |
+| SNS | Push fan-out | Broadcast notifications/events |
+| EventBridge | Rule-based routing | Domain event routing across systems |
+| Step Functions | State-machine orchestration | Saga/retry/parallel/human approval |
+
+- SQS consumer functions require idempotency and partial-batch failure handling.
+- DLQ growth is an incident signal, not a place to discard failed work indefinitely.
+- SNS/SQS ordering and duplicate delivery differ by queue type and fan-out topology.
+
+## Event-driven Order Saga
+
+```mermaid
+sequenceDiagram
+    participant API
+    participant EB as EventBridge
+    participant SFN as Step Functions
+    participant Inventory
+    participant Payment
+    participant Shipping
+
+    API->>EB: OrderCreated event
+    EB->>SFN: Start order workflow
+
+    SFN->>Inventory: Reserve stock
+    Inventory-->>SFN: reserved/rejected
+
+    alt Stock reserved
+        SFN->>Payment: Capture payment
+        alt Payment success
+            Payment-->>SFN: captured
+            SFN->>Shipping: Create shipment
+            Shipping-->>SFN: created
+        else Payment failure
+            Payment-->>SFN: failed
+            SFN->>Inventory: release stock
+        end
+    else Stock rejected
+        SFN->>SFN: cancel order
+    end
+```
+
+- Use event payload schemas and correlation IDs across workflow/state logs.
+- Distinguish orchestration compensation from automatic database rollback.
+- Retry externally idempotent operations with provider operation keys and backoff.
+- Persist workflow state and outbox to survive Lambda/workflow failures.
+
+## Security and Identity
+
+```mermaid
+flowchart LR
+    User[User] --> Cognito[Cognito / OIDC]
+    Cognito --> JWT[JWT / OIDC claims]
+
+    JWT --> APIGW[API Gateway]
+    APIGW --> Lambda[Lambda]
+
+    Lambda --> Role[IAM execution role]
+    Role --> DDB[(DynamoDB)]
+    Role --> S3[(S3)]
+
+    Lambda --> KMS[KMS decrypt]
+    Lambda --> Secrets[Secrets Manager]
+```
+
+- Cognito/JWT authentication does not replace object/tenant authorization.
+- Lambda execution roles should be least privilege and resource/tenant constrained where possible.
+- KMS, Secrets Manager and SSM Parameter Store separate encryption/key/secret concerns.
+- Add WAF, API throttling, CORS, input validation and audit logging.
+
+## Serverless Observability
+
+```mermaid
+flowchart LR
+    Lambda[Lambda] --> CW[CloudWatch metrics/logs]
+    Lambda --> XR[X-Ray / OpenTelemetry]
+    API[API Gateway] --> CW
+    SQS[SQS] --> CW
+
+    CW --> Alarm[Alarms / dashboards]
+    XR --> Trace[Trace service map]
+
+    Alarm --> Incident[Pager / runbook]
+    Trace --> Incident
+```
+
+Monitor:
+
+- Invocation, duration, memory, cold start, concurrency and throttles.
+- API 4xx/5xx, latency, integration failures and authorization denies.
+- Queue age, redrive/DLQ depth, consumer concurrency and batch failure.
+- DynamoDB throttles, RDS capacity/connections and downstream provider latency.
+- Trace cost, correlation ID and deployment/version metadata.
+
+## Serverless Cost and Scale
+
+- Billed dimensions include Lambda duration/memory, requests, payload/DynamoDB/queue/storage and transfer.
+- Right-size memory/timeout and remove accidental N+1/data transfer calls.
+- DynamoDB partition-key and on-demand/provisioned choice determines cost and throttle behavior.
+- Avoid synchronous fan-out; use queues and backpressure for burst.
+- Reserved/provisioned concurrency is a performance/cost choice, not default architecture.
+- Set budgets, tagging and unit cost metrics per environment/tenant/workload.
+
+## When Not to Use Serverless
+
+- Long-lived WebSocket/streaming or process-affinity workloads.
+- High steady CPU utilization where containers/reserved EC2 may be cheaper.
+- Extremely large package/runtime/deployment constraints.
+- Low-latency consistently CPU-bound services or specialized OS/GPU requirements.
+- Local disk/large dependency states that do not fit managed stateless execution.
+- Vendor/latency/compliance constraints requiring alternative deployment isolation.
+
+## Serverless Production Checklist
+
+- Explicit async decoupling, idempotency and DLQ/replay behavior.
+- Least-privilege execution roles and secret/key separation.
+- Timeout, retry, circuit breaker and downstream batch controls.
+- Presigned upload and malware/content validation.
+- SQS/SNS/EventBridge delivery semantics and schema versioning.
+- CloudWatch/X-Ray/OpenTelemetry dashboards and alarms.
+- IAM, WAF, CORS, Cognito/object authorization and audit logging.
+- Cost budgets, concurrency limits and load testing.
+
+---
+
 ## 🚀 **What is Serverless? (Simple Definition)**
 
 **Serverless ≠ No Servers**

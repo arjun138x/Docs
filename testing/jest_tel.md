@@ -1,19 +1,244 @@
-Since you've been following roadmaps for **Node.js, NestJS, React, TypeORM, PostgreSQL, AWS, System Design, and Datadog**, learning **Jest** is the next logical step. Jest is the most commonly used testing framework for Node.js, TypeScript, NestJS, and React applications. It supports unit testing, integration testing, mocking, snapshots, and code coverage in a single framework. ([Jest][1])
+# Jest Expert Guide — Unit, Integration and E2E Testing
 
-# Jest.js Expert Roadmap (2026)
+ఈ గైడ్ Node.js, TypeScript, React, NestJS మరియు AWS workloads కోసం Jestతో maintainable test suite రూపొందించడానికి fundamentals నుండి CI/CD వరకు coverage ఇస్తుంది.
 
+> **Testing principle:** A test protects a behavior, not implementation details. Mock boundaries, validate observable outcomes, and keep tests deterministic, isolated and fast.
+
+## Testing Strategy Roadmap
 
 ```mermaid
-mindmap
-  root((Jest.js Expert Roadmap 2026))
-    1. Testing Fundamentals
-    2. Jest Basics
-    3. Assertions Expect API
-    Equality
-    Truthiness
-    Numbers
-    Arrays
+flowchart LR
+    Unit[Unit tests] --> Integration[Integration tests]
+    Integration --> Contract[Contract / API tests]
+    Contract --> E2E[End-to-end tests]
+
+    Unit --> Boundary[Mocks / fakes / stubs]
+    Integration --> Real[Real DB / cache / container]
+    E2E --> Browser[Browser + HTTP + infra]
+
+    Unit --> Coverage[Coverage and mutation]
+    Integration --> CI[CI split and retries]
+    E2E --> Monitor[Flake detection]
 ```
+
+## Test Pyramid and Testing Trophy
+
+```mermaid
+flowchart TD
+    Small[Fast unit tests] --> Medium[Integration tests]
+    Medium --> Few[Fewer full E2E tests]
+
+    Static[Static type/lint] --> Small
+    Small --> Components[Component tests]
+    Components --> Medium
+
+    Few --> User[Critical user journeys]
+    Medium --> API[API + database contracts]
+    Small --> Domain[Domain/business rules]
+```
+
+- Unit tests validate pure functions, domain rules and isolated orchestration.
+- Integration tests validate real adapters: HTTP, database, queue, cache, file system and framework wiring.
+- Component tests validate React/Nest behavior through public interfaces and accessible output.
+- E2E tests validate a few critical journeys across browser, network and infrastructure.
+- Contract tests detect provider/consumer API and event schema incompatibility.
+- Property-based or mutation tests can supplement examples for difficult domain algorithms.
+
+## Jest Execution Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant Jest
+    participant Config
+    participant Env as Test environment
+    participant Module
+    participant Hook
+    participant Test
+
+    Jest->>Config: Load config / transforms / setup
+    Jest->>Env: Create jsdom/node environment
+    Jest->>Module: Discover and compile test files
+    Jest->>Hook: beforeAll
+
+    loop Each test
+        Jest->>Hook: beforeEach
+        Jest->>Test: Arrange → Act → Assert
+        Jest->>Hook: afterEach
+    end
+
+    Jest->>Hook: afterAll
+    Jest->>Jest: Aggregate coverage / snapshots / exit
+```
+
+- `beforeAll` is for expensive setup shared safely across tests.
+- `beforeEach` restores boundaries and creates isolated test state.
+- `afterEach` restores mocks and closes resources to prevent cross-test leaks.
+- Never leave timers, handles, database connections or servers open after a suite.
+
+## Arrange-Act-Assert and Test Design
+
+```mermaid
+flowchart LR
+    Arrange[Arrange inputs / dependencies] --> Act[Act through public method or HTTP]
+    Act --> Assert[Assert observable behavior / side effects]
+
+    Arrange -. avoid testing .-> Implementation[Private implementation details]
+    Assert -. prefer .-> Result[Result / state / contract]
+```
+
+```ts
+it("returns a total after applying an allowed coupon", () => {
+  // Arrange
+  const cart = createCart([{ price: 100 }]);
+
+  // Act
+  const result = applyCoupon(cart, "SAVE10");
+
+  // Assert
+  expect(result.total).toBe(90);
+});
+```
+
+- Use descriptive test names and Given/When/Then or Arrange/Act/Assert consistently.
+- Assert result, external boundary call, error classification and state—not internal call sequence when unnecessary.
+- Parameterize repetitive cases with `test.each` or a table; do not hide the behavior in complex loops.
+- Avoid snapshots as the only assertion for dynamic or security-sensitive output.
+
+## Mock Boundary Strategy
+
+```mermaid
+flowchart LR
+    Test[Jest test] --> SUT[System under test]
+    SUT --> Domain[Real domain logic]
+
+    SUT -. replace expensive boundary .-> HTTP[HTTP client]
+    SUT -. replace infrastructure .-> DB[(Database)]
+    SUT -. replace external service .-> AWS[AWS SDK]
+    SUT -. replace clock .-> Time[Fake timers]
+
+    HTTP --> Contract[Assert request contract]
+    DB --> Contract
+    AWS --> Contract
+```
+
+- Mock at architectural boundaries: network clients, email/payment providers, databases and time.
+- Do not mock domain objects and internal private methods solely to make assertions easy.
+- Prefer dependency injection for NestJS/services and test doubles for explicit interfaces.
+- Use `jest.mock` for module replacement and `jest.spyOn` for temporary observation or method replacement.
+- Verify mock cleanup with `clearAllMocks`, `resetAllMocks` and `restoreAllMocks` deliberately.
+- A fake implementing a public contract is often less brittle than a chain of mock return values.
+
+## Async Testing
+
+```ts
+await expect(promise).resolves.toEqual({ id: 1 });
+await expect(promise).rejects.toThrow("Invalid order");
+
+jest.useFakeTimers();
+await jest.advanceTimersByTimeAsync(1000);
+
+await new Promise((resolve) => queue.once("done", resolve));
+```
+
+- Always return or `await` asynchronous actions.
+- Resolve/reject matchers avoid false positive tests from unhandled promises.
+- Fake timers are appropriate for setTimeout/setInterval/debounce/backoff; restore real timers afterward.
+- Add explicit completion/timeout handling for queues, sockets and browser events.
+- Reject timer/async test cleanup leaks; use `jest.getTimerCount()` when debugging.
+
+## Module, Repository and Framework Testing
+
+```mermaid
+flowchart LR
+    Pure[Pure unit test] --> Service[Nest service test]
+    Service --> Controller[Nest controller/HTTP test]
+    Controller --> App[Supertest application]
+
+    App --> TestDB[Test database / container]
+    TestDB --> Migration[Schema migration + fixtures]
+
+    App --> MockCloud[Mocked AWS/queue boundary]
+    MockCloud --> CI[CI test runner]
+```
+
+- Unit test Nest services with mocked providers and explicit public behavior.
+- Test Nest controllers for routing, status, validation and serialized response, while service tests cover business rules.
+- Integration test repositories against PostgreSQL/MongoDB test containers or a disposable database.
+- Use Supertest for HTTP without a browser; Playwright/Cypress is appropriate for real browser journeys.
+- Use AWS SDK v3 `mockClient` or dependency abstraction for AWS boundaries.
+- Reuse schema migrations/fixtures for integration tests and isolate tenants/databases.
+
+## Snapshot Testing
+
+- Use snapshots for stable serialized contracts or UI markup with controlled dynamic fields.
+- Inline snapshots are useful for small output but can make diffs noisy.
+- Never blindly update snapshots; review every snapshot change.
+- Normalize dates, IDs, ports and dynamic generated values before comparison.
+- Combine snapshots with explicit field assertions for critical security or domain invariants.
+
+## Coverage and Mutation Quality
+
+```mermaid
+flowchart LR
+    Coverage[Jest coverage] --> Lines[Lines]
+    Coverage --> Branches[Branches]
+    Coverage --> Functions[Functions]
+    Coverage --> Statements[Statements]
+
+    Examples[Representative tests] --> Mutation[Mutation testing]
+    Mutation --> Survive[Surviving mutants]
+    Survive --> Cases[Missing behavior tests]
+```
+
+- Coverage shows what executed, not whether assertions are meaningful.
+- Prioritize branch coverage for validation, authorization, retry and error paths.
+- Set thresholds as trends, but do not chase 100% if tests become implementation-coupled or redundant.
+- Mutation testing (Stryker) helps detect weak assertions and missing behavior variants.
+- Flaky tests must be fixed, quarantined temporarily, or removed; never retry blindly to hide nondeterminism.
+
+## Jest Configuration and Performance
+
+- Separate unit, integration and E2E Jest projects or npm scripts.
+- Use `testMatch` and `testPathIgnorePatterns` deliberately.
+- Configure `transform` for SWC/ts-jest/esbuild as appropriate, and cache compiled output.
+- Use `maxWorkers` and shard CI suites for throughput.
+- Run test containers only once for a suite rather than once per test.
+- Use `setupFiles` for environment initialization and `setupFilesAfterEnv` for matchers/hooks.
+- Set timeouts per suite/test; avoid very high global timeouts masking slow dependencies.
+- Use `--detectOpenHandles` during diagnostics, not always in CI.
+
+## CI/CD Testing Architecture
+
+```mermaid
+flowchart LR
+    Commit[Pull request commit] --> Static[Lint / typecheck / secret scan]
+    Static --> Unit[Fast Jest unit suite]
+    Unit --> Build[Build artifact]
+    Build --> Integration[Integration / test containers]
+    Integration --> Contract[API / event contract tests]
+    Contract --> E2E[Critical browser E2E]
+
+    E2E --> Report[JUnit / coverage / trace report]
+    Report --> Gate[Merge / deploy gate]
+```
+
+- Fail fast for lint/type/unit tests, then run expensive integration/E2E suites on larger runners.
+- Publish JUnit/JSON and coverage reports with a stable artifact naming scheme.
+- Retry network/browser flakiness only once while recording original failure and separate infrastructure failures.
+- Run test suites against built artifacts; do not test unbuilt source in some environment and deploy another.
+- Protect main/deployment branches with required test and coverage statuses.
+
+## Production Testing Checklist
+
+- Test happy, validation, authorization, timeout, retry, partial failure and duplicate/replayed event cases.
+- Test timezone, locale, DST, pagination and generated IDs for unit/integration determinism.
+- Test database transaction rollback and message outbox/inbox delivery behavior.
+- Test graceful shutdown and in-flight HTTP/queue cleanup.
+- Test AWS permissions and SDK boundaries, not only mock method calls.
+- Record test intent, ownership and flake policy.
+
+---
+
 ## [1. Testing Fundamentals](#1-testing-fundamentals-1)
 
 ### Learn

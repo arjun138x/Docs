@@ -1,3 +1,310 @@
+# React.js Interview Preparation — 2026 Expert Guide
+
+ఈ డాక్యుమెంట్ React interview కోసం basic concepts మాత్రమే కాకుండా render phases, concurrency, state ownership, server rendering, performance, accessibility, testing, security, debugging మరియు system-design trade-offs‌ను structured answer formatలో cover చేస్తుంది.
+
+> **Answer framework:** Concept → internal mechanism → practical example → trade-off → interview-ready one-line summary.
+
+## Interview Topic Map
+
+```mermaid
+mindmap
+  root((React Interview))
+    Fundamentals
+      JSX
+      components
+      props and state
+      reconciliation
+      keys
+    Hooks
+      state
+      effects
+      refs
+      memoization
+      custom hooks
+    Rendering
+      virtual DOM
+      render and commit
+      batching
+      transitions
+      Suspense
+    Architecture
+      state ownership
+      routing
+      Context vs Redux
+      server rendering
+      microfrontends
+    Quality
+      performance
+      accessibility
+      testing
+      security
+      observability
+```
+
+## React Render and Commit Flow
+
+```mermaid
+flowchart LR
+    Trigger[State / props / context update] --> Schedule[Schedule render]
+    Schedule --> Render[Render function components]
+    Render --> Diff[Reconcile / compare Fiber tree]
+    Diff --> Commit[Commit DOM / refs / layout effects]
+    Commit --> Passive[Passive effects]
+
+    Diff --> Bailout[Skip unchanged subtree]
+    Bailout --> Commit
+```
+
+**Interview answer:** React render determines what the UI should be. Reconciliation creates the next tree and determines changes. Commit applies DOM/ref/layout changes. Passive effects run after commit.
+
+## Props versus State
+
+| Dimension | Props | State |
+|---|---|---|
+| Owned by | Parent/caller | Component/store |
+| Read/write | Read-only at consumer | Owned component/store updates it |
+| Purpose | Configure and communicate | Represent changing UI/data |
+| Change source | Parent rerender/provider/store | Event, async result or external store |
+| Best practice | Stable typed contract | Minimal source of truth |
+
+**Derived state rule:** Store the minimum source of truth and derive filtered, sorted or formatted values instead of storing duplicate state.
+
+## Reconciliation and Keys
+
+```mermaid
+sequenceDiagram
+    participant Old as Previous React elements
+    participant React
+    participant New as Next React elements
+    participant DOM
+
+    Old->>React: Component identity / keys
+    New->>React: Component identity / keys
+    React->>React: Diff same-level children
+
+    alt Same type and key
+        React->>React: Reuse component instance
+        React->>DOM: Update changed props/DOM
+    else Type or key changed
+        React->>React: Unmount old instance
+        React->>DOM: Mount new instance
+    end
+```
+
+- Reconciliation does not guarantee exact DOM node reuse.
+- Keys identify logical children; stable domain IDs are preferred.
+- Array indexes can break state/animation/form identity during insertion/removal/reordering.
+- Keys are not globally unique, only unique among siblings of a list.
+
+## useState and State Updates
+
+**Functional update example:**
+
+```jsx
+setCount((previous) => previous + 1);
+```
+
+Use functional updates when new state depends on previous state. React 18 batches state updates across events, promises and timers. `flushSync` should be rare and used only for intentional synchronous DOM/third-party integration.
+
+```mermaid
+flowchart TD
+    Event[setState call] --> Queue[Update queue]
+    Queue --> Batch[Automatic batching]
+    Batch --> Render[Compute next state]
+    Render --> Commit[Commit once]
+
+    Queue -->|Dependent update| Functional[Apply previous => next]
+```
+
+## useEffect, useLayoutEffect and useInsertionEffect
+
+| Hook | Timing | Appropriate use |
+|---|---|---|
+| `useEffect` | After passive commit | Network, subscriptions, logging, timers |
+| `useLayoutEffect` | Before browser paint after DOM commit | Measure DOM and synchronously adjust layout |
+| `useInsertionEffect` | Before layout effects/dom mutations | CSS-in-JS style insertion internals |
+
+**Effect rule:**
+
+- Acquire resources, return cleanup.
+- Include every reactive dependency used.
+- Use event handlers instead of effects for action-triggered code when possible.
+- `useEffect` cleanup runs before re-running dependencies and on unmount.
+
+## State and Hook Evaluation
+
+```mermaid
+flowchart TD
+    Rules[React hook rules] --> TopLevel[Call hooks at top level]
+    Rules --> Stable[Stable hook call order]
+    Rules --> Component[Call from components / custom hooks]
+
+    Stable --> Custom[Custom hook composition]
+    Custom --> Test[Reusable behavior + tests]
+```
+
+- Hooks cannot be conditional or nested inside loops without breaking hook order.
+- Custom hooks share behavior and state logic, not a shared singleton state unless they call a store/context.
+- `useRef` for mutable DOM/instance values and no-rerender values; `useState` for observable UI data.
+
+## Context versus Redux/Zustand
+
+```mermaid
+flowchart LR
+    Requirement{Shared state requirement}
+
+    Requirement -->|Small / rarely changing| Context[Context API]
+    Requirement -->|Large / frequent| Store[Redux Toolkit / Zustand]
+
+    Context --> Coupling[Provider + consumers]
+    Store --> Tooling[Selectors / middleware / DevTools]
+
+    Store --> Server[Server state also may use RTK Query]
+```
+
+**Interview answer:** Context solves dependency sharing and can remove prop drilling, but it is not automatically a scalable high-frequency store. Redux/Zustand should be considered for complex, frequently updated, observable client state and middleware/tooling needs.
+
+## Concurrency Interview Answers
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant React
+    participant Transition
+    participant DOM
+
+    User->>React: Urgent typing / click
+    React->>DOM: Commit urgent input immediately
+
+    User->>React: startTransition(update)
+    React->>Transition: Render low-priority work
+
+    alt Work ready
+        Transition-->>DOM: Commit transition
+    else Work interrupted
+        Transition-->>React: Discard or continue background work
+    end
+```
+
+- `useTransition` marks state updates; `useDeferredValue` defers a derived value.
+- Automatic batching combines updates to reduce renders.
+- Concurrent rendering can pause/resume/discard work; effects and external resources must remain cleanup-safe.
+- `flushSync` is exceptional and usually indicates a third-party imperative integration.
+
+## Modern Server Rendering
+
+```mermaid
+flowchart LR
+    ServerRequest[Server request] --> ServerComp[Server Components]
+    ServerComp --> Stream[Streaming HTML / RSC payload]
+    Stream --> Shell[Immediate shell]
+    Stream --> Data[Resolved async sections]
+
+    Shell --> Hydrate[Client hydration]
+    Data --> Hydrate
+
+    Hydrate --> Island[Interactive client component]
+    Island --> Mutation[Browser mutation / optimistic UI]
+```
+
+- Server Components reduce client JavaScript and keep server-only data on server.
+- Client Components are needed for hooks, browser APIs and event handlers.
+- Hydration matches server markup/state to client initial render.
+- Suspense enables independent streaming and fallback UI.
+
+## Performance Interview Answers
+
+```mermaid
+flowchart LR
+    Problem[Slow React UI] --> Profile[React Profiler / browser timeline]
+    Profile --> Render[Unnecessary / expensive render]
+    Profile --> Asset[Bundle / image / font / network]
+
+    Render --> Scope[State / selector scope]
+    Render --> Memo[Memo / useMemo / useCallback]
+    Render --> Virtual[Virtualize large list]
+
+    Asset --> Split[Code split / preload]
+    Asset --> CDN[CDN / cache / responsive media]
+
+    Scope --> Measure[Measure again]
+    Virtual --> Measure
+    Split --> Measure
+```
+
+- `React.memo`/`useMemo`/`useCallback` are performance tools, not architecture dependencies.
+- Large lists use windowing/virtualization and stable keys.
+- Code splitting improves route load/initial bundle, but does not fix CPU-heavy rendering automatically.
+- Measure before optimization and verify with React Profiler/Core Web Vitals.
+
+## Accessibility Interview Answers
+
+- Use semantic HTML before ARIA.
+- Keyboard operability and visible focus are mandatory.
+- Forms need labels, descriptions and announced errors.
+- Modals manage focus transfer/restoration and inert/background behavior.
+- Route and dynamic content changes may require live regions or focus announcements.
+- Automated axe checks supplement keyboard and screen-reader manual tests.
+
+## Testing Interview Answers
+
+```mermaid
+flowchart LR
+    Pure[Pure functions / hooks] --> Unit[Unit tests]
+    Unit --> RTL[React Testing Library]
+    RTL --> Component[Public component behavior]
+    Component --> MSW[Mock API boundary]
+    MSW --> E2E[Critical Playwright/Cypress journey]
+```
+
+- Test behavior and accessible output; avoid asserting implementation calls.
+- Mock network boundaries with MSW or request interception.
+- Integration tests provide more user-confidence than isolated shallow component snapshots.
+- E2E tests cover critical login/payment/navigation journeys and run in limited quantity.
+
+## Security Interview Answers
+
+- React escapes text by default but rich HTML requires DOMPurify and protocol validation.
+- UI route guards are not server authorization.
+- API tokens should not be exposed to XSS-readable localStorage where secure cookies/BFF are feasible.
+- CSP, Trusted Types, CORS, secure cookies and dependency scanning reduce browser/supply-chain risk.
+- Validate API data and redirects at boundaries; never trust client-only role checks.
+
+## System Design Questions
+
+```mermaid
+flowchart LR
+    Requirement[Clarify product requirements] --> User[User / data / offline]
+    User --> Architecture[Shell / routes / state / API]
+    Architecture --> Performance[Bundle / cache / latency]
+    Architecture --> Failure[Loading / error / retry / fallback]
+    Failure --> Security[Auth / XSS / CSRF / privacy]
+    Security --> Deploy[CDN / release / rollback / RUM]
+```
+
+For a React system-design answer, explicitly cover:
+
+- Component ownership and feature boundaries.
+- State ownership: local, URL, server cache and shared client state.
+- Rendering strategy: CSR, SSR, SSG, streaming or islands.
+- API/BFF boundaries and optimistic mutation behavior.
+- Loading, empty, error, stale and offline states.
+- Accessibility and i18n.
+- Performance budgets and monitoring.
+- Security, deployment and rollback.
+
+## Strong Interview Phrasing
+
+- “React re-render does not always mean DOM update; commit updates only changed DOM nodes.”
+- “Keys identify reconciliation identity; array index is not stable identity.”
+- “A hook must run consistently, but a custom hook can share behavior, not an implicit global store.”
+- “Context is dependency sharing; Redux is a predictable state + middleware ecosystem.”
+- “A transition defers state work, but it does not make network work cancellable without an AbortController.”
+- “Server Components keep server-owned code off the client, but Client Components own browser interactivity.”
+- “Coverage proves execution, not assertion quality.”
+
+---
+
 Here are **Top 25 React.js Interview Questions (2026)** that are commonly asked in product-based companies and service-based companies (TCS, Infosys, Cognizant, Capgemini, Deloitte, Accenture) as well as companies like Amazon, Microsoft, Google, Walmart, and startups.
 
 ---

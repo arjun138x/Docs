@@ -1,4 +1,233 @@
-Here is a structured, step-by-step roadmap to take you from Git basics to advanced version control concepts.
+# Git: Complete Beginner to Advanced Guide
+
+ఈ గైడ్ Git core model, branching, collaboration, conflict resolution, history rewriting, recovery, monorepos, signing, CI/CD మరియు production-safe workflowsను practical Telugu/English formatలో cover చేస్తుంది.
+
+> **Golden rules:** Commit changes in small logical units. Never rewrite shared published history unless the team explicitly coordinates. Prefer `revert` for shared branches and `rebase/reset` for local unpublished work.
+
+## Git Learning Roadmap
+
+```mermaid
+flowchart LR
+    Config[Config / init] --> Status[Working / staging / commit]
+    Status --> Branch[Branch / merge / rebase]
+    Branch --> Remote[Fetch / pull / push]
+    Remote --> Review[Pull request / code review]
+    Review --> Fix[Reset / restore / revert / stash]
+    Fix --> Inspect[Log / diff / blame / bisect]
+    Inspect --> Rewrite[Rebase -i / squash / cherry-pick]
+    Rewrite --> Release[Tags / signing / protected branches]
+    Release --> Scale[Submodule / monorepo / worktree]
+```
+
+## Git Object and Area Model
+
+```mermaid
+flowchart LR
+    WD[Working tree] -->|git add| Index[Index / staging area]
+    Index -->|git commit| Repo[(Git objects / .git)]
+
+    Repo --> Blob[Blob: file content]
+    Repo --> Tree[Tree: directory snapshot]
+    Repo --> Commit[Commit: tree + parent + metadata]
+    Repo --> Tag[Tag: named commit / annotated metadata]
+
+    Commit --> Head[HEAD]
+    Head --> Branch[Current branch]
+```
+
+- Blob stores file content; tree stores filenames/directories; commit stores snapshot metadata and parent link.
+- Working tree is current files, index/staging is the next commit candidate, HEAD identifies the current commit/branch.
+- A commit is an immutable object; changing history creates new commit objects and hashes.
+- Git is a content-addressed object database; branches and tags are mostly pointers to commits.
+
+## Basic Commit Workflow
+
+```mermaid
+sequenceDiagram
+    participant Dev
+    participant WD as Working tree
+    participant Index as Staging area
+    participant Repo as Local repository
+    participant Remote
+
+    Dev->>WD: Edit files
+    Dev->>WD: git status / git diff
+    Dev->>Index: git add
+    Dev->>Index: git diff --staged
+    Dev->>Repo: git commit
+    Repo-->>Dev: commit hash / snapshot
+
+    Dev->>Remote: git push
+    Remote-->>Dev: branch updated
+```
+
+Recommended commit:
+
+```bash
+git status
+git diff
+git add -p
+git diff --staged
+git commit -m "fix: prevent duplicate order submission"
+```
+
+- Stage with `git add -p` for logical hunks rather than unrelated files.
+- Commit subject should describe intent; include issue/footers and body when needed.
+- Do not commit secrets, build outputs, `.env` secrets or machine-specific files.
+- Use `.gitignore` plus pre-commit secret scanning for accidental additions.
+
+## Branch and Merge Flow
+
+```mermaid
+flowchart LR
+    Main[(main)] --> A[feature/a]
+    A --> C1[commit A1]
+    C1 --> C2[commit A2]
+    A --> M[merge commit or fast-forward]
+    M --> Main
+
+    Main --> B[feature/b]
+    B --> D1[commit B1]
+
+    D1 -. conflict possible .-> M
+```
+
+- Short-lived feature branches reduce merge complexity.
+- Merge preserves branch history and creates an explicit merge commit when needed.
+- Rebase replays branch commits onto a newer base for a linear history.
+- Fast-forward merge moves branch pointer without an extra merge commit.
+- Squash merge creates one commit on the target branch and hides feature commits by design.
+
+## Collaborative Pull Request Workflow
+
+```mermaid
+flowchart TD
+    Clone[Clone / fork] --> Branch[Create feature branch]
+    Branch --> Commit[Small commits]
+    Commit --> Push[Push branch]
+    Push --> PR[Open pull request]
+
+    PR --> Review[Review / status checks]
+    Review -->|Changes requested| Commit
+    Review -->|Approved| Protect[Protected target checks]
+    Protect --> Merge[Merge / squash / rebase]
+
+    Merge --> Deploy[Tag / release / deploy]
+```
+
+- Keep target branches protected; require reviews, CI, signed commits or status checks where policy demands.
+- Fetch and integrate target changes before final PR merge.
+- Resolve conflict manually and rerun tests; never accept both sides blindly.
+- Use PR draft for incomplete work and final diff review for secrets and unrelated changes.
+
+## Undo Operations Safety Matrix
+
+| Goal | Command | Shared branch | Rewrites commits |
+|---|---|---|---|
+| Discard unstaged working change | `git restore <file>` | Safe | No |
+| Unstage file | `git restore --staged <file>` | Safe | No |
+| Amend latest local commit | `git commit --amend` | Rebase needed if pushed | Yes |
+| Move HEAD/index/working branch | `git reset --soft/mixed/hard` | Dangerous if shared | Yes |
+| Reverse commit with a new commit | `git revert <commit>` | Safe | No |
+| Temporarily save work | `git stash push/pop` | Safe | No |
+
+## Merge Conflict Resolution
+
+```mermaid
+flowchart TD
+    Merge[git merge / rebase] --> Conflict[Conflict markers]
+    Conflict --> Inspect[git diff --merge / diff stages]
+    Inspect --> Choose[Resolve intended behavior]
+    Choose --> Add[git add resolved files]
+
+    Add --> MergeMode{Merge or rebase?}
+    MergeMode -->|Merge| Commit[git commit]
+    MergeMode -->|Rebase| Continue[git rebase --continue]
+
+    Commit --> Test[Run tests]
+    Continue --> Test
+```
+
+- Inspect `OURS`, `THEIRS` and base stages using `git checkout --ours/theirs` only after understanding context.
+- Resolve conflict semantically; both sides may need a combined implementation.
+- Re-run build/tests after conflict resolution.
+- Abort merge/rebase when recovery is easier: `git merge --abort`, `git rebase --abort`.
+
+## Rebase and Interactive Rebase
+
+```mermaid
+flowchart LR
+    Main[(main new commit)] --> Feature[Local feature commits]
+
+    Rebase[git rebase main] --> Replay1[Replay A]
+    Replay1 --> Replay2[Replay B]
+    Replay2 --> Linear[Linear branch on current main]
+
+    Interactive[git rebase -i] --> Squash[Squash]
+    Interactive --> Fixup[Fixup]
+    Interactive --> Edit[Edit]
+    Interactive --> Drop[Drop]
+```
+
+- Rebase only commits that are not part of coordinated/shared branch history.
+- Interactive rebase should improve readability and remove WIP/fixup commits.
+- Force push requires `--force-with-lease`, and team coordination is mandatory.
+- `git cherry-pick` copies a commit patch onto another branch and creates a new commit.
+
+## Recovery with Reflog and Bisect
+
+```mermaid
+flowchart TD
+    Accident[Lost commit / reset / deleted branch] --> Reflog[git reflog]
+    Reflog --> Hash[Identify old HEAD/commit]
+    Hash --> Recover[git switch -c recovered <hash>]
+
+    Bug[Regression introduced] --> Bisect[git bisect start]
+    Bisect --> Test[mark good/bad commits]
+    Test --> Culprit[Git reports culprit commit]
+    Culprit --> Fix[git bisect reset + fix/revert]
+```
+
+- Reflog is local HEAD/action history and is the first recovery tool.
+- Reflog entries eventually expire, so recovery is not permanent backup.
+- Bisect can be automated with `git bisect run <test>` for binary-search debugging.
+- Remote backup and object retention still protect accidental loss.
+
+## Git Objects and Secure Repository Practices
+
+- Keep `.gitignore` for build products and local files; use secret scanning for policy enforcement.
+- Signed commits/tags verify authorship, while SSH/GPG setup does not prevent secret exposure.
+- Avoid committing secrets even when later removed; rotate leaked credentials immediately.
+- Use submodules for pinned external repositories, worktrees for parallel branches and partial clone for very large repos.
+- Git LFS handles large binaries; Git LFS pointer/object availability must be considered in backup/deployment.
+
+## Git LFS, Submodules and Worktrees
+
+```mermaid
+flowchart LR
+    MainRepo[Main repository] --> Submodule[Git submodule @ commit]
+    MainRepo --> LFS[Git LFS pointers]
+    LFS --> LFSStorage[(Large object storage)]
+
+    MainRepo --> WT1[Worktree A: feature]
+    MainRepo --> WT2[Worktree B: hotfix]
+```
+
+- Submodules pin external repositories but add update/fetch/checkout complexity.
+- Worktrees share object database while allowing separate working directories and branches.
+- LFS is suitable for large binaries, but should not replace source-review and storage policy.
+- Monorepos use sparse checkout, worktrees and CI path filters for large-scale work.
+
+## Recovery and Rewriting Checklist
+
+- `git restore` for working/staging mistakes.
+- `git revert` for shared published commits.
+- `git reset` for local branch/index rewinds.
+- `git rebase`/interactive rebase for local unpublished history cleanup.
+- `git cherry-pick` for selected commits.
+- `git reflog` and `git fsck --lost-found` for recovery investigation.
+- `git bisect` for regression finding.
+- `git blame`/`git log -S`/`git log --follow` for code/history investigation.
 
 ---
 

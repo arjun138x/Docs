@@ -1,6 +1,10 @@
-Here’s a **Python roadmap from beginner to advanced**, with a focus on becoming **job/interview ready**.
+# Python: Complete Beginner to Advanced Guide
 
-## 🐍 Python Roadmap
+ఈ డాక్యుమెంట్ Python fundamentals, internals, backend development, testing, packaging, performance మరియు production architecture వరకు job/interview-ready roadmapగా organize చేసింది.
+
+> **Learning principle:** Python readability మాత్రమే కాదు; object model, memory model, async model మరియు standard library semantics కూడా strong Python engineerకి అవసరం.
+
+## Python Roadmap
 
 ![Image](https://images.openai.com/static-rsc-4/-NkwDcbXTTSYVLoc_bLf0Kc1hwSblhALoKBV0A_T4Uub1XJoYiFjhqJssjcCnMaim4oiJyJiMVUWlXo_ezK1xl7xvuHnZtuQJUpbFK4OCOITPR5HrrJof98yZWJNzMPzSG7Kxgzl5piTvz-uVSz2dQGksOehA4MeB3YTsALcSgiEig6ACXul6y96SC9AQzy_?purpose=fullsize)
 
@@ -13,6 +17,61 @@ Here’s a **Python roadmap from beginner to advanced**, with a focus on becomin
 ![Image](https://images.openai.com/static-rsc-4/uFOctGM16jdj4f37Ta4pUtR3g_WIpuDww2cpm04t8in-rTY-pDwXcIlngLVZA7RAYY8fkmYs035Hcr5XNIJkjrTm2LbsKD0IDPYlEXxoTPjl9KbbHLTXVCZ2rpFLqvfKpxh6Q56H04TRzHXESkcl9uJZShEooRz_jpx2fuxc4WfDEM6hFIgIzAI7YAmOOnEI?purpose=fullsize)
 
 ![Image](https://images.openai.com/static-rsc-4/WQoXQJzDCLP2LqhcZ8uspEFq5g8-OeSSzSSCsdSYUKryNTZHOTv_-22tW5DAFqmOAj9NqgW4h8cG8Edvx-nzTgnrZPFB3T-Y7ckKs3AgonoX8EW26R7QvfInnsVtUkWHdMrIYLHArTKr3TVDNPNE21uHu1RSWinWBGQW2M0O6A8In2FNfetbdqlHIhPCQxdF?purpose=fullsize)
+
+```mermaid
+flowchart LR
+    Basics[Syntax / types / control flow] --> Data[Lists / tuples / sets / dict]
+    Data --> Functions[Functions / args / closures]
+    Functions --> OOP[Classes / inheritance / polymorphism]
+    OOP --> Advanced[Iterators / generators / decorators]
+    Advanced --> Errors[Exception handling / logging]
+    Errors --> Packaging[Modules / packages / virtualenv]
+    Packaging --> Testing[pytest / fixtures / mocking]
+    Testing --> Type[Type hints / mypy / pyright]
+    Type --> Async[asyncio / I/O concurrency]
+    Async --> Framework[FastAPI / Django / SQLAlchemy]
+    Framework --> Production[Docker / AWS / observability]
+```
+
+## Python Execution Model
+
+```mermaid
+flowchart TD
+    Source[.py source] --> Parser[Parser / AST]
+    Parser --> Compile[Bytecode compiler]
+    Compile --> PYC[(.pyc cache)]
+    PYC --> VM[CPython bytecode VM]
+    VM --> GIL[Global Interpreter Lock]
+    VM --> Memory[Object heap / reference counting]
+    Memory --> GC[Cycle garbage collector]
+    VM --> C[Built-in / C extensions]
+    C --> OS[Operating system / network / files]
+```
+
+- CPython source converts to bytecode and executes in a virtual machine.
+- Reference counting releases many objects immediately; cyclic garbage collection handles unreachable reference cycles.
+- GIL generally allows only one thread to execute CPython bytecode at a time, while native I/O/C extensions can release it.
+- Use async or threading for I/O waits; multiprocessing or native worker pools for CPU-heavy work.
+
+## Python Project Structure
+
+```mermaid
+flowchart LR
+    Root[Project root] --> Src[src/package]
+    Root --> Tests[tests/]
+    Root --> Config[pyproject.toml]
+    Root --> Env[.env.example]
+    Root --> Docker[Dockerfile / compose]
+    Src --> Init[__init__.py]
+    Src --> API[api/routes]
+    Src --> Domain[domain/services]
+    Src --> Infra[database/cache/providers]
+    Config --> Lint[Ruff / formatting]
+    Config --> Test[pytest]
+    Config --> Types[mypy / pyright]
+    Tests --> Unit[Unit tests]
+    Tests --> Integration[Integration tests]
+```
 
 # [1. Python Fundamentals](#1-python-fundamentals-1)
 
@@ -3585,3 +3644,155 @@ def add_numbers(a: int, b: int) -> int:
 ```
 
 ---
+
+# Advanced Python Production Guide
+
+## Packaging and Environments
+
+```mermaid
+flowchart LR
+    App[Source code] --> Venv[Virtual environment]
+    Venv --> Lock[Lock / dependency resolution]
+    Lock --> Build[pyproject.toml build backend]
+    Build --> Wheel[Wheel / sdist]
+    Wheel --> Registry[Private or PyPI registry]
+    Registry --> Deploy[Docker / server / Lambda]
+```
+
+- Use `venv` or `uv` per project to isolate dependencies.
+- Prefer `pyproject.toml` for build metadata, formatting, linting and pytest/mypy configuration.
+- Pin lockfiles in production applications and version constraints in reusable libraries.
+- Keep secret values outside source and use environment/secret managers.
+- Build immutable wheels/images once and promote the same artifact across environments.
+
+## Testing and Quality
+
+```mermaid
+flowchart LR
+    Unit[pytest unit tests] --> Integration[Integration tests]
+    Integration --> API[FastAPI TestClient]
+    API --> Contract[Schema / OpenAPI contract]
+    Contract --> E2E[Critical workflow]
+
+    Unit --> Coverage[Coverage]
+    Integration --> DB[Test database / container]
+    API --> Mock[Mock external providers]
+
+    Coverage --> CI[CI quality gate]
+    E2E --> CI
+```
+
+- Unit tests cover pure functions and domain rules.
+- Integration tests cover database, cache, filesystem and external adapters.
+- Use fixtures/factories for deterministic setup and cleanup.
+- Mock at external boundaries, not every internal implementation detail.
+- Run Ruff/Black/isort, mypy/pyright, pytest and security scanning in CI.
+- Measure branch coverage and mutation quality, not only line coverage.
+
+**Example pytest fixture:**
+
+```python
+import pytest
+
+@pytest.fixture
+def sample_user():
+    return {"name": "Ramu", "age": 25}
+
+def test_user_name(sample_user):
+    assert sample_user["name"] == "Ramu"
+```
+
+## Profiling and Performance
+
+```mermaid
+flowchart TD
+    Problem[Slow / memory-heavy workload] --> Measure[Profile / benchmark]
+    Measure --> CPU{CPU-bound?}
+
+    CPU -->|Yes| Pool[Multiprocessing / worker pool]
+    CPU -->|No| IO{I/O-bound?}
+
+    IO -->|Yes| Async[asyncio / thread pool]
+    IO -->|No| Memory[Memory / allocations / cache]
+
+    Pool --> Verify[Benchmark again]
+    Async --> Verify
+    Memory --> Verify
+```
+
+- Profile before optimizing: `cProfile`, `pyinstrument`, `tracemalloc`, `timeit` and `py-spy`.
+- Avoid premature micro-optimization or changing clear code for negligible gains.
+- Reuse sessions/connection pools and avoid unbounded in-memory lists.
+- Use generators for sequential large datasets instead of materializing all records.
+- Cache pure or expensive results only with clear invalidation and TTL behavior.
+- For CPU-heavy work, multiprocessing or native extensions are preferred over threading under CPython GIL.
+
+## Async FastAPI Architecture
+
+```mermaid
+flowchart LR
+    Client[HTTP client] --> Gateway[API Gateway / ingress]
+    Gateway --> App[FastAPI app]
+    App --> Route[Route / dependency]
+    Route --> Service[Service / domain layer]
+
+    Service --> DB[(Async SQLAlchemy / PostgreSQL)]
+    Service --> Cache[(Redis)]
+    Service --> Queue[(RabbitMQ / SQS)]
+
+    Queue --> Worker[Celery / RQ / async worker]
+    Worker --> External[Email / payment / object storage]
+
+    App --> Trace[OpenTelemetry / logging]
+    Trace --> Monitor[Prometheus / Datadog]
+```
+
+- Route functions stay thin; services own business logic and adapters own infrastructure.
+- Use async clients and database drivers consistently across the request path.
+- Do not run CPU-heavy or blocking synchronous code inside the event-loop thread.
+- Use dependency injection for database sessions, settings, auth and external clients.
+- Add request IDs, structured logs, tracing, timeouts and health/readiness endpoints.
+
+## Memory and Object Model
+
+- `==` compares values; `is` compares object identity.
+- Small immutable values may be interned, but code should not depend on interned identity.
+- Mutability sharing can cause unexpected side effects; copy, freeze or copy.deepcopy when appropriate.
+- Iterators produce values lazily; iterables are objects that provide an iterator.
+- Generators preserve suspended frame state and are suitable for streaming or on-demand sequences.
+- Dataclasses are good for structured data; frozen dataclasses prevent accidental mutation.
+
+## Security and Reliability Checklist
+
+- Validate external input with Pydantic or dedicated schemas.
+- Parameterize database queries; never format SQL from raw user input.
+- Hash passwords with Argon2/bcrypt, not MD5/SHA alone.
+- Store tokens and secrets in secret managers; rotate and scope credentials.
+- Add TLS, CORS allowlists, CSRF strategy and rate limiting for public APIs.
+- Avoid `pickle`, `eval`, `exec` and dynamic shell strings with untrusted input.
+- Use subprocess argument lists, allowlists and least-privileged service users.
+- Use retries only for transient failures, with exponential backoff and bounded attempts.
+- Catch only relevant exceptions and preserve context for logs/tracing.
+
+## Production Operations
+
+- Configure environment variables and immutable settings models.
+- Use Uvicorn/Gunicorn workers, container probes and graceful shutdown.
+- Tune worker count based on CPU/I/O and database connection limits.
+- Configure timeouts for HTTP clients, database operations and queue jobs.
+- Monitor event-loop lag, process memory, GC, latency, error rate and queue backlog.
+- Build small Docker images, run non-root, scan dependencies and pin versions.
+
+## Interview Priority Matrix
+
+| Area             | Must explain clearly                                       |
+| ---------------- | ---------------------------------------------------------- |
+| Python execution | Interpreted bytecode, GIL, reference counting, GC          |
+| Data model       | Mutable/immutable, shallow/deep copy, iterables/generators |
+| Functions        | Scope, closures, decorators, `*args`, `**kwargs`           |
+| OOP              | MRO, polymorphism, dataclasses, dunder methods             |
+| Concurrency      | Threading vs asyncio vs multiprocessing                    |
+| Testing          | Fixtures, mocks, parametrization, coverage                 |
+| Backend          | FastAPI dependencies, SQLAlchemy sessions, async I/O       |
+| Performance      | Profiling, caching, connection pools, event-loop blocking  |
+| Security         | Validation, SQL injection, secrets, password hashing       |

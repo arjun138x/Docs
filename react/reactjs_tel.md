@@ -1,263 +1,289 @@
-Here's a **React.js Roadmap (2026)** from beginner to advanced. Follow it in order.
+# React.js — Complete Production Roadmap
 
-## [1. Prerequisites](#1-prerequisites-1)
+ఈ డాక్యుమెంట్ HTML/JavaScript prerequisites నుండి React fundamentals, modern hooks, routing, state management, Server Components, rendering, performance, accessibility, testing, security, observability మరియు deployment వరకు complete React engineering roadmap.
 
-Before React, learn:
+> **Core principle:** React application should be predictable under normal use, network failure, concurrent interaction and server/client rendering differences.
 
-- ✅ HTML5
-- ✅ CSS3
-- ✅ Flexbox & Grid
-- ✅ Responsive Design
-- ✅ JavaScript (ES6+)
-  - Variables (`let`, `const`)
-  - Arrow functions
-  - Template literals
-  - Destructuring
-  - Spread & Rest operators
-  - Array methods (`map`, `filter`, `reduce`)
-  - Promises
-  - Async/Await
-  - Modules (Import/Export)
-
----
-
-## [2. React Fundamentals](#2-react-fundamentals-1)
-
-Learn:
-
-- What is React?
-- JSX
-- Components
-- Functional Components
-- Props
-- State (`useState`)
-- Event Handling
-- Conditional Rendering
-- Lists & Keys
-- Forms
-- Controlled Components
-
-**Project Ideas**
-
-- Counter App
-- To-Do App
-- Calculator
-- Notes App
-
----
-
-## [3. React Hooks](#3-react-hooks-1)
-
-Master these hooks:
-
-- `useState`
-- `useEffect`
-- `useRef`
-- `useContext`
-- `useMemo`
-- `useCallback`
-- Custom Hooks
-
-**Projects**
-
-- Weather App
-- Stopwatch
-- Dark Mode Toggle
-- Search Filter
-
----
-
-## [4. Routing](#4-routing-1)
-
-Learn:
-
-- React Router
-- Nested Routes
-- Dynamic Routes
-- Route Parameters
-- Navigation
-- Protected Routes
-
-**Project**
-
-- Multi-page Blog
-
----
-
-## [5. API Integration](#5-api-integration-1)
-
-Learn:
-
-- Fetch API
-- Axios
-- Async Data Fetching
-- Loading States
-- Error Handling
-
-**Projects**
-
-- Movie Search App
-- News App
-- GitHub User Finder
-
----
-
-## [6. State Management](#6-state-management-1)
-
-Start with:
-
-- Context API
-
-Then learn:
-
-- Redux Toolkit
-- Zustand (lightweight alternative)
-
-Topics:
-
-- Store
-- Slice
-- Reducers
-- Actions
-- Async Thunks
-
----
-
-## [7. Styling](#7-styling-1)
-
-Learn different styling methods:
-
-- CSS Modules
-- Tailwind CSS
-- Styled Components
-- Material UI
-- Bootstrap
-
----
-
-## [8. Forms](#8-forms-1)
-
-Learn:
-
-- React Hook Form
-- Validation
-- Yup or Zod
-
----
-
-## [9. Performance Optimization](#9-performance-optimization-1)
-
-Learn:
-
-- Lazy Loading
-- Code Splitting
-- Memoization
-- React.memo
-- useMemo
-- useCallback
-- Virtualization
-
----
-
-## [10. Advanced React](#10-advanced-react-1)
-
-Study:
-
-- Higher Order Components (HOC)
-- Render Props
-- Error Boundaries
-- Portals
-- Suspense
-- Concurrent Features
-- Server Components (basic understanding)
-
----
-
-## [11. Testing](#11-testing-1)
-
-Learn:
-
-- Jest
-- React Testing Library
-- Unit Testing
-- Integration Testing
-
----
-
-## [12. Build & Deploy](#12-build--deploy-1)
-
-Learn:
-
-- Vite
-- Environment Variables
-- Production Build
-- Deployment
-
-Deploy on:
-
-- GitHub Pages
-- Netlify
-- Vercel
-
----
-
-# Projects by Level
-
+## React Learning Roadmap
 
 ```mermaid
-mindmap
-  root((1. Prerequisites))
-    2. React Fundamentals
-    3. React Hooks
-    4. Routing
-    5. API Integration
-    6. State Management
-    7. Styling
-    8. Forms
+flowchart LR
+    JS[JavaScript + HTML + CSS] --> JSX[JSX / components / props]
+    JSX --> Hooks[State / effects / refs / context]
+    Hooks --> Router[Routing / layouts / loaders]
+    Router --> Data[API / server state / mutations]
+    Data --> State[RTK / Zustand / query cache]
+    State --> Forms[React Hook Form / Zod]
+    Forms --> Performance[Code split / memo / virtualization]
+    Performance --> Modern[Concurrent React / Suspense / RSC]
+    Modern --> Quality[Testing / accessibility / security]
+    Quality --> Delivery[Build / CDN / deploy / observability]
 ```
-### Beginner
 
-- Counter
-- Calculator
-- To-Do App
-- Quiz App
+## React Rendering Architecture
 
-### Intermediate
+```mermaid
+flowchart TD
+    State[State / props / context] --> Trigger[React render schedule]
+    Trigger --> Render[Render component tree]
+    Render --> Diff[Reconciliation / fiber diff]
+    Diff --> Commit[DOM / ref / layout commit]
+    Commit --> Paint[Browser layout / paint / composite]
 
-- Weather App
-- Expense Tracker
-- Movie App
-- E-commerce Cart
+    Commit --> Passive[useEffect work]
+    Commit --> Cleanup[Cleanup stale subscriptions]
 
-### Advanced
+    Render -. paused / resumed / discarded .-> Concurrent[Concurrent work]
+    Concurrent --> Commit
+```
 
-- Chat Application
-- Social Media Dashboard
-- Netflix Clone
-- Admin Dashboard
-- Food Delivery App
+- `render` should be pure and avoid API calls, DOM mutations or external writes.
+- Reconciliation compares the previous and next React element trees.
+- Keys should be stable IDs; indexes are unsafe for reorderable or insertable lists.
+- Commit applies DOM changes and runs layout/ref effects.
+- Passive effects run after commit and require cleanup.
 
----
+## State Ownership Architecture
 
-# After React
+```mermaid
+flowchart TD
+    Need[Stateful behavior] --> Scope{Ownership scope}
 
-Learn:
+    Scope -->|One component| Local[useState / useReducer]
+    Scope -->|Parent-child| Lift[Lift state / props]
+    Scope -->|Nested shared UI| Context[Context provider]
+    Scope -->|URL navigable state| Router[Search params / route params]
+    Scope -->|Server data| Cache[TanStack Query / RTK Query]
+    Scope -->|Cross-feature client state| Store[Redux / Zustand]
 
-- TypeScript
-- Next.js
-- Node.js
-- Express.js
-- MongoDB/PostgreSQL
-- Authentication (JWT, OAuth)
-- GraphQL (optional)
+    Cache --> Mutation[Mutation / optimistic update]
+    Store --> Selector[Memoized selector]
+```
 
-### Estimated Timeline
+- Local state should remain local; not every state belongs in Redux.
+- Context is for dependency/sharing patterns, not high-frequency state updates by default.
+- Server data should be cached and invalidated in a query library or framework cache.
+- URL state is appropriate for filters, pagination, tabs and shareable results.
+- Derived state should be memoized/computed instead of stored in a second source of truth.
 
-- **Beginner:** 1 month
-- **Intermediate:** 2–3 months
-- **Advanced:** 4–6 months (with projects)
+## Component Lifecycle and Effects
 
-The key to mastering React is building projects consistently. Aim to create **10–15 real-world projects** and deploy them to build a strong portfolio.
+```mermaid
+sequenceDiagram
+    participant React
+    participant Component
+    participant Effect
+    participant Resource
+
+    React->>Component: Render
+    Component-->>React: JSX
+    React->>Effect: Commit DOM + layout refs
+    Effect->>Resource: Acquire timer/listener/socket/fetch
+
+    alt Dependencies change
+        Effect->>Resource: Cleanup prior resource
+        Effect->>Resource: Acquire new resource
+    else Component unmount
+        Effect->>Resource: Final cleanup
+    end
+```
+
+- Effect dependencies should include every reactive value used.
+- Cleanup aborts fetches, removes listeners and closes subscriptions.
+- StrictMode development effect replay validates cleanup and purity.
+- Use event handlers rather than effects for action-triggered code whenever practical.
+
+## Concurrent React and Suspense
+
+```mermaid
+flowchart TD
+    Event[User event] --> Urgent{Priority}
+
+    Urgent -->|Immediate| Sync[Urgent state update]
+    Urgent -->|Expensive view| Transition[useTransition / startTransition]
+
+    Transition --> Work[Concurrent render]
+    Work --> Ready{Work ready?}
+    Ready -->|Yes| Commit[Commit transition]
+    Ready -->|No| Previous[Keep previous UI]
+
+    Data[Lazy/suspense data] --> Fallback[Meaningful loading fallback]
+    Fallback --> Stream[Stream / reveal sections]
+```
+
+- `useTransition` keeps urgent UI responsive during expensive transitions.
+- `useDeferredValue` defers a value while keeping immediate input feedback.
+- Suspense should have route/component-level fallbacks with progress and recovery information.
+- Avoid transitions around network mutations unless framework semantics explicitly support pending UI.
+
+## Server Rendering, Hydration and Streaming
+
+```mermaid
+flowchart LR
+    Request[Browser request] --> Framework[React / Next.js server]
+    Framework --> RSC[Server Components]
+    RSC --> Stream[Stream HTML / RSC payload]
+    Stream --> Shell[Initial shell]
+    Stream --> Content[Resolved content sections]
+
+    Shell --> Hydrate[Hydrate client boundaries]
+    Content --> Hydrate
+    Hydrate --> Interactive[Interactive UI]
+
+    Interactive --> Query[Client server-state cache]
+    Query --> Mutate[Mutations / revalidation]
+```
+
+- SSR improves initial content and crawler/indexing behavior but requires server and client consistency.
+- Streaming permits slow sections to resolve independently.
+- Hydration mismatch occurs when rendered markup or initial state differs between server and client.
+- Use Server Components for server-only data/rendering and Client Components for hooks/browser events.
+- Never expose environment secrets or credentials in client component code or serialized props.
+
+## Forms and Validation
+
+```mermaid
+flowchart LR
+    Input[Form input] --> Controlled[Controlled / uncontrolled strategy]
+    Controlled --> Validate[Zod / Yup / server validation]
+    Validate --> Valid{Valid?}
+
+    Valid -->|Yes| Submit[Idempotent submit]
+    Valid -->|No| Errors[Accessible field errors]
+
+    Submit --> Loading[Disable duplicate submit]
+    Submit --> Response[Success / conflict / retry]
+
+    Response --> Mutation[Optimistic or reconciliation]
+```
+
+- React Hook Form or Formik should align with validation and rerender requirements.
+- Zod/Yup may validate client UX; server validation remains mandatory.
+- Prevent duplicate mutations with idempotency keys, pending state and button/disabling rules.
+- Preserve entered values on server failure and announce errors/accessibility status.
+
+## Performance Budget
+
+```mermaid
+flowchart LR
+    Bundle[Bundle / dependency analysis] --> Split[Route + feature splitting]
+    Split --> Assets[Images / fonts / icons]
+
+    Render[React Profiler] --> Scope[State scope]
+    Render --> List[Virtualization]
+    Render --> Derived[Memoized selectors / calculations]
+
+    Split --> Metrics[Core Web Vitals]
+    Assets --> Metrics
+    Scope --> Metrics
+    List --> Metrics
+    Derived --> Metrics
+```
+
+- Measure LCP, INP, CLS, TTFB and route-level real user metrics.
+- Use `React.memo`, `useMemo` and `useCallback` only after measuring meaningful rerender work.
+- Virtualize large lists and preserve keyboard, focus and scroll behavior.
+- Optimize responsive images, font subsets, priority hints and cache headers.
+- Preload only resources proven to be critical for a route.
+
+## Accessibility and Internationalization
+
+```mermaid
+flowchart LR
+    HTML[Semantic HTML] --> Keyboard[Keyboard navigation]
+    HTML --> Reader[Accessible names / roles]
+
+    Keyboard --> Focus[Focus management]
+    Reader --> Live[Live regions]
+    Focus --> Dialog[Modal / menu / drawer]
+
+    I18n[Localization] --> Locale[Locale format]
+    I18n --> RTL[RTL / logical CSS]
+    I18n --> Text[Text expansion / ICU]
+
+    Dialog --> A11yTest[axe / Playwright / manual screen reader]
+    Text --> A11yTest
+```
+
+- Use semantic elements before ARIA; native controls solve many keyboard/accessibility problems.
+- Manage focus on route changes, dialogs, deletion and async validation.
+- Test zoom, forced colors, reduced motion, screen readers and keyboard-only workflows.
+- i18n includes number/date/currency, plural/ICU rules, RTL and text expansion.
+
+## API and Mutation Resilience
+
+```mermaid
+flowchart TD
+    Request[API request] --> Timeout[Timeout / AbortController]
+    Timeout --> Retry{Retryable?}
+
+    Retry -->|Yes| Backoff[Exponential backoff + jitter]
+    Backoff --> Request
+
+    Retry -->|No| UIError[Typed error state]
+    UIError --> Recovery[Retry / logout / reconnect]
+
+    Mutation[Mutation] --> Idempotent[Idempotency key]
+    Idempotent --> Optimistic[Optimistic UI]
+    Optimistic --> Confirm{Server result}
+    Confirm -->|Success| Commit[Confirm state]
+    Confirm -->|Failure| Rollback[Rollback + feedback]
+```
+
+- Retry only transport/retryable status failures and use cancellation/deadlines.
+- Mutations require idempotency for duplicate submissions or reconnect replay.
+- Optimistic UI must reconcile conflicts and roll back safely.
+- Cache stale-while-revalidate policies should define visible stale UX.
+
+## Testing Strategy
+
+```mermaid
+flowchart LR
+    Logic[Hooks / utilities] --> Unit[Vitest / Jest]
+    Unit --> RTL[React Testing Library]
+    RTL --> Integration[Router / provider / API]
+    Integration --> MSW[Mock Service Worker]
+    Integration --> E2E[Playwright / Cypress]
+
+    E2E --> CI[Browser matrix / CI]
+    MSW --> CI
+```
+
+- Test public behavior and accessible output instead of component implementation details.
+- Mock network boundaries with MSW; use real routing/providers for integration behavior.
+- Cover loading, empty, error, timeout, authorization, optimistic and retry states.
+- E2E test critical journeys and authentication only; do not duplicate the entire unit suite.
+
+## Security and Deployment
+
+```mermaid
+flowchart LR
+    Source[React source] --> Build[Typed / lint / test build]
+    Build --> Artifact[Immutable bundle]
+    Artifact --> CDN[CDN / edge]
+
+    User[Browser] --> CSP[CSP / Trusted Types]
+    User --> Cookie[HttpOnly Secure cookie]
+
+    Artifact --> Monitor[RUM / Sentry / APM]
+    Monitor --> Rollback[Health / deploy rollback]
+```
+
+- Safely render text by default; sanitize rich HTML and validate URL protocols.
+- Use HttpOnly/Secure/SameSite cookies or secure browser storage for authentication.
+- UI route guards do not replace server authorization.
+- Add CSP, Trusted Types, CORS, SRI and dependency scanning.
+- Use immutable releases, CDN caching and rollback/SLO health checks.
+
+## React Production Checklist
+
+- State ownership is clear and server state is cached separately.
+- Keys, effects and cleanup are stable and deterministic.
+- Loading, error, timeout and retry states are designed, not incidental.
+- Core Web Vitals and bundle budgets are enforced in CI.
+- Accessibility and i18n are tested with automated and manual checks.
+- Authentication, authorization and third-party scripts have threat controls.
+- Build, test, deploy and rollback are automated and observable.
 
 ---
 

@@ -1,19 +1,306 @@
-If your goal is to become job-ready with TypeScript (especially for React, Node.js, Angular, or full-stack development), follow this roadmap:
+# TypeScript: Complete Guide — Fundamentals to Advanced
 
-# 🚀 TypeScript Roadmap
+ఈ గైడ్ JavaScript భాషపై TypeScript type systemను ఎలా పూర్తి స్థాయి engineering toolగా ఉపయోగించాలో explains చేస్తుంది: compiler configuration, type narrowing, generics, advanced types, module systems, testability, framework integration and production quality.
 
+> **Core rule:** TypeScript runtime behavior మార్పు చేయదు. ఇది compile-time correctness, maintainability, editor tooling and API contracts కోసం annotation system.
+
+## TypeScript Learning Roadmap
+
+```mermaid
+flowchart LR
+    JS[JavaScript fundamentals] --> Basics[Primitive / object / array types]
+    Basics --> Fn[Functions / overloads]
+    Fn --> Shape[Interfaces / type aliases]
+    Shape --> Narrow[Unions / narrowing / guards]
+    Narrow --> Generic[Generics / constraints]
+    Generic --> Advanced[Mapped / conditional / template types]
+    Advanced --> Utils[Utility types / key types]
+    Utils --> Modules[ESM / declarations / packages]
+    Modules --> Config[tsconfig / strict / project references]
+    Config --> Framework[React / Node / Angular / NestJS]
+    Framework --> Quality[Testing / lint / build / CI]
+```
+
+## TypeScript Compile Pipeline
+
+```mermaid
+flowchart LR
+    Source[.ts / .tsx source] --> Parser[TypeScript parser]
+    Parser --> Binder[Binder / symbols]
+    Binder --> Checker[Type checker]
+    Checker --> Diagnostics[TypeScript diagnostics]
+    Diagnostics --> Emit{noEmitOnError}
+
+    Emit -->|Success| JS[JavaScript emit]
+    Emit -->|Success| DTS[Declaration emit .d.ts]
+    Emit -->|Failure| Fix[Fix types / code]
+
+    JS --> Test[Tests / runtime]
+    DTS --> Package[Library package]
+```
+
+- `tsc` does syntax and semantic checking and/or JavaScript/declaration emit.
+- `tsconfig.json` determines language, module, emit, library and project behavior.
+- Type-only constructs are erased unless runtime constructs such as `enum` or decorators are used.
+- A type assertion does not validate runtime data; use schema/type guards at external boundaries.
+
+## Type Safety Levels
 
 ```mermaid
 mindmap
-  root((🚀 TypeScript Roadmap))
-    1. JavaScript Fundamentals
-    2. TypeScript Basics
-    3. Functions
-    4. Objects & Arrays
-    5. Interfaces ⭐
-    6. Type Aliases
-    7. Enums
+  root((Type Safety))
+    Static
+      Strict mode
+      Narrowing
+      Exhaustiveness
+      Generic contracts
+    Runtime
+      Zod or Joi validation
+      API schema validation
+      Type guard at boundary
+      Unknown request JSON
+    Build
+      noEmitOnError
+      noUncheckedIndexedAccess
+      exactOptionalPropertyTypes
+      Project references
+    Team
+      ESLint
+      No-explicit-any policy
+      CI typecheck
+      Reviewed public contracts
 ```
+
+### Basic Strict Configuration
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
+```
+
+These settings trade stricter learning and migration cost for fewer runtime surprises. For migration, enable strictness gradually, but do not leave `strict: false` in a new production codebase.
+
+## Structural and Nominal Types
+
+TypeScript uses structural typing for object shapes: compatible public fields and methods matter more than the declared class/interface name.
+
+```ts
+interface UUIDBrand {
+  readonly __brand: "UUID";
+}
+
+type UUID = string & UUIDBrand;
+
+function isUUID(value: string): value is UUID {
+  return /^[0-9a-f-]{36}$/i.test(value);
+}
+```
+
+Use branded types for values that must not be accidentally swapped:
+
+- User ID versus Tenant ID versus Order ID.
+- Base64 string versus JWT string.
+- Cents versus dollars.
+- Internal primary key versus external public identifier.
+
+## `any`, `unknown`, `never`, `void`
+
+| Type | Meaning | Safe use |
+|---|---|---|
+| `any` | Disables or suppresses checking | Avoid; migration escape hatch |
+| `unknown` | Untrusted value requiring validation/narrowing | API, JSON, environment, user input |
+| `never` | No reachable value | Exhaustive switches and impossible states |
+| `void` | Function does not return a useful value | Callbacks and side-effect functions |
+
+```ts
+function assertNever(value: never): never {
+  throw new Error(`Unexpected value: ${String(value)}`);
+}
+```
+
+## Type Narrowing and Runtime Validation
+
+```mermaid
+flowchart TD
+    Input[External unknown JSON] --> Schema[Schema / parser]
+    Schema --> Parsed{Parse result}
+
+    Parsed -->|Success| Guard[Refined TypeScript type]
+    Parsed -->|Failure| SafeError[Typed validation error]
+
+    Guard --> Narrow[typeof / instanceof / in / custom guard]
+    Narrow --> Business[Business logic]
+
+    SafeError --> Response[400 / logged error]
+```
+
+Prefer `unknown` followed by runtime validation:
+
+```ts
+import { z } from "zod";
+
+const userSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string().min(1),
+  role: z.enum(["user", "admin"]),
+});
+
+type User = z.infer<typeof userSchema>;
+
+const parsed = userSchema.safeParse(JSON.parse(raw));
+```
+
+- `typeof` works for primitives.
+- `instanceof` works for class instances in one runtime realm.
+- `in` narrows discriminated union objects.
+- Custom predicates (`value is User`) narrow control flow.
+- Exhaustive `switch` plus `assertNever` prevents missing union branches.
+
+## Functions and API Contracts
+
+```ts
+function findUser(id: UserId): Promise<User | undefined>;
+function parseUser(input: unknown): User;
+
+async function updateProfile(
+  id: UserId,
+  patch: Readonly<Partial<Pick<User, "name" | "avatarUrl">>>,
+): Promise<User> {
+  // implementation
+}
+```
+
+- Mark object parameters `Readonly` if mutation is not required.
+- Separate business result from infrastructure errors through explicit result types or thrown domain errors.
+- Avoid function overload ambiguity; use generics or discriminated unions when possible.
+- Use `satisfies` to verify a value shape without widening it.
+
+```ts
+const routes = {
+  home: "/",
+  profile: "/profile/:id",
+} as const satisfies Record<string, `/${string}`>;
+```
+
+## Advanced Generic Patterns
+
+```mermaid
+flowchart LR
+    Input[Generic type T] --> Constraint[Constraint: extends]
+    Constraint --> Transform[Conditional / mapped transform]
+    Transform --> Result[Union / tuple / object result]
+    Result --> Inference[Compiler infers output]
+```
+
+Examples:
+
+```ts
+type ApiResponse<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: { code: string; message: string } };
+
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object
+    ? DeepReadonly<T[K]>
+    : T[K];
+};
+
+type AwaitedRecord<T extends readonly unknown[]> = {
+  [K in keyof T]: Awaited<T[K]>;
+};
+```
+
+- Constraints express required fields/methods.
+- Conditional types transform existing types.
+- Mapped types retain keys and modifiers.
+- Template literal types validate routes, events and string protocols.
+- Variance and `readonly` affect assignability for arrays, callbacks and data stores.
+
+## Utility, Key and Literal Types
+
+| Utility / operator | Purpose |
+|---|---|
+| `keyof` | Extract known keys |
+| `typeof` | Extract inferred value type |
+| `Partial` / `Required` | Toggle required properties |
+| `Readonly` | Prevent reassignment |
+| `Pick` / `Omit` | Choose or remove keys |
+| `Record<K, V>` | Define key-to-value shape |
+| `Exclude` / `Extract` | Filter unions |
+| `ReturnType` | Extract function return |
+| `Awaited` | Recursively unwrap Promise-like values |
+| Template literals | Constrain strings/routes/events |
+
+```ts
+type UserPatch = Partial<Pick<User, "name" | "role">>;
+type PublicUser = Omit<User, "passwordHash" | "resetToken">;
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+type ApiPath = `/api/${string}`;
+```
+
+## Module and Declaration System
+
+- Prefer ESM and package `exports` for modern Node.js/React libraries.
+- Configure `module`, `moduleResolution`, `lib` and `target` consistently with runtime.
+- Declaration files describe library JavaScript; `.d.ts` must avoid leaking implementation-only dependencies.
+- `@types/*` packages provide external JavaScript package declarations.
+- Declaration merging and ambient declarations should be rare, especially in application code.
+- Project references and composite builds help monorepo boundaries and incremental compilation.
+
+## Framework Integration
+
+```mermaid
+flowchart LR
+    Schema[API schema / Zod / OpenAPI] --> Types[Generated or shared TS types]
+    Types --> BFF[Backend / NestJS DTO]
+    Types --> UI[React / Next.js contract]
+
+    DB[(Database model)] --> Mapper[Row mapper]
+    Mapper --> Domain[Domain type]
+    Domain --> Response[Response DTO]
+
+    UI --> E2E[Contract / E2E tests]
+    BFF --> E2E
+```
+
+- React: props, discriminated union states, generics, `ComponentProps`, refs and event types.
+- Next.js: route params, search params, Server Actions, RSC serialization and typed environment variables.
+- Express: request/response generics and runtime parser validation; do not trust `req.body` type only.
+- NestJS: DTO validation, Prisma/TypeORM generated types and dependency interfaces.
+- Node.js: `@types/node`, ESM/CJS interop, streams and typed worker/message payloads.
+
+## Testing and CI
+
+- Unit test pure type utilities and runtime guards.
+- Use `tsd` or compile-time assertion tests for public library types when needed.
+- Run `tsc --noEmit` before tests and deploy.
+- Run ESLint with no-explicit-any and unsafe-assignment rules.
+- Integration tests validate schema → DTO → database/API behavior; compile types alone do not test runtime.
+- Use generated OpenAPI/GraphQL/Prisma types only when source schema is maintained and reviewed.
+
+## Production Checklist
+
+- `strict: true` and deliberate extra compiler flags.
+- `unknown` at external boundaries and runtime validation.
+- No server-only or secret fields in public response types.
+- Discriminated unions for async/loading/error states.
+- Branded types for incompatible identifiers and units.
+- Generics constrained by meaningful contracts.
+- ESM/CJS and emit targets verified in Node or browser.
+- Declaration and package exports tested when publishing a library.
+- `tsc`, test, lint and type coverage gates in CI.
+
+---
+
 ## 1. JavaScript Fundamentals
 
 Before TypeScript, make sure you're comfortable with:

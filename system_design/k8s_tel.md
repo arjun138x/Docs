@@ -1,899 +1,294 @@
-Since you're already learning **AWS, Node.js, Express.js, NestJS, Serverless, React, PostgreSQL, Datadog, and System Design**, Kubernetes (K8s) is the perfect next step to become a **Senior/Lead Backend Engineer or DevOps-aware Full Stack Engineer**.
+# Kubernetes Expert Guide: Fundamentals to Production
 
-# Kubernetes (K8s) Expert Roadmap (2026)
+ఈ గైడ్ Linux/Docker ముందుగానే ఉన్న engineer Kubernetes architecture, workload management, networking, storage, security, observability, GitOps, AWS EKS, మరియు production operationsను advanced practical formatలో cover చేస్తుంది.
 
+> **Learning principle:** Kubernetes declarative system. Desired state YAMLగా లేదా APIగా ఉంటుంది; controllers continuously reconcile చేసి actual state desired stateకు చేరేలా ప్రయత్నిస్తాయి.
+
+## Learning Roadmap
 
 ```mermaid
-mindmap
-  root((Kubernetes K8s Expert Roadmap 2026))
-    1. Prerequisites
-    2. Docker Mandatory
-    3. Kubernetes Basics
-    4. Kubernetes Objects
-    5. Services
-    6. Config Management
-    7. Storage
-```
-```
-Linux
-   │
-   ▼
-Networking Basics
-   │
-   ▼
-Docker (Must Know)
-   │
-   ▼
-Kubernetes Architecture
-   │
-   ▼
-Pods
-   │
-   ▼
-Deployments
-   │
-   ▼
-Services
-   │
-   ▼
-ConfigMaps & Secrets
-   │
-   ▼
-Storage
-   │
-   ▼
-Ingress
-   │
-   ▼
-Helm
-   │
-   ▼
-Monitoring
-   │
-   ▼
-Security
-   │
-   ▼
-Scaling
-   │
-   ▼
-CI/CD
-   │
-   ▼
-Production Kubernetes
+flowchart LR
+    Linux[Linux + Networking] --> Docker[Containers + Docker]
+    Docker --> Objects[Pods + Workloads]
+    Objects --> Service[Services + Gateway API]
+    Service --> Config[ConfigMaps + Secrets]
+    Config --> Storage[PV + CSI]
+    Storage --> Scale[HPA + Cluster Autoscaling]
+    Scale --> Security[RBAC + Network Policy]
+    Security --> Delivery[Helm + Kustomize + GitOps]
+    Delivery --> Observe[Metrics + Logs + Traces]
+    Observe --> Production[Production + EKS + DR]
 ```
 
----
+## Kubernetes Architecture
 
-## [1. Prerequisites](#1-prerequisites-1)
+```mermaid
+flowchart TD
+    Client[kubectl / CI / GitOps] --> API[Kube API Server]
+    API --> ETCD[(etcd)]
 
-### [Linux](#linux-1)
+    API --> Scheduler[Scheduler]
+    API --> CM[Controller Manager]
+    API --> CCM[Cloud Controller Manager]
 
-- File System
-- Users & Groups
-- chmod
-- chown
-- grep
-- awk
-- sed
-- tar
-- curl
-- wget
-- ssh
+    Scheduler -->|Bind pod to node| API
+    CM -->|Reconcile desired state| API
 
-Example
+    subgraph WorkerNode[Worker Node]
+        Kubelet[kubelet]
+        Runtime[Container Runtime / CRI]
+        CNI[CNI networking]
+        CSI[CSI storage]
+        KubeProxy[Service dataplane]
+        Pod1[Application Pod]
+    end
 
-```bash
-grep "error" app.log
-
-tail -f app.log
-
-chmod 755 script.sh
+    API -. Watch / status / assignments .-> Kubelet
+    Kubelet --> Runtime
+    Runtime --> Pod1
+    CNI --> Pod1
+    CSI --> Pod1
+    KubeProxy --> Pod1
 ```
 
----
+### Control Plane Responsibilities
 
-### [Networking](#networking-1)
+| Component | Responsibility | Failure effect |
+|---|---|---|
+| kube-apiserver | Authentication, authorization, admission, API persistence | Cluster API unavailable |
+| etcd | Authoritative cluster state | Writes/reads may fail; backup and quorum critical |
+| kube-scheduler | Assign unscheduled pods to nodes using resources, affinity, topology and policies | New pods remain Pending |
+| kube-controller-manager | Replicas, jobs, endpoints, deployments and other reconciliation loops | Desired state stops converging |
+| cloud-controller-manager | Load balancers, routes, node lifecycle and cloud resources | Cloud integration issues |
 
-Must Know
+### Pod Lifecycle and Scheduling Flow
 
-- TCP/IP
-- HTTP
-- HTTPS
-- DNS
-- Load Balancer
-- Reverse Proxy
-- Ports
-- IP
-- NAT
+```mermaid
+sequenceDiagram
+    participant Dev as Developer / CI
+    participant API as kube-apiserver
+    participant Etcd as etcd
+    participant Scheduler
+    participant Kubelet
+    participant Runtime
 
-Understand
-
-```
-Browser
-
-↓
-
-Load Balancer
-
-↓
-
-Ingress
-
-↓
-
-Service
-
-↓
-
-Pod
+    Dev->>API: kubectl apply / Helm / Argo CD
+    API->>API: Authentication + RBAC + admission
+    API->>Etcd: Persist desired object
+    Scheduler->>API: Watch unscheduled pod
+    Scheduler->>API: Filter and score nodes
+    Scheduler->>API: Bind pod to node
+    Kubelet->>API: Watch assigned pod
+    Kubelet->>Runtime: Pull image + create sandbox
+    Runtime-->>Kubelet: Containers started
+    Kubelet->>API: Update pod status and conditions
 ```
 
----
+## Workload Selection
 
-## [2. Docker (Mandatory)](#2-docker-mandatory-1)
+| Workload | Use when | Important behavior |
+|---|---|---|
+| Deployment | Stateless scalable application | Rolling updates, rollback, ReplicaSet |
+| StatefulSet | Stable identity, network identity or ordered storage | Stable names, PVCs, ordered lifecycle |
+| DaemonSet | Every eligible node needs one agent | Fluent Bit, CNI, CSI and node exporter |
+| Job | Run-to-completion task | Parallelism, completions, backoff, TTL |
+| CronJob | Time-scheduled Job | Schedule, concurrencyPolicy, deadline and history limits |
 
-Topics
+## Services, Ingress and Gateway API
 
-### Images
+```mermaid
+flowchart LR
+    Client[External Client] --> LB[Cloud Load Balancer]
+    LB --> GW[Gateway / Ingress Controller]
+    GW -->|Host /api| APIService[api Service]
+    GW -->|Host /web| WebService[web Service]
 
-```
-docker build
-docker images
-docker rmi
-```
+    APIService --> API1[API Pod]
+    APIService --> API2[API Pod]
+    WebService --> Web1[Web Pod]
+    WebService --> Web2[Web Pod]
 
----
+    subgraph ClusterService
+        DNS[Cluster DNS]
+        EP[EndpointSlice]
+        DP[kube-proxy / Cilium / Istio dataplane]
+    end
 
-### Containers
-
-```
-docker run
-docker ps
-docker stop
-docker logs
-```
-
----
-
-### Dockerfile
-
-Learn
-
-```
-FROM
-
-COPY
-
-RUN
-
-CMD
-
-ENTRYPOINT
-
-EXPOSE
-
-ENV
-
-WORKDIR
+    API1 -. discovery .-> DNS
+    DNS -. resolve .-> APIService
+    EP --> DP
 ```
 
-Example
+- `ClusterIP` is the default internal stable virtual address.
+- `Headless Service` (`clusterIP: None`) exposes Pod DNS records for StatefulSet discovery and custom routing.
+- `Ingress` provides HTTP host/path routing and TLS through an ingress controller.
+- Kubernetes Gateway API is the preferred newer model for role-separated, protocol-aware infrastructure.
+- Internal east-west traffic should use NetworkPolicies and, where needed, service mesh mTLS.
 
-```dockerfile
-FROM node:22
+## Configuration and Secret Delivery
 
-WORKDIR /app
+- ConfigMap for non-sensitive configuration; mount as env or file only based on application behavior.
+- Secret for sensitive values, but Kubernetes Secret is not automatically encrypted by every distribution; enable encryption at rest and restrict etcd/API access.
+- External Secrets Operator or Secrets Store CSI can synchronize AWS Secrets Manager, Azure Key Vault or Vault into Kubernetes.
+- Use immutable ConfigMaps/Secrets, versioned references, and application reload strategy.
+- RBAC and namespace isolation are mandatory; Base64 is encoding, not encryption.
 
-COPY . .
+## Storage Architecture
 
-RUN npm install
+```mermaid
+flowchart LR
+    Pod[Pod] --> PVC[PersistentVolumeClaim]
+    PVC --> Binding[StorageClass binding]
+    Binding --> PV[PersistentVolume]
+    PV --> CSI[CSI Provisioner / Driver]
+    CSI --> Block[Block: EBS / Disk]
+    CSI --> Filesystem[EFS / NFS / CephFS]
 
-CMD ["npm","start"]
+    Stateful[StatefulSet] --> RWO[ReadWriteOnce volumes]
+    Deployment[Deployment] --> RWX[ReadWriteMany volumes]
 ```
 
----
+- **RWO:** one node, not always one pod; interpret according to the actual CSI driver and access model.
+- **RWX:** shared filesystem; application must handle concurrency and locking.
+- StatefulSet storage must use PVC templates and tested snapshot/backup/restore procedures.
+- Ephemeral volumes, EmptyDir and ConfigMap/Secret volumes have different lifecycle guarantees.
+- `StorageClass` defines provisioner, reclaim policy, encryption, topology and performance tier.
 
-### Docker Compose
+## Health and Autoscaling
 
-Understand
+```mermaid
+flowchart TD
+    Start[Pod starts] --> Startup{Startup probe}
+    Startup -->|Pass| Ready{Readiness probe}
+    Startup -->|Fail within threshold| Restart[Container restart]
+    Ready -->|Pass| Service[EndpointSlice receives pod]
+    Ready -->|Fail| Remove[Remove pod from Service]
+    Service --> Live{Liveness probe}
+    Live -->|Fail| Restart
 
-```
-Node
-
-↓
-
-Postgres
-
-↓
-
-Redis
-```
-
----
-
-## [3. Kubernetes Basics](#3-kubernetes-basics-1)
-
-### [What is Kubernetes?](#what-is-kubernetes-1)
-
-Learn
-
-- Container Orchestration
-- Self Healing
-- Auto Scaling
-- Rolling Updates
-- High Availability
-
----
-
-### [Kubernetes Architecture](#kubernetes-architecture-1)
-
-Understand
-
-```
-Client (kubectl / CI)
-       │ Kubernetes API
-       ▼
-┌────────────── Control Plane ──────────────┐
-│ API Server ↔ etcd                        │
-│ Scheduler + Controllers (reconcile state) │
-└──────────────────┬────────────────────────┘
-                   │ API watches / assignments
-         ┌─────────┴─────────┐
-         ▼                   ▼
-   Worker Node           Worker Node
-   kubelet               kubelet
-   CRI runtime           CRI runtime
-   CNI / Pod network     CNI / Pod network
-   Pods                  Pods
+    Metrics[CPU / memory / custom metrics] --> HPA[HorizontalPodAutoscaler]
+    HPA --> Deployment[Scale Deployment / StatefulSet]
+    Workload[Pending Pods / node pressure] --> CA[Cluster Autoscaler / Karpenter]
+    CA --> Node[Provision new nodes]
 ```
 
-Know each component in detail.
+- Startup probe protects slow boot applications from liveness failures.
+- Readiness controls traffic, while liveness controls container restart; they must not be identical by default.
+- HPA supports CPU/memory/custom/external metrics and Kubernetes standard behavior.
+- KEDA adds event-driven scale-from-zero for queues and external sources.
+- Cluster Autoscaler or Karpenter provisions nodes; VPA recommends or adjusts requests/limits when controlled separately.
+- Add stabilization windows and Pod Disruption Budgets to avoid scaling oscillation and maintenance outage.
 
----
+## Security and Policy
 
-## [4. Kubernetes Objects](#4-kubernetes-objects-1)
+```mermaid
+flowchart LR
+    User[Human / Workload] --> AuthN[Authentication]
+    AuthN --> RBAC[RBAC authorisation]
+    RBAC --> Admission[Admission controllers]
+    Admission --> Policy[Pod Security / OPA / Kyverno]
+    Policy --> API[kube-apiserver]
 
-### Pods
+    Pod[Pod] --> SA[ServiceAccount / workload identity]
+    SA --> IAM[EKS IAM / cloud role]
 
-Learn
-
-- Single Container Pod
-- Multi Container Pod
-- Init Container
-
-Example
-
-```yaml
-apiVersion. v1
-
-kind. Pod
+    Pod -. restricted traffic .-> NP[NetworkPolicy]
+    Pod -. runtime restriction .-> Seccomp[Seccomp / AppArmor]
 ```
 
-Commands
+- Use least-privilege `Role`, `ClusterRole`, RoleBinding and ServiceAccounts; separate human and CI identities.
+- Pod Security Admission enforce/restrict/audit baseline, not only the deprecated PSP replacement assumptions.
+- Disable privileged containers, host namespaces and writable root filesystems; use `runAsNonRoot`, `readOnlyRootFilesystem`, and dropped capabilities.
+- NetworkPolicy is required at namespace/pod level; confirm CNI supports enforcement and default-deny policies.
+- Use image signing, provenance, vulnerability scanning, private registries and admission policy.
+- Prefer short-lived workload identity and IRSA/Pod Identity over static cloud secrets.
 
-```bash
-kubectl get pods
+## Delivery and GitOps
 
-kubectl describe pod
+```mermaid
+flowchart LR
+    Dev[Developer] --> PR[Pull Request]
+    PR --> CI[Build / Test / Scan]
+    CI --> Artifact[(Immutable image + SBOM)]
+    Artifact --> Registry[(OCI Registry)]
+    PR --> Git[(Git desired state)]
 
-kubectl logs
+    Git --> Argo[Argo CD / Flux]
+    Argo --> Cluster[Kubernetes cluster]
+    Registry --> Cluster
 
-kubectl exec
+    Cluster --> Health[Health / rollout status]
+    Health --> Rollback[Revert Git / promotion]
 ```
 
----
+- Helm templates Kubernetes packages; Kustomize overlays are useful for repository-native environment patches.
+- GitOps uses Git as the desired-state source; operators reconcile drift and deployment status.
+- Rollouts use `maxUnavailable`, `maxSurge`, health probes and Pod Disruption Budgets.
+- Canary and progressive delivery require metrics, automatic promotion/rollback and an ingress/service-mesh traffic splitter.
+- Database migrations must be backward-compatible and follow expand/contract patterns.
 
-### ReplicaSet
+## Observability and Troubleshooting
 
-Learn
+```mermaid
+flowchart LR
+    Apps[Pods / Nodes] --> Metrics[Prometheus metrics]
+    Apps --> Logs[Fluent Bit / Loki / EFK]
+    Apps --> Traces[OpenTelemetry]
 
-- Desired State
-- Scaling
-- High Availability
+    Metrics --> Grafana[Grafana]
+    Logs --> LogStore[Central log store]
+    Traces --> TraceStore[Tempo / Datadog]
 
----
+    Grafana --> Alert[Alertmanager / PagerDuty]
+    LogStore --> Alert
+    TraceStore --> Alert
 
-### Deployment
-
-Topics
-
-- Rolling Update
-- Rollback
-- History
-- Strategy
-
-Commands
-
-```bash
-kubectl rollout history
-
-kubectl rollout undo
+    Alert --> Runbook[Runbooks / incident response]
 ```
 
----
+Recommended baseline signals:
 
-### Namespaces
+- RED: request rate, errors and duration for services.
+- USE: utilisation, saturation and errors for infrastructure.
+- Kubernetes: pending pods, restarts, OOMKilled, eviction, node pressure, PVC/PV issues and API latency.
+- Trace context: propagates across API Gateway, service calls, databases, queues and external dependencies.
+- Alerts should reflect user/SLO impact; avoid warning-only noise and silent critical failures.
 
+## Production Reliability and Disaster Recovery
+
+- Replica count greater than one, topology spread constraints across zones/nodes and anti-affinity.
+- PDB protects availability during voluntary disruption, but PDB is not a replacement for enough replicas.
+- Schedule backups with Velero or native storage snapshots, test restores, and keep copies in separate region/account.
+- Define Recovery Time Objective (RTO), Recovery Point Objective (RPO), backup scope, restore ownership and drills.
+- Multi-cluster/multi-region is justified when workload-level SLO and data replication requirements demand it.
+- Avoid storing critical state only in etcd; PostgreSQL/Redis/Kafka databases need independent backup and restore processes.
+- Capacity plan for control-plane, worker, storage, registry, logging and peak request growth.
+
+## Real-World Architecture Example
+
+```mermaid
+flowchart LR
+    Git[GitHub] --> Actions[GitHub Actions]
+    Actions --> Image[(Container Registry)]
+
+    Git --> Argo[Argo CD]
+    Argo --> EKS[Amazon EKS]
+
+    User[User] --> ALB[AWS Load Balancer]
+    ALB --> Ingress[Ingress / Gateway]
+    Ingress --> App[NestJS / Express Pods]
+
+    App --> Redis[(Redis)]
+    App --> PG[(PostgreSQL)]
+    App --> Queue[(RabbitMQ / Kafka)]
+
+    App --> OTel[OpenTelemetry]
+    OTel --> Prom[Prometheus]
+    OTel --> DD[Datadog]
+    Prom --> Grafana[Grafana]
+
+    External[(Secrets Manager)] -. IRSA / Pod Identity .-> App
 ```
-default
-
-kube-system
-
-dev
-
-qa
-
-prod
-```
-
----
-
-### Labels
-
-```
-app=node
-
-env=dev
-
-version=v1
-```
-
----
-
-### Selectors
-
-```
-matchLabels
-
-matchExpressions
-```
-
----
-
-## [5. Services](#5-services-1)
-
-Learn all Service Types
-
-### ClusterIP
-
-Internal Communication
-
-```
-Node
-
-↓
-
-Service
-
-↓
-
-Pods
-```
-
----
-
-### NodePort
-
-External Access
-
----
-
-### LoadBalancer
-
-Cloud Provider
-
-AWS ELB
-
-Azure LB
-
-GCP LB
-
----
-
-### ExternalName
-
-DNS Mapping
-
----
-
-## [6. Config Management](#6-config-management-1)
-
-### ConfigMap
-
-Store
-
-```
-Host
-
-Port
-
-URL
-
-Feature Flags
-```
-
----
-
-### Secrets
-
-Store
-
-```
-Password
-
-JWT
-
-API Keys
-
-Database Credentials
-```
-
-Base64 Encoding
-
----
-
-## [7. Storage](#7-storage-1)
-
-Persistent Volumes
-
-Persistent Volume Claims
-
-Storage Classes
-
-Understand
-
-```
-Pod
-
-↓
-
-PVC
-
-↓
-
-PV
-
-↓
-
-Disk
-```
-
-AWS
-
-- EBS
-- EFS
-
----
-
-## [8. Networking](#8-networking-1)
-
-### Ingress
-
-```
-Internet
-
-↓
-
-Ingress
-
-↓
-
-Service
-
-↓
-
-Pods
-```
-
-Learn
-
-- Path Routing
-- Host Routing
-- TLS
-
----
-
-### Ingress Controller
-
-Examples
-
-- NGINX Ingress
-- AWS Load Balancer Controller
-- Traefik
-
----
-
-### Network Policies
-
-Restrict Pod Communication
-
----
-
-## [9. Autoscaling](#9-autoscaling-1)
-
-### HPA
-
-Horizontal Pod Autoscaler
-
-```
-2 Pods
-
-↓
-
-10 Pods
-```
-
-Based On
-
-- CPU
-- Memory
-- Custom Metrics
-
----
-
-### VPA
-
-Vertical Pod Autoscaler
-
----
-
-### Cluster Autoscaler
-
-Scale Worker Nodes
-
----
-
-## [10. Scheduling](#10-scheduling-1)
-
-Node Selector
-
-Affinity
-
-Anti Affinity
-
-Taints
-
-Tolerations
-
-Priority Classes
-
----
-
-## [11. Health Checks](#11-health-checks-1)
-
-Readiness Probe
-
-Liveness Probe
-
-Startup Probe
-
-Example
-
-```yaml
-livenessProbe:
-readinessProbe:
-startupProbe:
-```
-
----
-
-## [12. Security](#12-security-1)
-
-RBAC
-
-Service Accounts
-
-Security Context
-
-Pod Security
-
-Secrets
-
-Network Policies
-
-Image Scanning
-
-Admission Controllers
-
----
-
-## [13. Helm](#13-helm-1)
-
-Topics
-
-```
-Chart
-
-Values
-
-Templates
-
-Dependencies
-
-Release
-
-Upgrade
-
-Rollback
-```
-
-Commands
-
-```bash
-helm install
-
-helm upgrade
-
-helm rollback
-```
-
----
-
-## [14. Monitoring](#14-monitoring-1)
-
-Learn
-
-- Metrics
-- Logs
-- Traces
-
-Tools
-
-- Prometheus
-- Grafana
-- Loki
-- Fluent Bit
-- Datadog (you already plan to learn it)
-
-Metrics
-
-```
-CPU
-
-Memory
-
-Disk
-
-Network
-
-Pod Restarts
-```
-
----
-
-## [15. CI/CD](#15-cicd-1)
-
-Deploy using
-
-- GitHub Actions
-- Jenkins
-- GitLab CI
-- AWS CodePipeline
-
-Pipeline
-
-```
-Code
-
-↓
-
-Build
-
-↓
-
-Test
-
-↓
-
-Docker Image
-
-↓
-
-Push Registry
-
-↓
-
-Deploy Kubernetes
-```
-
----
-
-## [16. Kubernetes on AWS (Most Important)](#16-kubernetes-on-aws-most-important-1)
-
-Learn
-
-### Amazon EKS
-
-- Cluster
-- Node Groups
-- Fargate
-- IAM Roles for Service Accounts (IRSA)
-- Cluster Autoscaler
-- Managed Add-ons
-
-### AWS Load Balancer Controller
-
-### EBS CSI Driver
-
-### EFS CSI Driver
-
-### ExternalDNS
-
-### AWS Secrets Manager Integration
-
-### Amazon ECR
-
----
-
-## [17. Advanced Kubernetes](#17-advanced-kubernetes-1)
-
-Learn
-
-DaemonSet
-
-StatefulSet
-
-Jobs
-
-CronJobs
-
-Init Containers
-
-Sidecar Containers
-
-Operators
-
-Custom Resource Definitions (CRDs)
-
-Admission Controllers
-
-Service Mesh
-
-- Istio
-- Linkerd
-
-Gateway API
-
-Multi-cluster
-
-Disaster Recovery
-
-Backup using Velero
-
----
-
-## [18. Production Best Practices](#18-production-best-practices-1)
-
-Learn
-
-- Resource Requests
-- Resource Limits
-- Pod Disruption Budget (PDB)
-- High Availability
-- Rolling Updates
-- Blue-Green Deployment
-- Canary Deployment
-- GitOps (Argo CD / Flux)
-- Backup Strategy
-- Secrets Management
-- Monitoring
-- Alerting
-- Cost Optimization
-
----
-
-# Real-World Project (Node.js + Kubernetes)
-
-Build a production-style application:
-
-```
-Users Service (NestJS)
-
-↓
-
-Orders Service (NestJS)
-
-↓
-
-Products Service (Express)
-
-↓
-
-PostgreSQL
-
-↓
-
-Redis
-
-↓
-
-RabbitMQ
-
-↓
-
-Docker
-
-↓
-
-Kubernetes
-
-↓
-
-Helm
-
-↓
-
-Ingress
-
-↓
-
-Prometheus
-
-↓
-
-Grafana
-
-↓
-
-Datadog
-
-↓
-
-AWS EKS
-```
-
-Practice:
-
-- Scale services with HPA.
-- Perform rolling updates and rollbacks.
-- Inject configuration with ConfigMaps and Secrets.
-- Expose APIs through an Ingress.
-- Add health probes.
-- Collect metrics and logs.
-- Automate deployments using GitHub Actions.
-
----
-
-# Kubernetes Interview Preparation
-
-Focus on these topics:
-
-1. Kubernetes Architecture
-2. Pods vs Containers
-3. ReplicaSet vs Deployment
-4. Deployment Strategies
-5. ClusterIP vs NodePort vs LoadBalancer
-6. Ingress vs Service
-7. ConfigMap vs Secret
-8. Persistent Volumes vs PVCs
-9. Liveness vs Readiness vs Startup Probes
-10. HPA vs VPA vs Cluster Autoscaler
-11. DaemonSet vs StatefulSet vs Deployment
-12. Jobs vs CronJobs
-13. Taints & Tolerations
-14. Node Affinity & Pod Affinity
-15. RBAC & Service Accounts
-16. Network Policies
-17. Helm Charts
-18. Kubernetes Security Best Practices
-19. Logging and Monitoring
-20. Kubernetes on AWS (EKS)
-
-## Suggested Learning Timeline
-
-| Week | Topics                                     |
-| ---- | ------------------------------------------ |
-| 1    | Linux, Networking, Docker                  |
-| 2    | Kubernetes Architecture, Pods, Deployments |
-| 3    | Services, ConfigMaps, Secrets, Storage     |
-| 4    | Ingress, Networking, Health Checks         |
-| 5    | Autoscaling, Scheduling, Security          |
-| 6    | Helm, Monitoring, Logging                  |
-| 7    | CI/CD with GitHub Actions, EKS             |
-| 8    | Advanced Kubernetes + Production Project   |
-
-This roadmap is tailored to your existing stack (Node.js, NestJS, Express, AWS Serverless, PostgreSQL, React) and will prepare you for Kubernetes-based production deployments and interviews for Senior Backend or Platform Engineer roles.
 
 ---
 

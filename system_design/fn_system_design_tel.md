@@ -1,466 +1,263 @@
-If you want to become an **Expert Frontend System Design Engineer**, you need to go beyond React or Angular. You must understand how to build applications that are scalable, maintainable, fast, and can support millions of users.
+# Frontend System Design — Complete Expert Guide
 
-# Frontend System Design Roadmap
+ఇది React / Next.js frontend engineers కోసం **browser fundamentals నుండి large-scale architecture, performance, accessibility, security, testing, deployment మరియు real-time systems** వరకు complete study guide.
 
+> **Design rule:** Frontend system design అంటే UI components మాత్రమే కాదు. ఇది browser rendering, network delivery, state ownership, API contracts, resilience, observability, accessibility, security, మరియు team-scale maintainabilityని కలిపి solve చేసే discipline.
+
+## Study Roadmap
 
 ```mermaid
-mindmap
-  root((Frontend System Design Roadmap))
-    1. HTML, CSS & JavaScript Fundamentals
-    2. Browser Internals
-    3. Modern Framework
-    4. Component Design
-    5. State Management
-    6. API Communication
-    7. Performance Optimization
-```
-```text
-1. HTML, CSS & JavaScript Fundamentals
-        ↓
-2. Browser Internals
-        ↓
-3. Modern Frontend Frameworks
-        ↓
-4. Component Design
-        ↓
-5. State Management
-        ↓
-6. API Communication
-        ↓
-7. Performance Optimization
-        ↓
-8. Security
-        ↓
-9. Frontend Architecture
-        ↓
-10. Build Tools
-        ↓
-11. Testing
-        ↓
-12. Deployment
-        ↓
-13. Monitoring
-        ↓
-14. Large Scale System Design
-        ↓
-15. Design Popular Applications
+flowchart LR
+    Web[HTML / CSS / JavaScript] --> Browser[Browser Rendering + Networking]
+    Browser --> Framework[React / Next.js Architecture]
+    Framework --> Components[Component + State Design]
+    Components --> Network[REST / GraphQL / SSE / WebSocket]
+    Network --> Performance[Core Web Vitals + Bundle Strategy]
+    Performance --> Reliability[Offline / Retry / Resilience]
+    Reliability --> Security[Security + Privacy]
+    Security --> Delivery[Build / Deploy / CDN]
+    Delivery --> Observe[Monitoring / SLO / RUM]
+    Observe --> Scale[Micro-frontends / Multi-region]
 ```
 
----
+## Page Rendering Architecture
 
-## [1. HTML, CSS & JavaScript Fundamentals](#1-html-css--javascript-fundamentals-1)
+```mermaid
+flowchart TD
+    URL[User navigates URL] --> DNS[DNS]
+    DNS --> TCP[TCP / HTTP connection]
+    TCP --> TLS[TLS handshake]
+    TLS --> HTML[HTML document / RSC payload]
 
-### [HTML](#html-1)
+    HTML --> Parse[HTML parser]
+    Parse --> DOM[DOM]
+    Parse --> CSS[CSSOM]
+    Parse --> Preload[Critical resources]
 
-- Semantic HTML
-- Accessibility (ARIA)
-- Forms
-- SEO Basics
+    DOM --> Render[Render tree]
+    CSS --> Render
+    Render --> Layout[Layout]
+    Layout --> Paint[Paint]
+    Paint --> Composite[GPU compositing]
 
-### [CSS](#css-1)
-
-- Flexbox
-- Grid
-- Responsive Design
-- Animations
-- Variables
-- CSS Architecture (BEM)
-
-### [JavaScript](#javascript-1)
-
-- Closures
-- Prototype
-- Event Loop
-- Promises
-- Async/Await
-- Memory Management
-- Modules
-- ES6+
-
----
-
-## [2. Browser Internals](#2-browser-internals-1)
-
-Understand how browsers work.
-
-Topics:
-
-- DOM
-- CSSOM
-- Render Tree
-- Critical Rendering Path
-- Repaint
-- Reflow
-- GPU Rendering
-- Browser Cache
-- Local Storage
-- Session Storage
-- IndexedDB
-- Cookies
-- Service Workers
-
-Understand:
-
-```
-URL
- ↓
-DNS
- ↓
-TCP
- ↓
-TLS
- ↓
-HTTP Request
- ↓
-Browser Rendering
- ↓
-Paint
+    JS[JavaScript] --> Hydrate[Hydration / app bootstrap]
+    Hydrate --> Interactive[Interactive UI]
 ```
 
----
+## Frontend Request Flow
 
-## 3. Modern Framework
+```mermaid
+sequenceDiagram
+    participant User
+    participant CDN
+    participant App as Web App / Next.js
+    participant BFF
+    participant API
+    participant Cache
 
-Learn one deeply.
+    User->>CDN: Request page / assets
+    CDN-->>User: Cached HTML / shell / static assets
+    User->>App: Render route and bootstrap
+    App->>BFF: Request route-specific data
+    BFF->>Cache: Check cache
 
-Recommended:
+    alt Cache hit
+        Cache-->>BFF: Cached data
+    else Cache miss
+        BFF->>API: Authorized query
+        API-->>BFF: Data
+        BFF->>Cache: Cache response
+    end
 
-- React
-- Next.js
-
-Topics
-
-- Components
-- Hooks
-- Lifecycle
-- Routing
-- SSR
-- CSR
-- SSG
-- ISR
-- Server Components
-- Suspense
-
----
-
-## [4. Component Design](#4-component-design-1)
-
-Learn
-
-### Atomic Design
-
-```
-Atoms
-↓
-
-Molecules
-↓
-
-Organisms
-↓
-
-Templates
-↓
-
-Pages
+    BFF-->>App: Typed response
+    App-->>User: Render + stream UI
 ```
 
-Topics
+## State Ownership Model
 
-- Reusable Components
-- Composition
-- Container vs Presentational
-- Compound Components
-- Headless Components
+```mermaid
+flowchart TD
+    State[Application State] --> UI[Local UI state]
+    State --> URL[URL / routing state]
+    State --> Server[Server / query state]
+    State --> Global[Cross-feature global state]
+    State --> Persist[Persistent browser state]
 
----
-
-## [5. State Management](#5-state-management-1)
-
-Local State
-
-```
-useState
-```
-
-Global State
-
-- Context API
-- Redux Toolkit
-- Zustand
-- Jotai
-
-Server State
-
-- TanStack Query
-- SWR
-
-Topics
-
-- Normalization
-- Cache
-- Optimistic Updates
-- Infinite Scroll
-- Pagination
-
----
-
-## [6. API Communication](#6-api-communication-1)
-
-REST
-
-GraphQL
-
-WebSocket
-
-Server-Sent Events
-
-Topics
-
-- Retry
-- Timeout
-- Cancellation
-- Debounce
-- Throttle
-- Rate Limiting
-- Polling
-
----
-
-## [7. Performance Optimization](#7-performance-optimization-1)
-
-Critical Interview Topic
-
-Learn
-
-- Lazy Loading
-- Code Splitting
-- Tree Shaking
-- Dynamic Imports
-- Bundle Optimization
-- Virtualization
-- Memoization
-- Image Optimization
-- CDN
-- Compression
-- HTTP/2
-- HTTP/3
-- Prefetch
-- Preload
-- Preconnect
-
-Measure
-
-- FCP
-- LCP
-- INP
-- CLS
-- TTFB
-
----
-
-## [8. Security](#8-security-1)
-
-Very Important
-
-Topics
-
-- XSS
-- CSRF
-- Clickjacking
-- CSP
-- CORS
-- HTTPS
-- JWT
-- OAuth
-- Refresh Tokens
-- Secure Cookies
-- SameSite Cookies
-- Token Storage
-- Input Validation
-
----
-
-## [9. Frontend Architecture](#9-frontend-architecture-1)
-
-Large Applications
-
-Learn
-
-Feature-based Architecture
-
-```
-src
-
- modules
-
- shared
-
- services
-
- hooks
-
- layouts
-
- pages
-
- components
+    UI --> Local[useState / reducer]
+    URL --> Router[Search params / history]
+    Server --> Query[TanStack Query / SWR / RSC]
+    Global --> Shared[Redux / Zustand / context]
+    Persist --> Storage[IndexedDB / cache / cookies]
 ```
 
-Patterns
+### State Ownership Rules
 
-- MVC
-- MVVM
-- Flux
-- Clean Architecture
-- Domain Driven Design
+- Local state for one component or tightly coupled component subtree.
+- URL state for navigable filters, tabs, pagination and shareable views.
+- Server state belongs in a query/cache library or Server Components; duplicate as Redux state avoid చేయండి.
+- Global state only for genuinely cross-feature/session state; unrelated state should stay local.
+- Persistent browser state should classify data by sensitivity and lifecycle. Secrets localStorageలో store చేయకండి.
+- Optimistic updates require server reconciliation, error rollback and idempotency for mutations.
 
-Large Scale
+## Component Architecture
 
-- Monorepo
-- Micro Frontends
-- Module Federation
+```mermaid
+flowchart LR
+    Page[Route / Page] --> Feature[Feature container]
+    Feature --> Shell[Layout shell]
+    Feature --> Data[Data hook / loader]
+    Feature --> Domain[Domain components]
 
----
+    Domain --> Compound[Compound components]
+    Domain --> Headless[Headless hooks / primitives]
+    Domain --> View[Presentational components]
 
-## [10. Build Tools](#10-build-tools-1)
+    Data --> Contract[Typed API contract]
+    Contract --> DTO[DTO / Zod schema]
+```
 
-Learn
+- Prefer feature folders with components, hooks, tests, styles and API contracts colocated.
+- Separate data acquisition, business rules, UI state and visual presentation.
+- Atomic Design optional; maintainability కంటే arbitrary atom/molecule taxonomy కాదు ముఖ్యం.
+- Compound components and headless primitives solve reusable behavior without visual lock-in.
+- Public component contracts should be typed and avoid leaking backend DTO shape.
 
-- Vite
-- Webpack
-- Rollup
-- esbuild
+## Rendering Strategy Selection
 
-Understand
+| Strategy | Best for | Trade-off |
+|---|---|---|
+| CSR | Highly interactive private dashboards | Slower first content and SEO dependency |
+| SSR | Personalized or SEO-sensitive dynamic pages | Server cost and Time to First Byte |
+| SSG | Marketing, docs and publish-only content | Rebuild/revalidation required |
+| ISR/On-demand revalidation | Frequently updated static-like pages | Cache freshness and invalidation complexity |
+| Streaming SSR | Large pages with independent data sections | Suspense boundaries and partial UI support |
+| Partial/Island hydration | Mostly static pages with small interactive islands | Framework/tooling constraints |
 
-- Bundling
-- Transpiling
-- Source Maps
-- HMR
-- Tree Shaking
+## Browser Performance Budget
 
----
+```mermaid
+flowchart LR
+    Input[Navigate / interact] --> Network[Network / CDN]
+    Network --> Parse[HTML / CSS / JS parse]
+    Parse --> Render[Layout / paint / composite]
+    Render --> Response[First / Largest / Interactive content]
 
-## [11. Testing](#11-testing-1)
+    Budget[Performance budget] --> JS[JS bundle limit]
+    Budget --> Images[Image/asset limit]
+    Budget --> LCP[LCP target]
+    Budget --> INP[INP target]
+    Budget --> CLS[CLS target]
 
-Unit Testing
+    JS --> CI[CI Lighthouse / Playwright]
+    Images --> CI
+    LCP --> CI
+    INP --> CI
+    CLS --> CI
+```
 
-- Jest
-- Vitest
+- Measure **LCP**, **INP**, **CLS**, **TTFB**, **FCP**, plus route-level and interaction-level metrics.
+- Use route-based code splitting, import-on-visibility, preloading/preconnect only for proven dependencies.
+- Separate framework runtime, application chunks and vendor cache groups to improve cache hit.
+- Avoid large libraries for narrow utilities; inspect bundle treemap and duplicate dependencies.
+- Virtualize large lists, but preserve keyboard navigation and correct scroll/anchor behavior.
+- Optimize images by format, dimensions, responsive `srcset`, `sizes`, priority hints and CDN resizing.
+- Reserve layout space for images, fonts and dynamic content to prevent CLS.
+- Self-host critical fonts or preload correct subsets; use `font-display: swap` carefully.
 
-Component Testing
+## Resilience and Offline Architecture
 
-- React Testing Library
+```mermaid
+flowchart TD
+    Request[User action / request] --> Local[Validate and optimistic UI]
+    Local --> Retry{Retryable failure?}
 
-E2E
+    Retry -->|Yes| Backoff[Exponential backoff + jitter]
+    Backoff --> Dedup[Deduplicate request]
+    Dedup --> Request
 
-- Playwright
-- Cypress
+    Retry -->|No| Rollback[Rollback optimistic state]
+    Rollback --> Message[Accessible error and recovery action]
 
-Topics
+    Request --> Timeout[Timeout / AbortController]
+    Timeout --> Offline{Offline?}
+    Offline -->|Yes| Queue[IndexedDB mutation queue]
+    Queue --> Sync[Background Sync / reconnect]
+    Sync --> Reconcile[Server reconciliation]
+```
 
-- Mocking
-- Snapshot
-- Accessibility Testing
-- Visual Regression
+- Retry only transport or retryable server failures; never retry non-idempotent mutations without an idempotency key.
+- Add exponential backoff with jitter, abort support, deadlines and maximum retry budget.
+- Cached data, stale-while-revalidate, offline drafts and mutation queues must define conflict ownership.
+- PWA service-worker scope, cache versioning, navigation fallback and update lifecycle should be tested explicitly.
+- BroadcastChannel or storage events can synchronize tabs, but server state remains the source of truth.
 
----
+## Accessibility and Internationalization
 
-## [12. Deployment](#12-deployment-1)
+```mermaid
+flowchart LR
+    Spec[Requirements] --> A11y[Semantic HTML / ARIA]
+    Spec --> I18n[Translations / locale]
+    Spec --> RTL[RTL layout]
 
-Learn
+    A11y --> Keyboard[Keyboard + focus management]
+    A11y --> SR[Screen reader testing]
+    I18n --> Plural[ICU plural / gender / formatting]
+    RTL --> CSS[Logical CSS properties]
 
-- CI/CD
-- Docker
-- CDN
-- Cache Headers
-- Reverse Proxy
-- Edge Functions
+    Keyboard --> Automated[axe / Playwright]
+    SR --> Manual[Manual assistive-tech test]
+    Plural --> Snapshot[Locale snapshots]
+```
 
-Platforms
+- Semantic HTML before ARIA, visible focus, logical focus order and accessible modal/focus trapping.
+- Test keyboard-only, screen reader, zoom, forced colors, reduced motion and 200% text scaling.
+- Internationalization includes locale formats, direction, plural rules, content expansion and translated URLs.
+- Avoid hard-coded text, date/number/currency formatting and image/text-dependent layout assumptions.
+- Announce dynamic updates politely only when needed; don't overuse live regions.
 
-- Vercel
-- Netlify
-- Amazon Web Services
-- Cloudflare
+## Security Architecture
 
----
+- CSP with nonce/hash, Trusted Types for HTML sinks and no `dangerouslySetInnerHTML` without sanitizer.
+- HttpOnly/Secure/SameSite cookies, short-lived sessions, CSRF protection and strict Origin/Referer checks.
+- OAuth PKCE for public clients; never use `localStorage` for high-risk bearer credentials.
+- Validate API responses at trust boundaries and keep server authorization authoritative.
+- Subresource Integrity, dependency scanning, CSP reporting and third-party script allowlists.
+- Sanitized rich text, safe URL protocols, downloadable filename/header handling and upload limits.
 
-## [13. Monitoring](#13-monitoring-1)
+## Observability and Deployment
 
-Topics
+```mermaid
+flowchart LR
+    Browser[Browser RUM] --> SDK[OpenTelemetry / RUM SDK]
+    SDK --> Ingest[Telemetry pipeline]
+    Ingest --> APM[APM / Datadog]
+    Ingest --> Sentry[Error tracking]
+    Ingest --> Analytics[Product analytics]
 
-- Logging
-- Error Tracking
-- Performance Monitoring
-- User Analytics
-- Session Replay
+    CI[Build / test] --> Artifact[Immutable artifact]
+    Artifact --> CDN[CDN / Edge]
+    CDN --> Canary[Canary / blue-green]
+    Canary --> Rollback[Automatic rollback]
+```
 
-Tools
+- Use RUM for route, LCP/INP/CLS, error rate, failed interactions and release/version dimensions.
+- Synthetic checks for critical journeys and accessibility smoke tests in CI.
+- Structured logs, correlation IDs and release/source maps without secrets or PII.
+- CDN cache immutable assets; HTML and API content use explicit cache revalidation policies.
+- Independent micro-frontend deployment requires versioned remotes, contract tests and runtime fallback.
 
-- Sentry
-- Datadog
-- Google Analytics
+## Interview Framework
 
----
+For every frontend system design problem, answer:
 
-## [14. Large Scale Frontend System Design](#14-large-scale-frontend-system-design-1)
-
-Topics
-
-- Offline Support
-- Sync
-- Caching
-- Pagination
-- Infinite Scroll
-- Feature Flags
-- Dark Mode
-- Multi-language (i18n)
-- Role-Based Access Control (RBAC)
-- Permissions
-- Real-time Updates
-- Web Workers
-
----
-
-## [15. Frontend System Design Interview Problems](#15-frontend-system-design-interview-problems-1)
-
-Practice designing:
-
-[1. YouTube](#1youtube)
-[2. Instagram](#2-instagram)
-[3. Netflix](#3-netflix)
-[4. WhatsApp Web](#4-whatsapp-web)
-[5. Gmail](#5-gmail)
-[6. Google Docs](#6-google-docs)
-[7. Trello](#7-trello)
-[8. Amazon](#8-amazon)
-[9. Twitter/X](#9-twitterx)
-[10. Spotify](#10-spotify)
-[11. Slack](#11-slack)
-[12. Airbnb](#12-airbnb)
-[13. Zoom](#13-zoom)
-[14. LinkedIn](#14-linkedin)
-[15. Google Maps](#15-google-maps)
-[16. E-commerce Website](#16-e-commerce-website)
-[17. Banking Application](#17-banking-application)
-[18. Food Delivery App](#18-food-delivery-app)
-[19. Ride Booking App](#19-ride-booking-app)
-[20. Online IDE](#20-online-ide)
-
-For each system, answer questions like:
-
-- How will you structure the project?
-- How will you manage state?
-- How will you cache API data?
-- How will you handle authentication?
-- How will you optimize performance?
-- How will you split bundles?
-- How will you implement lazy loading?
-- How will you support offline mode?
-- How will you handle real-time updates?
-- How will you scale to millions of users?
+1. Clarify users, devices, data volume, latency, availability and offline requirements.
+2. Draw shell, router, remote modules, API/BFF, cache and CDN boundaries.
+3. Define state ownership and conflict handling.
+4. Choose rendering strategy and data delivery.
+5. Specify performance budgets and Core Web Vitals.
+6. Define accessibility and internationalization requirements.
+7. Threat-model XSS, CSRF, supply-chain scripts and sensitive data storage.
+8. Define observability, rollout, rollback and failure behavior.
 
 ---
 

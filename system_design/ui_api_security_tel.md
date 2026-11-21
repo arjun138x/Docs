@@ -1,1190 +1,137 @@
-Absolutely. If you're a **React/Next.js + Node.js/NestJS developer**, I recommend learning security as a practical **UI → API → Database → Cloud** roadmap rather than only memorizing OWASP Top 10.
+# 🔐 UI, API & Cloud Security Complete Guide
 
-OWASP's current web-app guidance is the **OWASP Top 10:2025**, while the dedicated API list is **OWASP API Security Top 10:2023**. ([OWASP Developer Guide][1])
+ఈ డాక్యుమెంట్ React / Next.js UI నుండి Node.js / NestJS API, Database, Cloud, మరియు Third-party integrations వరకు వెళ్తున్న మొత్తం security attack surfaceను advanced practical formలో coverage చేస్తుంది.
 
-# 🔐 Web Security Roadmap — UI + API
+> **Study rule:** Prevent → Detect → Respond. ఒక్క prevention మాత్రమే success criterion కాదు; attacker actionను detect చేసి containment మరియు recovery చేయగల capability కూడా అవసరం.
 
+## Document Map
+
+1. Attack surface and trust boundaries
+2. Browser, XSS, CSRF, clickjacking and security headers
+3. Authentication, MFA, OAuth 2.0, OIDC and session security
+4. Authorization: RBAC, ABAC, tenant isolation and object-level authorization
+5. OWASP API Security Top 10
+6. Injection, SSRF, file upload, path traversal and CORS
+7. Data, secrets, third-party APIs and supply-chain security
+8. Logging, detection, incident response and secure SDLC
 
 ```mermaid
-mindmap
-  root((🔐 Web Security Roadmap — UI + API))
-    1. First understand the attack surface
-    2. UI / Frontend Attacks
-    A. XSS — Cross-Site Scripting
-    3. CSRF — Cross-Site Request Forgery
-    4. Clickjacking
-    5. UI Authentication Problems
-    6. Don't Trust Frontend Authorization
-```
-![Image](https://images.openai.com/static-rsc-4/rbQF9mcWKRwta4lu5Zi-JOAda0e7-GLoIYHRKxHEoX948ZBBcjxYkWAVVFS26bqfQkL25u4EI40J3-0oFuczEMtR0PA83nR5QolDVBYD9Pbo4edtbFUnUSb4sMFIJ6XNjPiaAwnAFvFe2nz_NnQ18h3PFxtyAmUX3uXsTSc0O7HNCBdhNyAQGyalD7SEAK0z?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/-7FSPx0OpaiHlO5H6XjPhcArjI3TQdm6trbk5mvlK-Ziiadyozbb9RLFyNUq0KM7QyegimP90sfjs_B2F-STMtARjbaPcAF6SzLrm5ke03VryZXTP3qoq_m84V-18N3uUA5w7TMnNobTdjG5MOXvFXJpABhM7yFFok-IvNSKLeVjECHShunPbXBRAoFmpogA?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/8rGe_ktebHNDMCCY0kTNDLgz2VTkgtwpL6auvA6J3clH5MDI0z9EgUecL-zhISOmGv6VrHmtcOotRYuqSIoWf7E9W2UMCYm7VJpHenlnzsA99T5OcqcGTGTRI-OnKJS-dU467u7Hh9p9W-5oEiv0RC0uKY7Xbl80VHjDSjGiDCJ0oq3wSUn-HBMRLQb6V9sa?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/8STVX2aO14nBnfZvxEwIM1JwAEARjoI6z92kmBON-Q6ppVEKbjFT7UxT8tscBT_cgbrZllS6X74I_t-DhQq4tmnBjXle4-3RFMkqIPrW3oVF7JX-FSE7vVkcz3hYrq3lZUlZyPxBJoTEJboiLPAkxzUFW9htTH-i6YZBg8v1clWwWE1_DiOBJ3Xvh1oX2yYP?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/6_tdpc2V3flGpOHNsY4sK_o7v27WDM7wZHiTJ-kn9aVDVG0hbAAodlFiy43QE-cmh048MVl6zBWTJaDvWJRmTxOxXpDElMHtqs8m-XAUv6TUUooZJwULyYBeyX9cdgElXplC5oWW5jNzsm6fR1dv5XASarAGLDqtd0-4PF2yOQxIr2kzpxSV6bZJ703aE82n?purpose=fullsize)
-
-![Image](https://images.openai.com/static-rsc-4/tqBu_Y387ZeWx1aCH4Uj2LD6aNL11I-SK_e25QlKw6Wm0UIYULBn4IQAsVhKcHfsQQjQCGACVOU7MXJjO2jqrOCeZWdH-6XHB_PLuejrv4taChySLlG3yQzC-jXec5nCCwC6dYgT6azkLZ5cOiHZrSCsHj5U6GdUVUUALhpiaR0fjTzdrEmRwe_oVys8KAqR?purpose=fullsize)
-
-# [1. First understand the attack surface](#1-first-understand-the-attack-surface-1)
-
-Learn this flow first:
-
-```text
-                    INTERNET
-                        |
-                  Attacker
-                        |
-                        v
-              +----------------+
-              |     Browser    |
-              | React / Next.js|
-              +----------------+
-                        |
-                  HTTPS Request
-                        |
-                        v
-              +----------------+
-              | API Gateway /  |
-              | Load Balancer  |
-              +----------------+
-                        |
-                        v
-              +----------------+
-              | Node/NestJS API|
-              +----------------+
-                 |     |     |
-                 v     v     v
-              Redis   DB   3rd Party APIs
-```
-
-An attacker can target **every layer**, not just the UI.
-
----
-
-# [2. UI / Frontend Attacks](#2-ui--frontend-attacks-1)
-
-## A. XSS — Cross-Site Scripting
-
-### Attack
-
-Attacker injects JavaScript into content displayed by your application.
-
-Example:
-
-```text
-<input>
-<script>
-  stealSomething()
-</script>
-```
-
-If your application renders it unsafely:
-
-```jsx
-<div dangerouslySetInnerHTML={{ __html: userInput }} />
-```
-
-it can become dangerous.
-
-### Protection
-
-Prefer:
-
-```jsx
-<div>{userInput}</div>
-```
-
-instead of:
-
-```jsx
-<div dangerouslySetInnerHTML={{ __html: userInput }} />
-```
-
-Also learn:
-
-- output encoding
-- HTML sanitization
-- Content Security Policy
-- `HttpOnly` cookies
-- `Secure` cookies
-- `SameSite` cookies
-
----
-
-# [3. CSRF — Cross-Site Request Forgery](#3-csrf--cross-site-request-forgery-1)
-
-Suppose the user is logged into:
-
-```text
-bank.com
-```
-
-An attacker tricks the browser into making:
-
-```http
-POST /transfer
-```
-
-using the victim's existing authentication.
-
-### Protection
-
-Use:
-
-```text
-SameSite cookies
-CSRF tokens
-Origin/Referer validation
-```
-
-For example:
-
-```http
-Set-Cookie:
-  session=abc;
-  HttpOnly;
-  Secure;
-  SameSite=Lax
-```
-
-Important distinction:
-
-```text
-XSS  → attacker executes code in your application context
-
-CSRF → attacker tricks your browser into making requests
-```
-
----
-
-# [4. Clickjacking](#4-clickjacking-1)
-
-Attacker embeds your website inside an iframe.
-
-```html
-<iframe src="https://yourbank.com"></iframe>
-```
-
-The victim may unknowingly click something.
-
-### Protection
-
-Use:
-
-```http
-Content-Security-Policy: frame-ancestors 'none'
-```
-
-or appropriate `frame-ancestors` policy.
-
-Also understand:
-
-```http
-X-Frame-Options
-```
-
----
-
-# [5. UI Authentication Problems](#5-ui-authentication-problems-1)
-
-Common attacks:
-
-```text
-Brute force
-Credential stuffing
-Session hijacking
-Token theft
-Weak passwords
-Session fixation
-Account enumeration
-```
-
-### Protection
-
-Implement:
-
-```text
-Strong password policy
-MFA
-Rate limiting
-Account lockout / progressive delays
-Secure session management
-Short-lived access tokens
-Secure refresh-token handling
-```
-
----
-
-# [6. Don't Trust Frontend Authorization](#6-dont-trust-frontend-authorization-1)
-
-This is a **very important interview + real-world concept**.
-
-Bad:
-
-```jsx
-if (user.role === "admin") {
-  showDeleteButton();
-}
-```
-
-This only hides the button.
-
-An attacker can directly call:
-
-```http
-DELETE /api/users/123
-```
-
-using Postman/curl/browser DevTools.
-
-### Correct architecture
-
-```text
-React
-  |
-  | DELETE /users/123
-  v
-Node API
-  |
-  | Is authenticated?
-  | Is user authorized?
-  | Can this user delete user 123?
-  v
-Database
-```
-
-**Authorization must be enforced on the server.**
-
----
-
-# [7. API Security](#7-api-security-1)
-
-This is where you should spend a lot of your time.
-
-OWASP's API Top 10 highlights authorization, authentication, resource consumption, SSRF, misconfiguration, API inventory, and unsafe third-party API consumption among the major API risks. ([OWASP][2])
-
----
-
-## API1 — Broken Object Level Authorization
-
-One of the most important API vulnerabilities.
-
-Suppose:
-
-```http
-GET /api/users/100
-```
-
-You're user:
-
-```text
-id = 50
-```
-
-but API returns:
-
-```text
-user 100
-```
-
-because the backend only checks:
-
-```text
-Is user logged in?
-```
-
-instead of:
-
-```text
-Does user 50 have access to user 100?
-```
-
-### Protection
-
-Every object access needs authorization.
-
-```javascript
-const user = await db.user.findFirst({
-  where: {
-    id: requestedUserId,
-    organizationId: currentUser.organizationId,
-  },
-});
-```
-
-Learn:
-
-```text
-RBAC
-ABAC
-Resource ownership
-Tenant isolation
-Object-level authorization
-```
-
----
-
-# [8. API2 — Broken Authentication](#8-api2--broken-authentication-1)
-
-Attacks include:
-
-```text
-JWT theft
-Weak JWT validation
-Weak passwords
-Brute force
-Credential stuffing
-Session hijacking
-Refresh-token abuse
-OTP brute force
-```
-
-### Protection
-
-Learn:
-
-```text
-OAuth 2.0
-OpenID Connect
-JWT
-Sessions
-Access tokens
-Refresh tokens
-MFA
-Password hashing
-Argon2/bcrypt
-Token expiration
-Token rotation
-```
-
----
-
-# [9. API3 — Broken Object Property Authorization](#9-api3--broken-object-property-authorization-1)
-
-Imagine:
-
-```http
-PATCH /users/123
-```
-
-Attacker sends:
-
-```json
-{
-  "name": "John",
-  "role": "ADMIN",
-  "isVerified": true
-}
-```
-
-Your API blindly updates everything.
-
-This is commonly called:
-
-```text
-Mass Assignment
-```
-
-### Protection
-
-Use DTOs / allowlists.
-
-```typescript
-const updateUserDto = {
-  name: body.name,
-  email: body.email,
-};
-```
-
-Don't simply do:
-
-```typescript
-user.update(req.body);
-```
-
----
-
-# [10. API4 — Unrestricted Resource Consumption](#10-api4--unrestricted-resource-consumption-1)
-
-Attacker sends:
-
-```http
-GET /users?limit=999999999
-```
-
-or:
-
-```http
-POST /upload
-```
-
-with a huge file.
-
-Or:
-
-```text
-10,000 requests/second
-```
-
-This can cause:
-
-```text
-CPU exhaustion
-Memory exhaustion
-Database overload
-Cloud cost increase
-SMS/email cost increase
-DoS
-```
-
-OWASP specifically recommends limits on payload sizes, execution time, upload sizes, operations per request, and request frequency. ([OWASP][3])
-
-### Protection
-
-Implement:
-
-```text
-Rate limiting
-Request size limits
-Pagination limits
-Timeouts
-Upload limits
-Query limits
-Concurrency limits
-Circuit breakers
-```
-
-Example:
-
-```http
-GET /users?limit=100000
-```
-
-should become:
-
-```text
-maximum limit = 100
-```
-
----
-
-# [11. API5 — Broken Function Level Authorization](#11-api5--broken-function-level-authorization-1)
-
-Example:
-
-```http
-POST /admin/delete-user
-```
-
-Normal user shouldn't be able to call it.
-
-Bad:
-
-```text
-Authentication = YES
-→ allow
-```
-
-Correct:
-
-```text
-Authentication
-       ↓
-Authorization
-       ↓
-Role/Permission
-       ↓
-Execute
-```
-
-Example:
-
-```typescript
-if (!user.permissions.includes("USER_DELETE")) {
-  throw new ForbiddenException();
-}
-```
-
----
-
-# [12. API6 — Sensitive Business Flow Abuse](#12-api6--sensitive-business-flow-abuse-1)
-
-This is particularly important for real systems.
-
-Imagine:
-
-```http
-POST /send-otp
-```
-
-Attacker repeatedly calls it.
-
-Or:
-
-```http
-POST /apply-coupon
-```
-
-thousands of times.
-
-Or:
-
-```http
-POST /buy-ticket
-```
-
-using bots.
-
-These may not be traditional coding vulnerabilities; the **business process itself** can be abused. OWASP explicitly calls out unrestricted access to sensitive business flows as an API risk. ([OWASP][2])
-
-### Protection
-
-Use:
-
-```text
-Rate limits
-Per-user limits
-Per-IP limits
-CAPTCHA where appropriate
-Fraud detection
-Velocity checks
-Idempotency keys
-Business rules
-Bot detection
-```
-
----
-
-# [13. API7 — SSRF](#13-api7--ssrf-1)
-
-Very important for backend developers.
-
-Suppose your API accepts:
-
-```json
-{
-  "url": "https://example.com/image.jpg"
-}
-```
-
-Server does:
-
-```javascript
-fetch(userProvidedUrl);
-```
-
-Attacker may try to make your server access internal resources.
-
-Conceptually:
-
-```text
-Attacker
-   |
-   v
-Your API
-   |
-   +----> Internal service
-   |
-   +----> Cloud metadata service
-   |
-   +----> Internal network
-```
-
-### Protection
-
-Don't blindly fetch arbitrary URLs.
-
-Use:
-
-```text
-Allowlist domains
-Validate URLs
-Restrict protocols
-Block internal/private IP ranges
-Disable unnecessary redirects
-Network egress controls
-Timeouts
-```
-
-OWASP specifically recommends validating remote destinations and avoiding blindly following redirects. ([OWASP][4])
-
----
-
-# [14. SQL Injection](#14-sql-injection-1)
-
-Attacker manipulates database queries.
-
-Bad:
-
-```javascript
-const query = `SELECT * FROM users WHERE email = '${email}'`;
-```
-
-Use parameterized queries / ORM safely:
-
-```typescript
-await prisma.user.findFirst({
-  where: {
-    email,
-  },
-});
-```
-
-Learn:
-
-```text
-SQL Injection
-NoSQL Injection
-ORM Injection
-Command Injection
-LDAP Injection
-Template Injection
-```
-
----
-
-# [15. NoSQL Injection](#15-nosql-injection-1)
-
-Important if you're using MongoDB.
-
-Never blindly trust objects from users.
-
-For example, dangerous patterns can occur when request objects are passed directly into database filters.
-
-Use:
-
-```text
-DTO validation
-Schema validation
-Allowlisted fields
-Type validation
-```
-
----
-
-# [16. Command Injection](#16-command-injection-1)
-
-Dangerous:
-
-```javascript
-exec(`ping ${userInput}`);
-```
-
-If user input reaches an OS command, attackers may execute unintended commands.
-
-### Protection
-
-Best:
-
-```text
-Don't invoke shell commands using user input.
-```
-
-If unavoidable:
-
-```text
-Allowlist
-Strict argument validation
-Avoid shell interpretation
-Least privilege
-```
-
----
-
-# [17. File Upload Attacks](#17-file-upload-attacks-1)
-
-Extremely important.
-
-Attacker uploads:
-
-```text
-malicious.exe
-shell.php
-huge.zip
-malicious.svg
-```
-
-or attempts:
-
-```text
-Path traversal
-Zip bombs
-Malware upload
-Stored XSS
-Resource exhaustion
-```
-
-### Protection
-
-Check:
-
-```text
-File size
-File extension
-MIME type
-Actual file signature
-Filename
-Storage location
-Permissions
-Virus/malware scanning
-```
-
-Store uploads outside executable web directories.
-
----
-
-# [18. Path Traversal](#18-path-traversal-1)
-
-Attacker tries something conceptually like:
-
-```text
-../../../../etc/passwd
-```
-
-Your API should never allow arbitrary filesystem paths from users.
-
-Use:
-
-```text
-Allowlisted filenames/IDs
-Path normalization
-Safe storage abstraction
-No direct filesystem paths from users
-```
-
----
-
-# [19. CORS Attacks / Misconfiguration](#19-cors-attacks--misconfiguration-1)
-
-Bad:
-
-```http
-Access-Control-Allow-Origin: *
-```
-
-can be inappropriate depending on what your API exposes.
-
-Especially dangerous when combined with credentialed requests.
-
-Understand:
-
-```text
-Origin
-CORS
-Preflight
-OPTIONS
-Credentials
-Access-Control-Allow-Origin
-Access-Control-Allow-Credentials
-```
-
-CORS is **not authentication**.
-
----
-
-# [20. Security Headers](#20-security-headers-1)
-
-Learn these:
-
-```http
-Content-Security-Policy
-Strict-Transport-Security
-X-Content-Type-Options
-Referrer-Policy
-Permissions-Policy
-Cache-Control
-```
-
-Also understand modern browser protections such as:
-
-```text
-SameSite
-Secure
-HttpOnly
-CORS
-CSP
-```
-
-OWASP recommends appropriate CORS policies and security headers as part of API hardening. ([OWASP][5])
-
----
-
-# [21. Sensitive Data Exposure](#21-sensitive-data-exposure-1)
-
-Never return:
-
-```json
-{
-  "passwordHash": "...",
-  "resetToken": "...",
-  "refreshToken": "...",
-  "internalNotes": "..."
-}
-```
-
-just because the database has those fields.
-
-Create response DTOs:
-
-```typescript
-{
-  (id, name, email);
-}
-```
-
-Also protect:
-
-```text
-PII
-Passwords
-Tokens
-API keys
-Secrets
-Financial information
-Internal system information
-```
-
----
-
-# [22. Secrets Management](#22-secrets-management-1)
-
-Never:
-
-```javascript
-const API_KEY = "abc123";
-```
-
-or:
-
-```text
-.env committed to Git
-```
-
-Learn:
-
-```text
-Environment variables
-AWS Secrets Manager
-AWS Parameter Store
-Secret rotation
-KMS
-IAM
-Git secret scanning
-```
-
----
-
-# [23. API Enumeration](#23-api-enumeration-1)
-
-Attackers may discover:
-
-```text
-/api/v1/users
-/api/v1/admin
-/api/v2/users
-/api/debug
-/api/internal
-/api/test
-/api/old
-```
-
-Old APIs can remain vulnerable.
-
-OWASP calls this **Improper Inventory Management**. Maintain an accurate inventory of hosts, endpoints and API versions, and remove/deprecate unnecessary endpoints. ([OWASP][2])
-
----
-
-# [24. Third-Party API Attacks](#24-third-party-api-attacks-1)
-
-Don't automatically trust:
-
-```text
-Stripe
-Google
-GitHub
-Payment APIs
-Address APIs
-Email APIs
-Other microservices
-```
-
-Their response is still **untrusted input**.
-
-Validate:
-
-```text
-Schema
-Type
-Size
-Content
-Redirects
-Timeouts
-TLS
-Authentication
-```
-
-OWASP specifically warns against unsafe consumption of third-party API data. ([OWASP][4])
-
----
-
-# [25. Logging & Monitoring](#25-logging--monitoring-1)
-
-Security isn't complete without detection.
-
-Log things such as:
-
-```text
-Login failures
-Successful login
-Password changes
-Permission changes
-Admin operations
-Token failures
-Rate-limit violations
-Suspicious requests
-```
-
-But don't log:
-
-```text
-Passwords
-Access tokens
-Refresh tokens
-API secrets
-Sensitive personal data
-```
-
-Learn:
-
-```text
-Structured logging
-Audit logs
-Correlation IDs
-SIEM
-Datadog
-CloudWatch
-AWS CloudTrail
-Alerting
-```
-
----
-
-# 🗺️ Complete Learning Roadmap
-
-I'd learn it in this order:
-
-```text
-LEVEL 1
-HTTP Security
-│
-├── HTTP/HTTPS
-├── Cookies
-├── Sessions
-├── Headers
-├── CORS
-├── Same-Origin Policy
-└── TLS
-        ↓
-LEVEL 2
-Frontend Security
-│
-├── XSS
-├── CSRF
-├── Clickjacking
-├── DOM Security
-├── CSP
-├── Secure Cookies
-└── Token Storage
-        ↓
-LEVEL 3
-Authentication
-│
-├── Sessions
-├── JWT
-├── OAuth2
-├── OpenID Connect
-├── MFA
-├── Password Hashing
-├── Access Tokens
-└── Refresh Tokens
-        ↓
-LEVEL 4
-Authorization
-│
-├── RBAC
-├── ABAC
-├── Resource Ownership
-├── Multi-tenancy
-├── Object-level authorization
-└── Function-level authorization
-        ↓
-LEVEL 5
-API Security
-│
-├── Injection
-├── BOLA
-├── Mass Assignment
-├── Rate Limiting
-├── SSRF
-├── API Abuse
-├── CORS
-├── API Versioning
-└── API Inventory
-        ↓
-LEVEL 6
-Data Security
-│
-├── SQL Injection
-├── NoSQL Injection
-├── Encryption
-├── Hashing
-├── Secrets
-├── PII
-└── Database permissions
-        ↓
-LEVEL 7
-Infrastructure
-│
-├── AWS IAM
-├── API Gateway
-├── WAF
-├── VPC
-├── Security Groups
-├── CloudFront
-├── Secrets Manager
-└── KMS
-        ↓
-LEVEL 8
-DevSecOps
-│
-├── Dependency scanning
-├── SAST
-├── DAST
-├── Secret scanning
-├── Container scanning
-├── Security tests
-└── CI/CD security
-        ↓
-LEVEL 9
-Security Testing
-│
-├── OWASP ZAP
-├── Burp Suite
-├── Postman
-├── Nmap
-├── Dependency scanners
-└── Threat modeling
-```
-
-# 🎯 For a Node.js Developer
-
-Since you're working toward **Node.js/NestJS/backend roles**, I'd prioritize these:
-
-### Must know
-
-```text
-⭐⭐⭐⭐⭐ XSS
-⭐⭐⭐⭐⭐ CSRF
-⭐⭐⭐⭐⭐ Authentication
-⭐⭐⭐⭐⭐ Authorization
-⭐⭐⭐⭐⭐ JWT
-⭐⭐⭐⭐⭐ Session security
-⭐⭐⭐⭐⭐ SQL Injection
-⭐⭐⭐⭐⭐ NoSQL Injection
-⭐⭐⭐⭐⭐ BOLA
-⭐⭐⭐⭐⭐ Rate Limiting
-⭐⭐⭐⭐⭐ CORS
-⭐⭐⭐⭐⭐ SSRF
-⭐⭐⭐⭐⭐ Input Validation
-⭐⭐⭐⭐⭐ Security Headers
-⭐⭐⭐⭐⭐ Secrets Management
-```
-
-### Then learn
-
-```text
-⭐⭐⭐⭐ File Upload Security
-⭐⭐⭐⭐ Path Traversal
-⭐⭐⭐⭐ Command Injection
-⭐⭐⭐⭐ Clickjacking
-⭐⭐⭐⭐ OAuth2/OIDC
-⭐⭐⭐⭐ MFA
-⭐⭐⭐⭐ API Gateway/WAF
-⭐⭐⭐⭐ AWS IAM
-⭐⭐⭐⭐ Security Monitoring
-```
-
-# 🧪 Best Way to Practice
-
-Don't just read about attacks.
-
-Build this deliberately vulnerable application:
-
-```text
-React
-   ↓
-NestJS
-   ↓
-PostgreSQL
-   ↓
-Redis
-   ↓
-AWS
-```
-
-Then create:
-
-```text
-01-xss
-02-csrf
-03-broken-auth
-04-broken-authorization
-05-bola
-06-mass-assignment
-07-sql-injection
-08-nosql-injection
-09-rate-limit
-10-file-upload
-11-path-traversal
-12-ssrf
-13-command-injection
-14-cors
-15-sensitive-data-exposure
-16-api-abuse
-17-secrets
-18-security-misconfiguration
-```
-
-For each vulnerability, follow:
-
-```text
-1. Build vulnerable code
-          ↓
-2. Understand the attack
-          ↓
-3. Reproduce safely
-          ↓
-4. Fix the vulnerability
-          ↓
-5. Write automated security test
-          ↓
-6. Add monitoring
-```
-
-That approach will give you much stronger practical knowledge than simply memorizing the OWASP list.
-
-A good reference is the official [OWASP Top 10](https://owasp.org/www-project-top-ten/?utm_source=chatgpt.com) and [OWASP API Security Top 10](https://owasp.org/API-Security/?utm_source=chatgpt.com). ([OWASP Developer Guide][1])
-
-If you're preparing specifically for **Node.js/NestJS interviews**, I can also give you a **30-day Web Security roadmap with Node.js code examples + attack examples + interview questions + Burp/Postman practice**.
-
-[1]: https://devguide.owasp.org/en/07-training-education/05-top-ten/?utm_source=chatgpt.com "OWASP Top 10 - OWASP Developer Guide"
-[2]: https://owasp.org/API-Security/editions/2023/en/0x11-t10/?utm_source=chatgpt.com "OWASP Top 10 API Security Risks – 2023 - OWASP API Security Top 10"
-[3]: https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/?utm_source=chatgpt.com "API4:2023 Unrestricted Resource Consumption - OWASP API Security Top 10"
-[4]: https://owasp.org/API-Security/editions/2023/en/0xaa-unsafe-consumption-of-apis/?utm_source=chatgpt.com "API10:2023 Unsafe Consumption of APIs - OWASP API Security Top 10"
-[5]: https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/?utm_source=chatgpt.com "API8:2023 Security Misconfiguration - OWASP API Security Top 10"
+flowchart LR
+    User[User / Browser] --> CDN[CDN / WAF]
+    CDN --> GW[API Gateway]
+    GW --> BFF[UI BFF / Backend]
+    BFF --> Auth[Identity Provider]
+    BFF --> API[Node.js / NestJS APIs]
+    API --> Policy[Policy / Authorization]
+    Policy --> DB[(Database / Tenant Data)]
+    API --> Cache[(Redis)]
+    API --> Queue[(Queue / Event Bus)]
+    API --> ThirdParty[Third-party APIs]
+
+    CDN -. blocked attack .-> Security[WAF / Rate Limit]
+    GW -. auth context .-> Auth
+    API -. audit event .-> SIEM[SIEM / Datadog / CloudTrail]
+    Policy -. deny event .-> SIEM
+```
+
+## Core Security Data Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser
+    participant Gateway
+    participant API
+    participant Policy
+    participant DB
+    participant Monitor
+
+    User->>Browser: Submit request
+    Browser->>Gateway: HTTPS + credentials / cookies
+    Gateway->>Gateway: TLS, rate limit, schema, bot controls
+    Gateway->>API: Authenticated request + correlation ID
+    API->>Policy: Authenticate identity + authorize action
+
+    alt Allowed
+        Policy-->>API: Permit with tenant scope
+        API->>DB: Parameterized operation with tenant filter
+        DB-->>API: Authorized data only
+        API-->>Browser: Minimal response DTO
+        API-->>Monitor: Audit + latency + security events
+    else Denied
+        Policy-->>API: Deny
+        API-->>Monitor: Denial reason / correlation ID
+        API-->>Browser: Generic 403 / 404
+    end
+```
+
+## Trust Boundaries and Response Rules
+
+| Boundary | Trust assumption | Mandatory control |
+|---|---|---|
+| Browser → API | Untrusted | HTTPS, schema validation, authentication, CSRF strategy |
+| Gateway → service | Moderately trusted | mTLS/IAM workload identity, payload limits, trace context |
+| API → database | Restricted | Tenant/ownership predicate, parameterized queries, least privilege |
+| API → third-party | Untrusted | TLS, response validation, timeout, retry budget, webhook signatures |
+| API → browser | Untrusted response consumer | CSP, secure cookies, response DTO, no secrets |
+| Build → deployment | Critical supply chain | Signed artifacts, SAST/SCA/container scan, SBOM, provenance |
+
+## OWASP Coverage Map
+
+| Area | Primary references | Main control |
+|---|---|---|
+| UI | OWASP Top 10:2025 web risks | Safe rendering, CSP, Trusted Types, CSRF and cookie controls |
+| API | OWASP API Security Top 10:2023 | Object/function authorization, resource limits, SSRF controls |
+| Identity | OIDC / OAuth 2.0 / OAuth 2.1 | Authorization Code + PKCE, MFA, secure refresh-token rotation |
+| Supply chain | OWASP Dependency-Check / CycloneDX SBOM | Pinned dependencies, signed builds, vulnerability and provenance checks |
+| Operations | OWASP ASVS / SAMM | Threat modeling, secure SDLC, logging, incident response |
+
+## OWASP API Security Top 10:2023 — Complete Mapping
+
+| Risk | Technical failure | Required control |
+|---|---|---|
+| API1 BOLA | Object access without ownership/tenant check | Server-side object, tenant, and ownership authorization |
+| API2 Broken Authentication | Invalid token/session handling | Strong identity provider, MFA, expiry, rotation and replay protection |
+| API3 Broken Object Property Authorization | Sensitive or writeable fields exposed | Field allowlists, response DTOs, mass-assignment protection |
+| API4 Unrestricted Resource Consumption | No limits or timeout budget | Rate/concurrency/payload limits, pagination and circuit breakers |
+| API5 Broken Function Authorization | Hidden UI actions called directly | Server-side role/action/resource policy checks |
+| API6 Sensitive Business Flow Abuse | Valid API calls automate abuse | Risk scoring, velocity checks, CAPTCHA/step-up, idempotency and fraud detection |
+| API7 SSRF | Server fetches attacker-controlled destinations | Egress allowlist, IP/DNS validation, redirects disabled and metadata isolation |
+| API8 Security Misconfiguration | Default headers, debug, CORS, TLS or cloud policy | Secure baselines, IaC policy, secret-free errors, CSP/HSTS and least privilege |
+| API9 Improper Inventory Management | Shadow/old/undocumented API versions exposed | Central API inventory, gateway discovery, lifecycle and deprecation policy |
+| API10 Unsafe Consumption of Third-Party APIs | Third-party response/webhook/trust assumed safe | Schema/type/size validation, TLS, signatures, timeout and bounded retry |
+
+```mermaid
+flowchart LR
+    API[API Gateway / Endpoint] --> Identity[API1-2: Identity + object access]
+    Identity --> Properties[API3: Field-level authorization]
+    Properties --> Resources[API4: Resource consumption limits]
+    Resources --> Function[API5: Function authorization]
+    Function --> Flow[API6: Business-flow abuse controls]
+    Flow --> Network[API7: SSRF egress controls]
+    Network --> Config[API8: Hardened configuration]
+    Config --> Inventory[API9: API inventory and lifecycle]
+    Inventory --> ThirdParty[API10: Verified third-party data]
+```
+
+## Secure Development and Incident Response
+
+```mermaid
+flowchart TD
+    Threat[Threat model] --> Build[Secure implementation]
+    Build --> Test[Unit / integration / security tests]
+    Test --> Deploy[Signed + policy-approved release]
+    Deploy --> Observe[Metrics / logs / traces]
+    Observe --> Detect[Security detection rule]
+    Detect --> Triage[Triage + severity]
+    Triage --> Contain[Token revoke / block / isolate]
+    Contain --> Eradicate[Patch / rotate / remove access]
+    Eradicate --> Recover[Restore / monitor / validate]
+    Recover --> Lessons[Postmortem / control improvement]
+    Lessons --> Threat
+```
+
+**Minimum incident runbook fields:** detection source, impacted accounts/resources/regions, correlation IDs, first/last seen time, containment owner, credential/session revocation, evidence preservation, user notification decision, rollback plan, root-cause owner, and verification criteria.
 
 ---
 
@@ -2799,7 +1746,164 @@ const API_KEY = "abc123xyz789";
 
 ---
 
+# Advanced Authentication and Session Design
+
+Password authentication మాత్రమే కాకుండా modern application ఒక identity lifecycle‌ను పూర్తి చేయాలి.
+
+```mermaid
+flowchart TD
+    Login[Login / Social Login] --> MFA{Risk + MFA}
+    MFA -->|Approved| AuthCode[Authorization Code]
+    MFA -->|Failed / suspicious| StepUp[Step-up or lockout]
+    AuthCode --> PKCE[PKCE verifier]
+    PKCE --> Tokens[Short-lived access token + refresh session]
+    Tokens --> API[API request]
+    API --> JWT[Validate issuer, audience, expiry, signature]
+    JWT --> AuthZ[Resource authorization]
+
+    Tokens --> Rotate[Refresh-token rotation]
+    Rotate --> Reuse{Refresh token replay?}
+    Reuse -->|Yes| Revoke[Revoke token family]
+    Reuse -->|No| NewPair[Issue new access + refresh pair]
+```
+
+- Browser SPAలు కోసం high-security applicationsలో backend-for-frontend (BFF) + `HttpOnly`, `Secure`, `SameSite` session cookieలను ప్రాధాన్యం ఇవ్వాలి. Bearer access tokens local storageలో దాచకండి.
+- Public clients OAuth Authorization Code Flow with PKCE వాడాలి; Implicit Flow వాడకండి.
+- Validate JWT `iss`, `aud`, `exp`, `nbf`, token type, key ID, and signature algorithm explicitly.
+- Refresh token rotation and reuse detection implement చేయాలి. Replay detect అయితే complete token family revoke చేయాలి.
+- Logout session-wide revoke, MFA recovery, device/session inventory, and suspicious login alerting implement చేయాలి.
+- Credential stuffing preventionకు breached-password checks, progressive delay, MFA, and risk-based challenge వాడాలి.
+- High-risk operations కోసం step-up authentication; MFA alone authorization replacement కాదు.
+
+# Modern Frontend Hardening
+
+```mermaid
+flowchart TD
+    Source[Application Source] --> Build[Trusted build + SRI]
+    Build --> CSP[Strict CSP with nonce/hash]
+    CSP --> DOM[Safe DOM / Trusted Types]
+    DOM --> Request[Fetch / CSRF / Origin policy]
+    Request --> API[API]
+
+    Build -. third-party script .-> Vendor[Vendor allowlist]
+    Vendor -. violation .-> Report[CSP report / monitoring]
+```
+
+- Default `XSS` defense safe text rendering; DOMPurify/sanitizer only for explicitly supported rich HTML.
+- CSPలో `unsafe-inline` మరియు `unsafe-eval` avoid చేయండి. `script-src 'nonce-...'` or hashes and strict-dynamic వాడండి.
+- Trusted Types for DOM sinks and no string-to-HTML APIs without sanitization.
+- `frame-ancestors 'none'`, `Permissions-Policy`, HSTS preload, `X-Content-Type-Options`, and strict Referrer-Policy.
+- Third-party SDK supply-chain inventory maintain చేసి, version pinning, Subresource Integrity, and CSP vendor allowlists వాడాలి.
+- Next.js Server Componentsలో secrets/server-only imports browser bundleకి accidentally export కాకూడదు.
+- Browser storage classify: localStorage/message/PII secrets కోసం కాదు. Auth material BFF cookie or platform secure storage మాత్రమే.
+
+# API Authorization Architecture
+
+```mermaid
+flowchart LR
+    Request[API Request] --> AuthN[Authentication]
+    AuthN --> Identity[Principal + claims]
+    Identity --> Scope[Tenant / resource scope]
+    Scope --> Policy[RBAC / ABAC / ownership]
+    Policy -->|Allow| Controller[Controller]
+    Policy -->|Deny| Generic[Generic 403 / 404]
+    Controller --> Query[Scoped parameterized query]
+    Query --> DTO[Response DTO / field policy]
+
+    Identity --> Reauth[Step-up for sensitive action]
+    Reauth --> Policy
+```
+
+- Authentication identityను verify చేస్తుంది; authorization action, resource, tenant, ownership, lifecycle state, and policyను verify చేస్తుంది.
+- Direct object reference endpointsలో database queryకు tenant and ownership filter mandatory.
+- List APIs pagination, sorting allowlist, maximum page size, field allowlist, and consistent filtering enforce చేయాలి.
+- Admin or batch function endpointsలో UI hiding మాత్రమే కాదు; server-side function-level check mandatory.
+- GraphQLలో field-level authorization, depth/complexity limits, query cost, persisted operations, and introspection controls వాడాలి.
+- WebSocketsలో handshake authentication, origin validation, topic authorization, message-level schema validation, and replay/connection limits వాడాలి.
+
+# API Abuse and Reliability Controls
+
+- Global, identity, tenant, IP, endpoint, and cost-based rate limits.
+- Slow-request and concurrent-request limits, payload and decompression size caps, and request timeout budgets.
+- Idempotency key for payment/order/transfer mutations, key scope by account/action, 24-hour or longer dedupe window, and replayed-response consistency.
+- Batch operations for count/size limits and partial-failure behavior; asynchronous work with queue backpressure.
+- Outbound API retries only on idempotent operations or with same idempotency key, exponential backoff, jitter, and circuit breaker.
+- Replay-protected webhooks using signature, timestamp, key rotation, and event ID deduplication.
+- API inventory and continuous discovery via gateway, logs, source, and schema registries; deprecate/shutdown undocumented endpoints.
+
+# SSRF and Internal Network Hardening
+
+```mermaid
+flowchart TD
+    Input[User URL / host] --> Validate[DNS + scheme + port validation]
+    Validate --> Resolve[DNS resolution]
+    Resolve --> IPCheck[Reject loopback / private / link-local / metadata]
+    IPCheck -->|Allowed| Proxy[Restricted outbound proxy]
+    IPCheck -->|Denied| Reject[Reject request]
+    Proxy --> Target[Approved destination]
+
+    Resolve -. DNS rebinding .-> Pin[Pin resolved IP / revalidate]
+    Proxy --> Timeout[Timeout / response-size limit]
+    Proxy --> Auth[Signed / scoped credentials]
+```
+
+- User-supplied URLs, webhooks, redirect targets, image fetchers, PDF generators, and import URLs SSRF scopesలో consider చేయాలి.
+- HTTP/HTTPS మాత్రమే allow, DNS rebinding prevention, resolved IP revalidation, metadata/private ranges and cloud link-local address block.
+- Egress allowlists, dedicated outbound proxy/NAT, no public instance metadata access, and workload IAM credentials.
+- Disable redirects or validate every redirect hop; response type, size, timeout, decompression limit, and content policy enforce.
+
+# Supply Chain and Secure SDLC
+
+```mermaid
+flowchart LR
+    Threat[Threat modeling] --> Design[Secure design / abuse cases]
+    Design --> Code[Peer review + standards]
+    Code --> SAST[SAST / secret scan]
+    SAST --> Build[Signed build / SBOM]
+    Build --> SCA[SCA / dependency scan]
+    SCA --> Image[Container / IaC scan]
+    Image --> DAST[DAST / penetration testing]
+    DAST --> Deploy[Policy / admission control]
+    Deploy --> Runtime[Runtime detection]
+    Runtime --> Response[Incident response]
+    Response --> Threat
+```
+
+- Threat model STRIDE, attack trees, abuse cases, and data-flow trust boundaries before implementation.
+- SAST for source, DAST for running apps, SCA for dependencies, container/IaC scanning, secret scanning, and SBOM/provenance.
+- Lock dependency versions, verify package signatures/checksums, private registries, and minimum maintained package versions.
+- CI runners least-privilege, short-lived credentials, isolated untrusted builds, and signed artifacts plus approval promotion.
+- Security acceptance criteria: authentication, authorization, validation, error handling, audit, privacy, and rollback requirements.
+- OWASP ASVS level selection and security test cases should become repeatable CI/CD quality gates.
+
+# Zero Trust and Cloud Network Security
+
+- Identity-aware service access and workload IAM instead of long-lived static credentials.
+- mTLS or workload identity for service-to-service traffic; network policies isolate namespaces/environments.
+- Secrets in managed secret stores, automatic rotation, envelope encryption/KMS, and no secrets in image/environment logs.
+- Database, cache, object storage and queue private endpoints; public access deny by default.
+- WAF for known abuse patterns, but application authorization and validation remain mandatory.
+- CloudTrail/control-plane audit, immutable logs, configuration drift detection, and break-glass accounts with MFA and alerts.
+
+
+
 # 25. Logging & Monitoring
+
+```mermaid
+flowchart LR
+    App[UI / API / Identity] --> Agent[Structured Log / Trace Agent]
+    Agent --> Pipeline[Log / Metric / Trace Pipeline]
+    Pipeline --> SIEM[SIEM / Datadog / CloudWatch]
+    Pipeline --> Audit[(Immutable Audit Store)]
+    Pipeline --> Monitor[Prometheus / Grafana]
+
+    SIEM --> Rules[Detection Rules / Correlation]
+    Rules --> Alert[Alert / Pager]
+    Alert --> SOC[Incident Response]
+    SOC --> Evidence[Containment / Evidence / RCA]
+```
+
+
 
 ఇరవై ఐదవ టాపిక్ అయిన **Logging & Monitoring** (లాగింగ్ మరియు మానిటరింగ్ / అప్లికేషన్ భద్రతా పర్యవేక్షణ) గురించి ఇప్పుడు తెలుగులో వివరంగా చూద్దాం.
 

@@ -5981,6 +5981,166 @@ Netflix కేవలం CDN మీద ఆధారపడదు. వాళ్ళ�
 
 # 18: Language-Specific Backend (Node.js)
 
+Node.js is a strong choice for I/O-heavy backend services when the code avoids blocking operations and production resources are correctly sized. It is not automatically faster for every workload; CPU-bound work requires worker threads, child processes, or a separate compute service.
+
+## Node.js Runtime Architecture
+
+```mermaid
+flowchart TD
+    JS[JavaScript application / NestJS / Express] --> V8[V8 parse / compile / execute]
+    JS --> Bindings[Node.js native bindings]
+    Bindings --> UV[libuv]
+    Bindings --> Platform[Node APIs / crypto / fs / net]
+
+    V8 --> Main[Main JavaScript thread]
+    UV --> Loop[Event loop]
+    UV --> Pool[libuv thread pool]
+
+    Loop --> Timers[Timers]
+    Loop --> IO[Network / poll / sockets]
+    Loop --> Check[check: setImmediate]
+    Loop --> Close[close callbacks]
+
+    Pool --> FS[Filesystem]
+    Pool --> Crypto[Crypto work]
+    Pool --> Compression[Compression / zlib]
+
+    Main --> Worker[Worker threads]
+    Worker --> CPU[CPU-bound JavaScript]
+```
+
+### Runtime Responsibilities
+
+| Component | Responsibility | Production implication |
+|---|---|---|
+| V8 | Parse, compile and execute JavaScript | JIT warm-up and heap behavior affect latency |
+| Event loop | Schedule JavaScript callbacks and I/O completion | Blocking synchronous code stalls every request |
+| libuv | Cross-platform async I/O and thread-pool orchestration | I/O concurrency needs pool/OS limits tuned |
+| Worker threads | Parallel JavaScript execution | Use for CPU work, image processing or data parsing |
+| Cluster | Multiple Node processes on multiple CPU cores | Stateless scaling, IPC and sticky routing requirements |
+
+## Request Execution Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant OS as OS network stack
+    participant Node as Node.js process
+    participant Loop as Event loop
+    participant UV as libuv / thread pool
+    participant DB as Database / Redis
+
+    Client->>OS: HTTP/TCP request
+    OS->>Loop: I/O readiness callback
+    Loop->>Node: Route, middleware and validation
+
+    Node->>DB: Async database query
+    DB-->>UV: Socket completion
+    UV-->>Loop: Schedule promise/callback
+    Loop->>Node: Continue async function
+
+    Node->>UV: CPU-heavy operation
+    UV->>UV: Worker/thread pool or worker_threads
+    UV-->>Loop: Completion
+    Loop->>Node: Send HTTP response
+    Node-->>Client: HTTP response
+```
+
+## Node.js Scaling Model
+
+```mermaid
+flowchart LR
+    LB[Load balancer] --> P1[Node process / cluster worker 1]
+    LB --> P2[Node process / cluster worker 2]
+    LB --> PN[Node process / cluster worker N]
+
+    P1 --> Redis[(Redis / shared state)]
+    P2 --> Redis
+    PN --> Redis
+
+    P1 --> DB[(PostgreSQL / managed DB)]
+    P2 --> DB
+    PN --> DB
+
+    P1 -. IPC / health .-> PM[Primary / container orchestrator]
+    P2 -. IPC / health .-> PM
+    PN -. IPC / health .-> PM
+```
+
+- Use a cluster worker per independently bounded CPU core, but container replicas and Kubernetes HPA are usually better for multi-host scaling.
+- Do not keep authoritative session/cart state in Node process memory unless it is correctly replicated or ephemeral.
+- Sticky sessions can hide socket/state problems; prefer stateless JWT/cookie or shared Redis/session state.
+- HTTP keep-alive and database connection pooling reduce per-request connection overhead.
+- Graceful shutdown stops accepting work, closes idle connections, drains queues and exits within a bounded timeout.
+
+## Common Node.js Internals to Master
+
+1. **Event Loop:** understand each phase, timers, microtasks and starvation.
+2. **libuv:** understand async I/O, thread-pool defaults and OS polling.
+3. **Worker Threads:** CPU-bound JavaScript, `SharedArrayBuffer`, worker pools and transfer ownership.
+4. **Cluster:** process-level scaling, IPC, restarts and shared network listener behavior.
+5. **Streams:** memory-efficient data movement and backpressure.
+6. **Buffers:** raw binary data and encoding boundaries.
+7. **Child Processes:** process isolation, shell avoidance and standard-I/O communication.
+8. **EventEmitter:** event contracts, error/listener discipline and backpressure alternatives.
+9. **Async Hooks / AsyncLocalStorage:** request context and debugging; never overuse ALS for mutable global-like state.
+10. **V8, heap and GC:** heap sizing, allocation churn, weak/strong references and GC pause behavior.
+11. **Diagnostics:** `diagnostics_channel`, `async_hooks`, `inspector`, `perf_hooks`, `--trace-gc`, heap snapshots and CPU profiles.
+12. **Module systems:** ESM versus CommonJS, package exports, TLA and module caching.
+13. **Security:** prototype-pollution-safe validation, SSRF, shell injection, dependency scanning and secret handling.
+14. **Testing:** `node:test`, dependency injection, fake timers, stream tests and load testing.
+
+## Blocking vs Non-blocking Decision Table
+
+| Workload | Preferred mechanism | Avoid |
+|---|---|---|
+| Database/network I/O | Async/await and connection pools | Blocking synchronous wrappers |
+| File streaming | Readable/Writable streams and piping | `readFile` for multi-GB files |
+| CPU-heavy JS transform | Worker threads or child process | Running it directly on event loop |
+| Native crypto/compression | libuv pool or worker pool | Small synchronous crypto calls at peak load |
+| Independent services | Cluster/container replicas | One process tied to every CPU manually |
+| Request tracing | AsyncLocalStorage or context middleware | `global` request context |
+
+## Diagnostics and Production Observability
+
+```mermaid
+flowchart LR
+    Node[Node.js service] --> Metrics[OpenTelemetry / Perf hooks]
+    Node --> Logs[Pino / structured logs]
+    Node --> Traces[OpenTelemetry spans]
+    Node --> Profiles[CPU / heap / GC profiles]
+
+    Metrics --> Prom[Prometheus / Datadog]
+    Logs --> SIEM[Log analytics]
+    Traces --> APM[APM / Jaeger / Datadog]
+    Profiles --> Lab[Profiler / issue analysis]
+
+    Prom --> Alert[Alert / on-call]
+    APM --> Alert
+    Alert --> Runbook[Event-loop lag / memory / restart runbook]
+```
+
+Monitor:
+
+- Event-loop lag and utilization.
+- Active handles, open sockets and file descriptors.
+- Heap, external/ArrayBuffer memory and GC duration/frequency.
+- Worker pool queue length and thread utilization.
+- P95/P99 latency, error rate, throughput and saturation.
+- Database pool wait, Redis timeout and upstream circuit state.
+- Process restarts, CPU throttling and container OOMKilled events.
+
+## Node.js Backend Interview Checklist
+
+- Explain one event-loop turn and where microtasks are executed.
+- Distinguish I/O-bound, CPU-bound and memory-bound workloads.
+- Demonstrate stream backpressure rather than calling `readFile` for large payloads.
+- Explain when cluster/worker threads/child processes are appropriate.
+- Explain GC trade-offs and how leaks occur even with automatic garbage collection.
+- Explain graceful shutdown, health/readiness and connection draining.
+- Explain request tracing with `AsyncLocalStorage` and distributed trace context.
+- Explain at-least-once messaging and idempotency from the backend, not only Node internals.
+
 ---
 
 ## Event Loop

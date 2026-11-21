@@ -1,350 +1,234 @@
-Here's a practical **Docker Roadmap** that takes you from beginner to job-ready in about **6–8 weeks** if you practice daily.
+# Docker: Complete Beginner to Production Guide
 
-```text
-Docker Roadmap
+ఈ గైడ్ Linux basics నుండి image building, storage, networking, Compose, registry, security, CI/CD, మరియు Kubernetes integration వరకు Docker‌ను practical production formatలో cover చేస్తుంది.
 
-1. Linux Basics
-      ↓
-2. Docker Fundamentals
-      ↓
-3. Images & Containers
-      ↓
-4. Dockerfile
-      ↓
-5. Volumes & Bind Mounts
-      ↓
-6. Networking
-      ↓
-7. Docker Compose
-      ↓
-8. Multi-Container Projects
-      ↓
-9. Docker Registry (Docker Hub)
-      ↓
-10. Optimization & Best Practices
-      ↓
-11. Docker in CI/CD
-      ↓
-12. Kubernetes (Next Step)
+> **Core mental model:** Container is an isolated process, not a lightweight virtual machine. Dockerfile builds immutable image layers; runtime creates a process with its own filesystem, namespaces, cgroups and networking view.
+
+## Docker Learning Roadmap
+
+```mermaid
+flowchart LR
+    Linux[Linux + Networking] --> Runtime[Container Runtime]
+    Runtime --> Images[Images + Registries]
+    Images --> Dockerfile[Dockerfile + BuildKit]
+    Dockerfile --> Containers[Containers + Processes]
+    Containers --> Data[Volumes + Backups]
+    Data --> Network[Networks + DNS]
+    Network --> Compose[Compose + Local Stack]
+    Compose --> Secure[Scanning + SBOM + Signing]
+    Secure --> CI[CI/CD + Provenance]
+    CI --> Orchestrate[Kubernetes + Swarm]
 ```
 
-## [1. Prerequisites](#1-prerequisites-1)
+## Docker Architecture
 
-Learn:
+```mermaid
+flowchart LR
+    CLI[docker CLI / SDK] --> API[Docker Engine API]
+    API --> Daemon[dockerd]
+    Daemon --> Containerd[containerd]
+    Containerd --> Shim[containerd-shim]
+    Shim --> Runc[runc]
+    Runc --> Process[Containerized process]
 
-- Linux commands
-- File permissions
-- Process management
-- Basic networking
-- Git basics
+    Daemon --> Pull[Pull / push]
+    Pull --> Registry[(OCI Registry)]
 
-Practice:
-
-- `ls`
-- `cd`
-- `pwd`
-- `cp`
-- `mv`
-- `chmod`
-- `ps`
-- `grep`
-
----
-
-## [2. Docker Basics](#2-docker-basics-1)
-
-Understand:
-
-- What is Docker?
-- Virtual Machine vs Container
-- Docker Architecture
-  - Client
-  - Daemon
-  - Registry
-  - Images
-  - Containers
-
-Commands:
-
-```bash
-docker version
-docker info
-docker help
+    Daemon --> Network[libnetwork / CNI]
+    Daemon --> Storage[OverlayFS / volume plugins]
 ```
 
----
+- Docker CLI is the client; Engine API and daemon manage lifecycle and resources.
+- `containerd` manages container lifecycle and image content; OCI runtimes such as `runc` start the process.
+- Modern Docker uses BuildKit for Buildx/buildx, cache exports, SBOM and provenance.
+- CRI-compatible runtimes and Kubernetes do not require Docker as their control-plane daemon, but OCI-compatible images remain reusable.
 
-## [3. Docker Images & Containers](#3-docker-images--containers-1)
+## VM vs Container
 
-Commands:
+| Dimension | Virtual Machine | Container |
+|---|---|---|
+| Isolation unit | Guest OS + kernel | Shared host kernel process + Linux namespaces/cgroups |
+| Startup | Seconds to minutes | Milliseconds to seconds |
+| Disk/memory | Full guest overhead | Shared kernel and content-addressed image layers |
+| Portability | Hypervisor and image format | OCI image; kernel and architecture compatibility still matter |
+| Security boundary | Strong guest isolation | Process isolation; use sandboxing and least privilege for untrusted workloads |
 
-```bash
-docker pull nginx
-docker images
-docker run
-docker ps
-docker stop
-docker start
-docker rm
-docker rmi
-docker logs
-docker exec
+## Image and Container Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant Dev
+    participant Build as BuildKit / Docker
+    participant Cache
+    participant Registry
+    participant Engine
+    participant Runtime
+
+    Dev->>Build: docker build / buildx build
+    Build->>Cache: Resolve image and layer cache
+    Build->>Build: Execute Dockerfile stages
+    Build->>Registry: Push immutable tagged digest
+    Dev->>Engine: docker run image@sha256:digest
+    Engine->>Registry: Pull missing layers
+    Engine->>Runtime: Create namespaces / cgroups / network
+    Runtime-->>Engine: Process running / stopped
 ```
 
-Practice:
+- Prefer immutable digest pinning for CI/prod; tags are mutable aliases.
+- Container state is ephemeral; durable state belongs in volumes or external databases/object storage.
+- One container should own one application responsibility and one process supervisor model.
+- `PID 1` should be the app or a correct init/signal-forwarding process, not an ignored shell wrapper.
 
-- Run Ubuntu
-- Run Nginx
-- Run MySQL
-- Run Redis
+## Dockerfile Best Practices
 
----
-
-## [4. Dockerfile](#4-dockerfile-1)
-
-Learn:
-
-- FROM
-- RUN
-- COPY
-- ADD
-- WORKDIR
-- ENV
-- EXPOSE
-- CMD
-- ENTRYPOINT
-
-Example:
-
-```Dockerfile
-FROM python:3.12
-
-WORKDIR /app
-
-COPY . .
-
-RUN pip install -r requirements.txt
-
-CMD ["python","app.py"]
+```mermaid
+flowchart TD
+    Base[Minimal pinned base] --> Builder[Build stage]
+    Builder --> Deps[Dependencies / compile]
+    Deps --> Test[Build stage tests]
+    Test --> Runtime[Minimal runtime stage]
+    Runtime --> User[Non-root USER]
+    User --> Health[HEALTHCHECK]
+    Health --> Signal[Exec CMD / init]
 ```
 
-Build:
+- Use two or more stages to keep build tools out of production image.
+- Copy dependency manifests first, install dependencies, then copy source to maximize cache reuse.
+- Use `COPY`, not `ADD`, except when remote URL/tar auto-extraction is specifically required.
+- Use exec-form `CMD/ENTRYPOINT`, avoid shell wrappers that break signal forwarding.
+- Pin OS/runtime package versions where reproducibility matters and refresh base images frequently.
+- Do not add secrets; use BuildKit secret mounts for build-only values and runtime secret mechanisms.
 
-```bash
-docker build -t myapp .
-docker run myapp
+## Storage Model
+
+```mermaid
+flowchart LR
+    Container[Container process] --> Writable[Writable container layer]
+    Container --> Volume[Named volume]
+    Container --> Bind[Bind mount]
+    Container --> Tmpfs[Tmpfs]
+
+    Volume --> HostPath[(Docker-managed storage)]
+    Bind --> Source[(Host/source directory)]
+    Tmpfs --> RAM[(Memory only)]
 ```
 
----
+- Named volumes for durable database/cache state and Docker-managed lifecycle.
+- Bind mounts for development source/build artifacts or host integration; avoid production source mounts unless required.
+- `tmpfs` for ephemeral secrets or sensitive processing data that should not persist.
+- `--mount` syntax provides clearer type/required validation than legacy `-v` syntax.
+- Back up database volumes through database-aware dumps or snapshots, not only copying live files.
 
-## [5. Volumes](#5-volumes-1)
+## Networking Model
 
-Learn:
+```mermaid
+flowchart TD
+    Host[Host network namespace] --> NAT[NAT / iptables / nftables]
+    NAT --> Bridge[Docker bridge]
+    Bridge --> A[Container A]
+    Bridge --> B[Container B]
 
-- Named volumes
-- Bind mounts
-- Anonymous volumes
+    A -->|DNS name| B
+    A -->|published 8080| NAT
 
-Commands:
-
-```bash
-docker volume create data
-
-docker volume ls
-
-docker volume inspect data
+    HostNet[host network] --> A2[Container using host stack]
+    None[none network] --> A3[Container with no network]
 ```
 
-Practice:
+- Custom bridge networks provide automatic DNS service-name resolution and better isolation than default bridge.
+- Publish only required host ports; `EXPOSE` is metadata and does not publish externally.
+- Use user-defined networks to isolate frontend, backend and database tiers.
+- IPv6, dual-stack and host firewall rules require explicit validation.
+- Service mesh or Kubernetes CNI is an additional layer; Docker Compose networking is not cluster orchestration.
 
-- Persistent MySQL database
+## Compose and Local Production Parity
 
----
+```mermaid
+flowchart LR
+    Developer[Developer] --> Compose[Docker Compose]
+    Compose --> Web[Frontend]
+    Compose --> API[Node/Nest API]
+    Compose --> Cache[(Redis)]
+    Compose --> DB[(PostgreSQL)]
 
-## [6. Docker Networking](#6-docker-networking-1)
-
-Learn:
-
-- Bridge
-- Host
-- None
-- Custom network
-
-Commands:
-
-```bash
-docker network ls
-
-docker network create mynet
-
-docker network inspect mynet
+    API --> Cache
+    API --> DB
+    Compose --> Health[Health checks]
+    Compose --> Watch[Dev watch / hot reload]
 ```
 
-Practice:
+- Keep Compose override files for development-specific bind mounts and debug settings.
+- Every dependent service should have health checks and appropriate `depends_on.condition: service_healthy` usage.
+- Define restart policy, resource limits, log rotation and stop grace periods for stable local behavior.
+- Prefer environment/config files for configuration; never commit `.env` secrets or private keys.
+- Database initialization and migrations must be repeatable and separate from application container startup if possible.
 
-- Connect MySQL + Backend
+## Registry, CI/CD and Supply Chain
 
----
+```mermaid
+flowchart LR
+    Source[Git source] --> CI[CI build]
+    CI --> Build[BuildKit multi-platform]
+    Build --> Scan[SBOM / vulnerability / secrets]
+    Scan --> Sign[Sign image / attestations]
+    Sign --> Registry[(OCI Registry)]
 
-## [7. Docker Compose](#7-docker-compose-1)
+    Registry --> Promote[Environment promotion]
+    Promote --> Runtime[Docker / Kubernetes]
 
-Learn:
-
-- compose.yaml
-- Services
-- Networks
-- Volumes
-- Environment variables
-
-Example:
-
-```yaml
-services:
-  backend: build. .
-
-  db: image. mysql
-
-  redis: image. redis
+    Scan -. fail policy .-> Block[Block release]
 ```
 
-Commands:
+- Build once, promote by immutable digest across environments rather than rebuilding per environment.
+- Scan OS/app dependencies and generate SBOM with CycloneDX/SPDX.
+- Sign images and verify provenance before deployment; enable least-privilege registry credentials.
+- Use GitHub Actions OIDC or workload identity instead of long-lived registry secrets.
+- Retention and cleanup policies avoid unbounded registry storage; preserve deployed and rollback digests.
 
-```bash
-docker compose up
+## Docker Security
 
-docker compose down
+- Run as a non-root UID, drop Linux capabilities and use `no-new-privileges` where possible.
+- Use minimal pinned base images and Distroless/alpine only after compatibility trade-offs are known.
+- Mount secrets read-only and through Docker secrets or external secret managers.
+- Use read-only root filesystems with explicit writable volumes/tmpfs for required directories.
+- Enable Docker content trust/signature verification in restricted environments.
+- Constrain memory/CPU/PIDs and set log limits to prevent container or daemon resource exhaustion.
+- Use AppArmor/SELinux/seccomp profiles and separate container networks/trust zones.
+- Never mount Docker socket (`/var/run/docker.sock`) into application containers unless explicitly isolated as an operator.
 
-docker compose logs
+## Troubleshooting
+
+```mermaid
+flowchart TD
+    Issue[Container issue] --> State{Container state}
+    State --> Logs[docker logs]
+    State --> Inspect[docker inspect]
+    State --> Events[docker events]
+
+    Logs --> App[Application error]
+    Inspect --> Config[Environment / mounts / network / exit code]
+    Events --> Lifecycle[Start / stop / OOM / restart]
+
+    Config --> Exec[docker exec / debug image]
+    Exec --> Stats[docker stats]
+    Stats --> Resource{CPU / memory / PID}
+
+    Resource --> Fix[Fix code / limits / probes / dependencies]
 ```
 
----
+- Inspect exit code and OOMKilled status before changing application code.
+- Verify DNS resolution, published ports, user namespace, mount source and network attachment.
+- Use `docker top`, `docker stats`, `docker inspect`, logs and events together for root-cause evidence.
+- Capture container diff only for debugging; use immutable rebuilt images for fixes.
+- Add health checks as both Docker Compose and application readiness probes; distinguish liveness from readiness.
 
-## [8. Real Projects](#8-real-projects-1)
+## Docker to Kubernetes Handoff
 
-Build:
-
-- Flask + MySQL
-- Node.js + MongoDB
-- Django + PostgreSQL
-- React + Express + MongoDB
-- Redis Cache
-
----
-
-## [9. Docker Hub](#9-docker-hub-1)
-
-Learn:
-
-```bash
-docker login
-
-docker tag
-
-docker push
-
-docker pull
-```
-
-Create your own repository and publish your images.
-
----
-
-## [10. Advanced Docker](#10-advanced-docker-1)
-
-Topics:
-
-- Multi-stage builds
-- Health checks
-- Restart policies
-- Secrets
-- Environment variables
-- Resource limits
-- Image optimization
-- Layer caching
-
----
-
-## [11. Docker + CI/CD](#11-docker--cicd-1)
-
-Learn Docker with:
-
-- GitHub Actions
-- Jenkins
-- GitLab CI
-
-Pipeline:
-
-```
-Code
-   ↓
-Build Docker Image
-   ↓
-Test
-   ↓
-Push Image
-   ↓
-Deploy
-```
-
----
-
-## 12. Kubernetes
-
-Once you're comfortable with Docker, move on to:
-
-- Pods
-- Deployments
-- Services
-- ConfigMaps
-- Secrets
-- Ingress
-- Helm
-
-Docker is the foundation for learning Kubernetes.
-
-## Mini Projects
-
-Build these in order:
-
-1. Static website in Nginx
-2. Python Flask app
-3. Node.js API
-4. MySQL with persistent volume
-5. Redis cache
-6. MERN stack application
-7. Django + PostgreSQL
-8. Full microservices application
-
-## [Interview Topics](#interview-topics-1)
-
-Be prepared to explain:
-
-- Docker vs Virtual Machines
-- Image vs Container
-- Dockerfile vs Docker Compose
-- CMD vs ENTRYPOINT
-- COPY vs ADD
-- Volumes vs Bind Mounts
-- Bridge vs Host networking
-- Multi-stage builds
-- Layer caching
-- Docker security best practices
-
-## Recommended Learning Order
-
-1. Linux basics
-2. Docker fundamentals
-3. Images & containers
-4. Dockerfile
-5. Volumes
-6. Networking
-7. Docker Compose
-8. Docker Hub
-9. Advanced Docker
-10. CI/CD integration
-11. Kubernetes
-
-With consistent practice (1–2 hours daily), this roadmap can take you from beginner to confidently using Docker in real-world development and DevOps projects.
+- Docker image is portable, while Compose's `depends_on`, restart policy and networks are not Kubernetes primitives.
+- Translate Compose into Deployments, Services, Ingress/Gateway, PVC/StorageClass and Secrets/External Secrets.
+- Kubernetes liveness/readiness/startup probes replace or complement Docker health checks.
+- Use HPA/KEDA and resource requests/limits for scaling; avoid Docker-only CPU limits as the cluster scheduler contract.
+- CI builds and registry artifacts remain reusable; runtime orchestration moves to Kubernetes reconciliation.
 
 ---
 

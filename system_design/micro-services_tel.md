@@ -4,7 +4,6 @@ If your goal is to become an **expert in Node.js Microservices** (suitable for s
 
 # Node.js Microservices Roadmap (2026)
 
-
 ```mermaid
 mindmap
   root((Node.js Microservices Roadmap 2026))
@@ -16,6 +15,7 @@ mindmap
     5. Authentication
     6. Learn Monolith First
 ```
+
 ```text
 Node.js Fundamentals
         │
@@ -792,6 +792,286 @@ Build a production-style **E-commerce Platform** with the following microservice
 12. Analytics Service
 13. Audit Service
 14. API Gateway
+
+## Recommended Architecture (Production View)
+
+ఈ ఆర్కిటెక్చర్ monolith నుండి production-scale microservices‌కు మారేటప్పుడు long-term scalability, reliability, మరియు maintainabilityను కాపాడుతుంది. క్రింద చూపిన భాగాలు **core request path**, **event path**, మరియు **supporting platform** గా విడిగా ఉంటాయి.
+
+```mermaid
+flowchart LR
+    U[Web / Mobile Client] --> CDN[CDN / Static Assets]
+    U --> DNS[DNS]
+    DNS --> EDGE[Cloud Front / Amazon API Gateway]
+    EDGE --> WAF[AWS WAF / DDoS Protection]
+    WAF --> ALB[Layer 7 Load Balancer]
+    ALB --> GW[API Gateway / BFF]
+
+    GW --> AUTH[Authentication Service]
+    GW --> USER[User Service]
+    GW --> PROD[Product Service]
+    GW --> CART[Cart Service]
+    GW --> ORDER[Order Service]
+    GW --> SEARCH[Search Service]
+
+    PROD --> PG1[(PostgreSQL: Product)]
+    USER --> PG2[(PostgreSQL: User)]
+    CART --> REDIS[(Redis: Session / Cart)]
+    ORDER --> PG3[(PostgreSQL: Order)]
+
+    ORDER --> QUEUE{{Kafka / RabbitMQ}}
+    PAY[Payment Service] --> QUEUE
+    INVENTORY[Inventory Service] --> QUEUE
+    SHIPPING[Shipping Service] --> QUEUE
+    NOTIFY[Notification Service] --> QUEUE
+    REVIEW[Review Service] --> QUEUE
+    ANALYTICS[Analytics Service] --> QUEUE
+    AUDIT[Audit Service] --> QUEUE
+
+    PROD --> SEARCHINDEX[(OpenSearch / Elasticsearch)]
+    SEARCH --> SEARCHINDEX
+    QUEUE --> ANALYTICADB[(ClickHouse / DynamoDB / S3)]
+
+    subgraph Platform
+        OTEL[OpenTelemetry]
+        PROM[Prometheus]
+        GRAF[Grafana]
+        DD[Datadog]
+        SECRETS[Secrets Manager]
+        TRACES[Distributed Tracing]
+    end
+
+    GW -. telemetry .-> OTEL
+    QUEUE -. telemetry .-> OTEL
+    OTEL --> PROM
+    OTEL --> TRACES
+    PROM --> GRAF
+    OTEL --> DD
+    SECRETS -. credentials .-> GW
+```
+
+## Service Ownership and Data Boundaries
+
+ప్రతి మైక్రోసర్వీస్‌కు ఒక్క **database owner** మాత్రమే ఉండాలి. ఇతర సర్వీస్‌లతో డేటాను షేర్ చేయడానికి direct database access వాడకండి; API లేదా domain events వాడండి.
+
+| Service | Primary responsibility | Data store | Read-heavy mechanism |
+|---|---|---|---|
+| User | User profiles, addresses | PostgreSQL | Redis profile cache |
+| Authentication | Login, refresh, OAuth/OIDC | PostgreSQL + Redis | Token blacklist / sessions |
+| Product | Product catalog and attributes | PostgreSQL | CDN + Redis |
+| Inventory | Stock, reservations, availability | PostgreSQL | Redis distributed lock |
+| Cart | Temporary basket | Redis + PostgreSQL | Redis primary store |
+| Order | Order state machine and saga orchestration | PostgreSQL | Read model + cache |
+| Payment | Authorisation and capture | PostgreSQL vault metadata | Idempotent provider calls |
+| Shipping | Shipment and tracking | PostgreSQL | Provider cache/status view |
+| Notification | Email/SMS/push | DynamoDB/S3 optional | At-least-once delivery |
+| Review | Ratings and moderation | PostgreSQL/OpenSearch | Aggregated rating model |
+| Search | Query and ranking | OpenSearch/Elasticsearch | Search replicas |
+| Analytics | Reports and metrics | ClickHouse/S3/DynamoDB | Batch + stream processing |
+| Audit | Immutable activity history | Append-only S3/DynamoDB | Time-partitioned records |
+
+## Checkout and Order Saga
+
+Checkout అనేది ఒక సింగిల్ database transaction కాకూడదు. డిస్ట్రిబ్యూటెడ్ సిస్టమ్స్‌లో కింది **Saga pattern** ఉపయోగించి ప్రతి step‌ను locally commit చేసి, failure వచ్చినప్పుడు compensation events పంపాలి.
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant GW as API Gateway
+    participant O as Order Saga
+    participant I as Inventory
+    participant P as Payment
+    participant S as Shipping
+    participant N as Notification
+    participant Q as Kafka / RabbitMQ
+
+    C->>GW: POST /checkout
+    GW->>O: Create order (idempotency key)
+    O->>O: Persist PENDING + outbox event
+    O->>Q: OrderCreated
+    Q-->>I: Reserve inventory
+
+    alt Stock available
+        I->>I: Reserve and commit
+        I->>Q: InventoryReserved
+        Q-->>P: Start payment
+        P->>P: Authorise payment
+
+        alt Payment succeeds
+            P->>Q: PaymentCaptured
+            Q-->>O: Advance saga
+            O->>Q: OrderConfirmed
+            Q-->>S: Create shipment
+            Q-->>N: Send confirmation
+            S-->>Q: ShipmentCreated
+        else Payment fails
+            P->>Q: PaymentFailed
+            Q-->>I: ReleaseReservation
+            I->>I: Restore stock
+            Q-->>O: Cancel order
+            O->>N: Send payment failure message
+        end
+    else Stock unavailable
+        I->>Q: InventoryRejected
+        Q-->>O: Cancel order
+        O->>N: Send stock failure message
+    end
+```
+
+### Transactional Outbox and Inbox
+
+సర్వీస్ A లో database commit అయ్యి event publish ఫెయిల్ కాకుండా ఉండటానికి ప్రతి write sideలో **Transactional Outbox** వాడాలి.
+
+```mermaid
+flowchart LR
+    API[Service API] --> TX[(Database transaction)]
+    TX --> State[Business state change]
+    TX --> Outbox[(Outbox table)]
+    Relay[Outbox relay / CDC] --> Outbox
+    Relay --> Broker[(Kafka / RabbitMQ)]
+
+    Broker --> Inbox[(Consumer Inbox table)]
+    Inbox --> Handler[Idempotent handler]
+    Handler --> Local[(Consumer database)]
+
+    Broker -. duplicate delivery .-> Inbox
+    Inbox -. duplicate key .-> Ignore[Ignore event]
+```
+
+- Outbox మరియు business row ఒక్కే database transaction‌లో commit అవాలి.
+- Event idempotency key‌గా `eventId` లేదా `aggregateId + version` వాడాలి.
+- Consumer duplicate eventను inbox/tombstone tableలో detect చేసి ignore చేయాలి.
+- Kafka offset commit తర్వాత మాత్రమే event processing state update చేయకండి; inbox/outbox consistency కింద consumer stateను atomicగా handle చేయండి.
+- Compensation అంటే data delete కాదు; కొత్త **compensating event** లేదా state transition మాత్రమే.
+
+## API, Authentication and Trust Boundaries
+
+```mermaid
+flowchart TD
+    CLIENT[Client] -->|HTTPS / JWT| GW[API Gateway]
+    GW -->|mTLS / service identity| AUTH[Authentication]
+    GW -->|Rate limit / quota| RL[Redis Rate Limiter]
+    GW -->|Request validation| ORDER[Order / User / Product APIs]
+
+    GW -->|JWT verification| JWKS[OIDC / JWKS]
+    AUTH --> IDP[OIDC Provider / Cognito]
+    AUTH --> REFRESH[(Refresh Token Hash Store)]
+
+    GW -. correlation ID .-> TRACE[Trace / Logs]
+    GW -. audit event .-> AUDIT[Audit Service]
+
+    subgraph ZeroTrust[Internal Network]
+        RL
+        ORDER
+        AUDIT
+    end
+```
+
+- Public API Gateway మాత్రమే internet-facing ఉండాలి.
+- Access token 5-15 నిమిషాలు, refresh token rotation, revocation, and secure HttpOnly cookieలు వాడాలి.
+- Internal service callsకి JWT మాత్రమే కాకుండా workload identity, mTLS లేదా IAM role కూడా వాడాలి.
+- `Idempotency-Key` payment, order, and cart mutations కోసం mandatory చేయాలి.
+- PII వంటి sensitive fields encrypted-at-rest, masked logs, secret manager, and field-level audit వద్ద పెట్టాలి.
+
+## Read and Write Architecture (CQRS)
+
+Search, analytics, మరియు shipment tracking వంటి read workloadsను write databaseలో నేరుగా run చేయవద్దు. Domain events ఆధారంగా read models/build projections సృష్టించండి.
+
+```mermaid
+flowchart LR
+    subgraph Commands
+        APP[API] --> CMD[Write API]
+        CMD --> DOMAIN[Domain Service]
+        DOMAIN --> WDB[(PostgreSQL)]
+        DOMAIN --> OUTBOX[(Outbox)]
+    end
+
+    OUTBOX --> EVENTS[(Kafka topics)]
+    EVENTS --> SEARCHPROJ[Search projector]
+    EVENTS --> ANALYTICS[Analytics projector]
+    EVENTS --> REVIEWPROJ[Review projector]
+    EVENTS --> AUDITPROJ[Audit projector]
+
+    SEARCHPROJ --> OPEN[(OpenSearch)]
+    REVIEWPROJ --> PGREAD[(Aggregated read DB)]
+    ANALYTICS --> CH[(Analytics warehouse)]
+    AUDITPROJ --> S3[(Append-only object store)]
+
+    CLIENT[Read API] --> REDIS[(Redis cache)]
+    REDIS -. cache miss .-> OPEN
+    REDIS -. cache miss .-> PGREAD
+```
+
+## Kubernetes Deployment and Scaling
+
+```mermaid
+flowchart TD
+    GIT[GitHub Actions] --> TEST[Test / Security / Contract]
+    TEST --> IMAGE[(Container Registry)]
+    IMAGE --> ARGO[Argo CD / Deployment]
+
+    ARGO --> STAGE[Staging Namespace]
+    ARGO --> PROD[Production Namespace]
+
+    subgraph Production
+        HPA[HPA / KEDA]
+        SVC[Service Mesh / Services]
+        POD1[2+ Service Pods]
+        PDB[PDB]
+        JOB[Kafka Consumers / Jobs]
+    end
+
+    HPA --> POD1
+    SVC --> POD1
+    PDB --> POD1
+    PROD --> HPA
+    PROD --> SVC
+    PROD --> PDB
+    PROD --> JOB
+```
+
+- ప్రతి serviceకి independent liveness/readiness probes, resource requests/limits, pod disruption budget, and `3+` replicas production environmentలో పెట్టాలి.
+- Request-based scalingకు HPA, queue lag-based scalingకు KEDA వాడాలి.
+- Database connections pooled, circuit breakers configured, bulkheads isolated, and retries only with exponential backoff + jitter చేయాలి.
+- Deploymentsలో rolling, blue-green, లేదా canary strategy వాడాలి. Database migrations backward-compatible మరియు expand/contract patternలో చేయాలి.
+
+## Observability and SLO-Based Operations
+
+```mermaid
+flowchart LR
+    SERVICES[Microservices] -->|Metrics| PROM[Prometheus]
+    SERVICES -->|Traces| OTEL[OpenTelemetry Collector]
+    SERVICES -->|Structured logs| LOG[Central Log Pipeline]
+
+    OTEL --> DD[Datadog / APM]
+    OTEL --> TEMPO[Trace backend]
+    PROM --> GRAF[Grafana]
+    LOG --> SEARCH[(Log Analytics)]
+
+    GRAF --> ALERT[Alertmanager]
+    DD --> ALERT
+    ALERT --> ONCALL[Pager / Slack / Incident workflow]
+```
+
+**Recommended baseline SLOs:**
+
+- API availability: 99.95%
+- Checkout success: 99.9%
+- API latency: 95% of requests below 300 ms and 99% below 1 second
+- Event processing: 99.9% within 30 seconds
+- Search freshness: index lag below 5 seconds
+- Audit delivery: 100% with 24-hour retention compliance
+
+### Production Failure-Handling Checklist
+
+- API Gateway: circuit breaker, retry budget, timeout, and request queue limits.
+- Inventory: pessimistic or conditional reservation, stock anti-overbooking, and stale read protection.
+- Payment: idempotency key, provider webhook verification, and replay-safe reconciliation.
+- Order: state machine, saga timeout, dead-letter queue, and compensation retry.
+- Cart: TTL, optimistic concurrency, and merge-on-login behavior.
+- Search: dual-write avoided; event projector used with rebuild and backfill support.
+- Analytics: exactly-once semantics approximated by idempotent aggregation and deduplication.
+- Audit: append-only, tamper detection, immutable retention, and least-privilege access.
+- All services: structured logs, trace/span IDs, health endpoints, graceful shutdown, and runbooks.
 
 Use.
 

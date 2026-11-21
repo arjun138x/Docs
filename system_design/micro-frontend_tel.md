@@ -708,65 +708,230 @@ Learn these ecosystems:
 
 ## 24. Hands-on Projects
 
-Build these in order:
+Build these projects in order. Each stage should use independent repositories or packages, runtime routing, isolated releases, and explicit contracts between the shell and remotes.
 
-### Beginner
+### Beginner: Dashboard, Login and Profile
 
-- Dashboard + Host
-- Login + Host
-- Profile + Host
+ప్రారంభంలో ఒక మాత్రమే application shell మరియు చిన్న remotes వాడాలి. మొదట **build-time integration** తో ప్రారంభించి, తరువాత **Module Federation** కు migrate చేయడం బాగా నేర్చిస్తుంది.
 
----
+```mermaid
+flowchart LR
+    Client[Browser] --> Shell[Application Shell / Host]
+    Shell --> Router[Shell Router]
+    Router --> Auth[Login Remote]
+    Router --> Profile[Profile Remote]
+    Router --> Dashboard[Dashboard Remote]
 
-### Intermediate
+    Auth --> AuthAPI[Auth / OIDC API]
+    Profile --> BFF1[Profile BFF]
+    Dashboard --> BFF2[Dashboard BFF]
 
-- E-commerce
+    Shell --> Session[(OIDC Session / Tokens)]
+    Shell --> SharedDeps[Shared React + Design System]
 
-```
-Host
-
-├── Home
-├── Cart
-├── Orders
-├── Payments
-├── Product
-```
-
----
-
-### Advanced
-
-Banking Portal
-
-```
-Host
-
-├── Accounts
-├── Loans
-├── Cards
-├── Insurance
-├── Investments
-├── Payments
+    Auth -. token events .-> Shell
+    Profile -. profile updated .-> Dashboard
 ```
 
----
+Implementation baseline:
 
-### Enterprise
+- Host owns global routing, authentication, design system, and error reporting.
+- Login remote uses OIDC Authorization Code + PKCE and keeps refresh/access token handling in a dedicated auth boundary.
+- Remotes publish typed contracts and expose a framework-neutral mount/unmount API.
+- Shared React, router, and design-system dependencies must use `singleton: true` to prevent duplicate runtime instances.
+- Every remote has a loading state, retry mechanism, and fallback UI.
+- Independent deployments are served through versioned `remoteEntry.js` URLs.
 
-Admin Portal
+### Intermediate: E-commerce Platform
 
+E-commerce micro-frontendsలో **host shell**, **domain remotes**, మరియు **read/write API gateways** clearly isolate చేయాలి.
+
+```mermaid
+flowchart TD
+    Browser[Customer Browser] --> CDN[CDN / Edge Cache]
+    CDN --> Shell[Commerce Host]
+
+    Shell --> Home[Home Remote]
+    Shell --> Product[Product Remote]
+    Shell --> Cart[Cart Remote]
+    Shell --> Order[Orders Remote]
+    Shell --> Pay[Payments Remote]
+
+    Home --> SearchAPI[Search / Catalog BFF]
+    Product --> CatalogAPI[Catalog API]
+    Cart --> CartAPI[Cart API]
+    Order --> OrderAPI[Order API]
+    Pay --> PaymentAPI[Payment API]
+
+    Cart -. cart:updated event .-> Shell
+    Order -. order:changed event .-> Shell
+    Pay -. payment:status event .-> Shell
+
+    CatalogAPI --> ProductDB[(Catalog / Search)]
+    CartAPI --> Redis[(Redis Cart)]
+    OrderAPI --> OrderDB[(PostgreSQL: Orders)]
+
+    Gateway[API Gateway] --> CatalogAPI
+    Gateway --> CartAPI
+    Gateway --> OrderAPI
+    Gateway --> PaymentAPI
+
+    Gateway --> Outbox[(Kafka / RabbitMQ)]
+    Outbox --> Notification[Notifications]
+    Outbox --> Analytics[Analytics]
 ```
-Host
 
-├── Users
-├── Roles
-├── Inventory
-├── Billing
-├── Notifications
-├── Analytics
-├── Reports
-├── Settings
+Advanced mechanisms:
+
+- Use route-based code splitting and remote prefetching for product/category pages.
+- Keep cart state in an event bus or shared typed store; use a server BFF/cart service as the source of truth.
+- Payment iframe or hosted payment fields prevent card data from entering application JavaScript.
+- Use `Idempotency-Key` for payment and order mutations, and a webhook verifier for payment confirmation.
+- Cache immutable product assets at CDN level and use stale-while-revalidate for catalog requests.
+- Add remote health checks and fallback pages; never let an unavailable payments remote break browsing/catalog features.
+- Search, analytics, notification, and order projections consume domain events instead of direct cross-remote database access.
+
+### Advanced: Banking Portal
+
+Banking shell strict trust boundaries, secure session management, step-up authentication, మరియు auditability వాడాలి.
+
+```mermaid
+flowchart TD
+    Customer[Customer] -->|TLS 1.3| WAF[WAF / Bot Protection]
+    WAF --> CDN[CDN]
+    CDN --> Shell[Banking Host]
+
+    Shell --> Accounts[Accounts Remote]
+    Shell --> Loans[Loans Remote]
+    Shell --> Cards[Cards Remote]
+    Shell --> Insurance[Insurance Remote]
+    Shell --> Invest[Investments Remote]
+    Shell --> Payments[Payments Remote]
+
+    Shell --> IDP[OIDC / MFA Provider]
+    Shell --> Risk[Risk / Fraud Engine]
+
+    Accounts --> BFF[Banking BFF / API Gateway]
+    Loans --> BFF
+    Cards --> BFF
+    Insurance --> BFF
+    Invest --> BFF
+    Payments --> BFF
+
+    BFF --> Core[Core Banking APIs]
+    BFF --> Ledger[(Immutable Ledger)]
+    BFF --> Fraud[(Fraud Events)]
+
+    BFF -. audit event .-> Audit[(Append-only Audit Store)]
+    BFF -. OpenTelemetry .-> Observability[Tracing / SIEM]
+
+    Payments -->|step-up auth| Risk
+    Loans -->|consent / signature| IDP
 ```
+
+Advanced mechanisms:
+
+- Use a backend-for-frontend as the sole API boundary; the browser receives least-privilege, short-lived credentials.
+- Enforce step-up MFA for transfers, card limits, beneficiary changes, and loan actions.
+- Apply CSP, Trusted Types, SRI, secure cookies, and strict CORS to reduce script and session threats.
+- Make financial mutations replay-safe using idempotency keys, server-side verification, and optimistic UI rollback.
+- Mask account numbers and PII; log correlation IDs and security decisions, never credentials or full sensitive payloads.
+- Version remote contracts and perform consumer-driven contract testing before deployment.
+- Every sensitive action requires authorization, audit event, consent record, and correlation ID.
+
+### Enterprise: Admin Portal
+
+Enterprise admin shell multi-tenant RBAC/ABAC, regional isolation, feature governance, మరియు independent team deployments ఉండాలి.
+
+```mermaid
+flowchart LR
+    Admin[Administrator] --> SSO[Enterprise SSO / OIDC]
+    SSO --> Gateway[Zero-Trust API Gateway]
+    Gateway --> Shell[Admin Host]
+
+    Shell --> Users[Users Remote]
+    Shell --> Roles[Roles Remote]
+    Shell --> Inventory[Inventory Remote]
+    Shell --> Billing[Billing Remote]
+    Shell --> Notifications[Notification Remote]
+    Shell --> Analytics[Analytics Remote]
+    Shell --> Reports[Reports Remote]
+    Shell --> Settings[Settings Remote]
+
+    Gateway --> RBAC[Policy Engine: RBAC / ABAC]
+    Gateway --> Tenant[Tenant Resolver]
+
+    Users --> BFF[Admin BFF]
+    Roles --> BFF
+    Inventory --> BFF
+    Billing --> BFF
+    Notifications --> BFF
+    Analytics --> BFF
+    Reports --> BFF
+    Settings --> BFF
+
+    BFF --> IAM[(Identity / Role Store)]
+    BFF --> TenantDB[(Tenant-isolated Database)]
+    BFF --> InventoryDB[(Inventory Service)]
+    BFF --> BillingDB[(Billing Service)]
+
+    Shell -. feature config .-> Flags[Feature Flag / Config Service]
+    BFF -. audit / trace .-> SOC[Audit Log / SIEM / Observability]
+```
+
+Advanced mechanisms:
+
+- Use tenant-aware routing and authorization checks in both UI and API; hide actions before rendering them but never rely on UI hiding alone.
+- Separate operator permissions from normal-user permissions and enforce least privilege, break-glass access, and privileged session limits.
+- Feature flags enable gradual rollout by team, tenant, region, or percentage; remove stale flags through a lifecycle policy.
+- Canary remotes independently, compare runtime errors and Core Web Vitals, and automate rollback when SLOs breach.
+- Enforce module compatibility matrices and pin shared dependency versions during compatibility windows.
+- Use async event consumers for notifications and reports; avoid synchronous fan-out in the host shell.
+- Deploy dashboards and reports behind separate read models and caching, with tenant-level row security or schema isolation.
+
+## Cross-project Runtime Architecture
+
+```mermaid
+flowchart LR
+    Host[Host Application] --> Registry[Remote Registry / CDN Manifest]
+    Registry --> R1[Remote Entry A]
+    Registry --> R2[Remote Entry B]
+    Registry --> R3[Remote Entry C]
+
+    Host --> Router[Shell Router]
+    Router --> R1
+    Router --> R2
+    Router --> R3
+
+    Host --> Auth[Authentication Boundary]
+    Host --> Store[Cross-app Event / Typed Store]
+    Host --> Telemetry[OpenTelemetry / Error Reporting]
+
+    R1 --> MountA[Mount / Unmount Lifecycle]
+    R2 --> MountB[Mount / Unmount Lifecycle]
+    R3 --> MountC[Mount / Unmount Lifecycle]
+
+    Host --> BFF[Domain BFF / API Gateway]
+    BFF --> Services[Backend Microservices]
+
+    Auth -. global session .-> R1
+    Auth -. global session .-> R2
+    Auth -. global session .-> R3
+
+    Store -. domain events .-> R1
+    Store -. domain events .-> R2
+    Store -. domain events .-> R3
+```
+
+Cross-cutting implementation checklist:
+
+- Manifest-driven remotes: resolve remote URLs dynamically instead of hardcoding deployment URLs in every host build.
+- Shared contract package: define route paths, mount props, events, i18n keys, and feature flags as versioned TypeScript types.
+- Runtime resilience: remote timeout, retry/circuit breaker, stale cached manifest fallback, and an isolated error boundary.
+- Observability: correlation ID, remote name/version, route, team owner, Web Vitals, and release deployment metadata.
+- Security: CSP, trusted scripts, sandboxed third-party widgets, dependency allowlists, and no global mutable secrets.
+- Performance: route-based chunks, preloading, CDN cache strategy, preconnect, image optimization, and bundle-budget CI checks.
+- Delivery: independent CI/CD pipelines, immutable artifacts, canary/blue-green deployment, consumer contract tests, and automated rollback.
 
 ---
 

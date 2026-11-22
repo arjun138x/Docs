@@ -657,6 +657,8 @@ flowchart LR
 
 ---
 
+## 1. Elasticsearch Fundamentals
+
 ### 1. What is Elasticsearch? (Elasticsearch అంటే ఏమిటి?)
 
 **Elasticsearch** అనేది ఒక ఓపెన్-సోర్స్, **Distributed (పంపిణీ చేయబడిన)** Search మరియు Analytics Engine. ఇది **JSON** డాక్యుమెంట్ల రూపంలో డేటాను నిల్వ చేస్తుంది మరియు **RESTful API** ద్వారా వేగంగా సెర్చ్ మరియు విశ్లేషణ (analytics) సౌకర్యాన్ని అందిస్తుంది.
@@ -736,6 +738,8 @@ Lucene పనితీరులో కీలక భాగాలు:
 - **Scatter-Gather Pattern:** మీరు ఒక సెర్చ్ క్వెరీ పంపినప్పుడు, Coordinating Node ఆ క్వెరీని సంబంధిత షార్డ్స్‌కు పంపుతుంది (**Scatter**). ప్రతి షార్డ్ తన వద్ద ఉన్న టాప్ ఫలితాలను పంపుతుంది; Coordinating Node వాటన్నింటినీ కలిపి, స్కోర్ ఆధారంగా సార్ట్ చేసి ఫైనల్ రిజల్ట్ ఇస్తుంది (**Gather**).
 
 ---
+
+## 2. Core Architecture
 
 ### 1. Cluster (క్లస్టర్)
 
@@ -848,6 +852,8 @@ _(సాధారణంగా `_routing` విలువ డిఫాల్ట�
 - అలాగే `cluster.initial_master_nodes` క్లస్టర్ తొలిసారి బూట్‌స్ట్రాప్ అయినప్పుడు ప్రారంభ voting master నోడ్స్‌ను గుర్తించడానికి సహాయపడుతుంది.
 
 ---
+
+## 3. Internal Working
 
 ### 1. Inverted Index (ఇన్వర్టెడ్ ఇండెక్స్)
 
@@ -968,6 +974,8 @@ _(సాధారణంగా `_routing` విలువ డిఫాల్ట�
 _(గమనిక: క్లస్టర్‌లో సెక్యూరిటీ ఎనేబుల్ చేసి ఉంటే `curl -u elastic:<password> -k https://localhost:9200/...` తరహాలో క్రెడెన్షియల్స్/HTTPS వాడాల్సి ఉంటుంది)._
 
 ---
+
+## 4. Cluster Management APIs
 
 ### 1. Cluster Health API (క్లస్టర్ హెల్త్ API)
 
@@ -1098,6 +1106,8 @@ POST /_cluster/reroute?explain=true
 ---
 
 # 2 – Mapping, Indexing & Analyzers
+
+## 1. CRUD Operations
 
 ---
 
@@ -1315,6 +1325,8 @@ POST /_reindex
 
 ---
 
+## 2. Mapping
+
 ### 1. Dynamic Mapping (డైనమిక్ మ్యాపింగ్)
 
 మనం ముందే ఫీల్డ్ డేటా టైప్‌లను డిఫైన్ చేయకపోయినా, JSON డాక్యుమెంట్‌ను ఇండెక్స్ చేసినప్పుడు Elasticsearch ఆ విలువలను చూసి **వాటంతట అవే Field Data Types ను గుర్తించి Mapping క్రియేట్ చేయడమే Dynamic Mapping**.
@@ -1460,6 +1472,8 @@ PUT /_index_template/events_template
 
 ---
 
+## 3. Field Data Types
+
 ### 1. Text (`text`)
 
 పూర్తి వాక్యాలు లేదా పారాగ్రాఫ్‌ల వంటి **Full-Text Search** అవసరమయ్యే ఫీల్డ్స్ కోసం `text` వాడతారు (ఉదాహరణకు: ప్రోడక్ట్ డిస్క్రిప్షన్, బ్లాగ్ కంటెంట్, లాగ్ మెసేజ్).
@@ -1589,6 +1603,8 @@ PUT /docs-semantic
 ```
 
 ---
+
+## 4. Advanced Mapping
 
 ### 1. Multi-fields (మల్టీ-ఫీల్డ్స్)
 
@@ -1728,6 +1744,8 @@ PUT /orders_advanced
 ```
 
 ---
+
+## 5. Analyzers
 
 ### Analysis Pipeline అంటే ఏమిటి?
 
@@ -1931,6 +1949,8 @@ _(గమనిక: `autocomplete` ఫీల్డ్‌కు ఇండెక్
 
 ---
 
+## 6. Index Management
+
 ### 1. Index Aliases (ఇండెక్స్ అలియాసెస్)
 
 **Index Alias** అనేది ఒకటి లేదా అంతకంటే ఎక్కువ ఇండెక్స్‌లకు ఇచ్చే **సెకండరీ / లాజికల్ పేరు** (లినిక్స్ సిమ్‌లింక్ లేదా SQL వ్యూ లాంటిది).
@@ -2113,6 +2133,8 @@ PUT /_ilm/policy/logs_retention_policy
 ---
 
 # 3 – Query DSL & Advanced Search
+
+## 1. Basic Queries
 
 ### 1. Match Query (`match`)
 
@@ -2337,6 +2359,8 @@ GET /products/_search
 
 ---
 
+## 2. Full-Text Queries
+
 ### 1. Match Phrase Query (`match_phrase`)
 
 ఇచ్చిన టెక్స్ట్‌ను analyze చేసి, ఆ టర్మ్స్ అన్నింటినీ **అదే వరుస క్రమంలో (order)** మరియు **దగ్గరగా (proximity)** కలిగి ఉన్న డాక్యుమెంట్లను మాత్రమే వెతకడానికి `match_phrase` వాడతారు.
@@ -2508,6 +2532,8 @@ GET /logs/_search
 ```
 
 ---
+
+## 3. Compound Queries
 
 ### 1. Bool Query (`bool`)
 
@@ -2740,6 +2766,8 @@ GET /company_docs/_search
 
 ---
 
+## 4. Search Fundamentals
+
 ### 1. Query Context (క్వెరీ కాంటెక్స్ట్)
 
 **Query Context** అనేది ఒక డాక్యుమెంట్ క్వెరీకి **ఎంత బాగా సరిపోతుందో (how well it matches)** అంచనా వేసి, ప్రతి డాక్యుమెంట్‌కు ఒక **Relevance Score (`_score`)** ను లెక్కించే విధానం.
@@ -2970,6 +2998,8 @@ GET /products/_search/template
 
 ---
 
+## 5. Advanced Search
+
 ### 1. Field Boosting (ఫీల్డ్ బూస్టింగ్)
 
 ఒక క్వెరీలో కొన్ని ఫీల్డ్స్‌కు (ఉదాహరణకు `title` లేదా `tags`) ఇతర ఫీల్డ్స్ (`description` లేదా `body`) కంటే **ఎక్కువ ప్రాధాన్యత (weight)** ఇవ్వడానికి **Field Boosting** వాడతారు.
@@ -3114,6 +3144,8 @@ GET /products/_search
 # 4 – Aggregations & Kibana
 
 ---
+
+## 1. Aggregations
 
 ### Aggregations అంటే ఏమిటి?
 
@@ -3360,6 +3392,8 @@ GET /support_tickets/_search
 
 ---
 
+## 2. Advanced Analytics
+
 ### 1. Aggregation Nesting (అగ్రిగేషన్ నెస్టింగ్)
 
 ఒక **Bucket Aggregation** లోపల మరొక **Bucket Aggregation** లేదా **Metric Aggregation** ను పేర్చడాన్నే **Aggregation Nesting** అంటారు (SQL లో బహుళ స్థాయి `GROUP BY` మరియు sub-summaries లాగా).
@@ -3493,6 +3527,8 @@ GET /events/_search
 
 ---
 
+## 3. Kibana
+
 ### 1. Kibana Architecture (కిబానా ఆర్కిటెక్చర్)
 
 **Kibana** అనేది **Elasticsearch** కోసం రూపొందించిన **Web-based Visualization, Analytics, మరియు Management UI**. ఇది స్వంతంగా భారీ సెర్చ్ డేటాను నిల్వ చేయదు—డేటా మొత్తం Elasticsearch లోనే ఉంటుంది; Kibana ఆ డేటాను క్వెరీ చేసి చార్ట్‌లు, డాష్‌బోర్డ్‌లు మరియు మేనేజ్‌మెంట్ స్క్రీన్‌లుగా చూపిస్తుంది.
@@ -3616,6 +3652,8 @@ Dashboard, Lens/Visualization, Discover, లేదా Canvas లోని వ్
 
 ---
 
+## 1. Logstash Fundamentals
+
 ### 1. Logstash Architecture (లాగ్‌స్టాష్ ఆర్కిటెక్చర్)
 
 **Logstash** అనేది డేటాను వివిధ సోర్సుల నుండి సేకరించి (**Collect**), మార్చి/శుభ్రపరిచి (**Transform / Enrich**), మరియు Elasticsearch వంటి గమ్యస్థానాలకు (**Send**) పంపే ఒక సర్వర్-సైడ్ **Data Processing Pipeline**.
@@ -3727,6 +3765,8 @@ output {
 ```
 
 ---
+
+## 2. Logstash Filters
 
 ### 1. Grok (`grok`)
 
@@ -3931,6 +3971,8 @@ filter {
 
 ---
 
+## 3. Advanced Logstash
+
 ### 1. Conditional Processing (కండిషనల్ ప్రాసెసింగ్)
 
 `filter` మరియు `output` బ్లాక్‌లలో **Conditionals (`if`, `else if`, `else`)** వాడి, ఈవెంట్‌లోని ఫీల్డ్స్, టాగ్స్, లేదా డేటా రకాన్ని బట్టి **నిర్దిష్ట ప్రాసెసింగ్ లేదా అవుట్‌పుట్‌ను మాత్రమే** అమలు చేయడాన్ని **Conditional Processing** అంటారు.
@@ -4101,6 +4143,8 @@ output {
 
 ---
 
+## 4. Beats
+
 ### 1. Beats Architecture (బీట్స్ ఆర్కిటెక్చర్)
 
 **Beats** అనేవి **Go** భాషలో నిర్మించిన **తేలికైన (lightweight), single-purpose data shippers**—ఇవి వేలకొద్దీ సర్వర్లు, కంటైనర్లు, లేదా ఎడ్జ్ మెషీన్లపై ఇన్‌స్టాల్ చేసి, డేటాను నేరుగా **Elasticsearch** కు లేదా **Logstash / Kafka** ద్వారా పంపడానికి ఉపయోగిస్తారు.
@@ -4269,6 +4313,8 @@ output.elasticsearch:
 
 ---
 
+## 5. Elastic Agent
+
 ### 1. Elastic Agent Architecture (ఎలాస్టిక్ ఏజెంట్ ఆర్కిటెక్చర్)
 
 **Elastic Agent** అనేది ఒకే **Unified Agent**—ఇది గతంలో వాడిన వేర్వేరు Beats (Filebeat, Metricbeat, Auditbeat, Heartbeat మొదలైనవి) పనులన్నింటినీ **ఒకే ఏజెంట్ ప్రక్రియ (single binary)** ద్వారా నిర్వహించడానికి రూపొందించబడింది.
@@ -4352,6 +4398,8 @@ sudo elastic-agent diagnostics collect
 ```
 
 ---
+
+## 6. Ingestion Architecture
 
 ### 1. Ingest Pipelines (ఇంజెస్ట్ పైప్‌లైన్స్)
 
@@ -4543,6 +4591,8 @@ output {
 ---
 
 # 6 – Node.js & Elasticsearch Integration
+
+## 1. Node.js Fundamentals
 
 ---
 
@@ -4773,6 +4823,8 @@ async function processLargeNdjsonFile(inputPath: string, outputPath: string) {
 
 ---
 
+## 2. Elasticsearch JavaScript Client
+
 ### 1. Client Installation (క్లయింట్ ఇన్‌స్టాలేషన్)
 
 Node.js / TypeScript అప్లికేషన్లలో అధికారిక Elasticsearch క్లయింట్ కోసం **`@elastic/elasticsearch`** ప్యాకేజీని ఇన్‌స్టాల్ చేస్తారు.
@@ -4947,6 +4999,8 @@ main().catch((err) => {
 ```
 
 ---
+
+## 3. Elasticsearch Operations
 
 ### 1. Index Documents (`client.index`)
 
@@ -5151,6 +5205,8 @@ async function runOperations(client: Client) {
 ```
 
 ---
+
+## 4. Backend Development
 
 ### 1. Express.js (ఎక్స్‌ప్రెస్.జెఎస్)
 
@@ -5484,6 +5540,8 @@ export function buildApp(esClient: Client) {
 
 ---
 
+## 5. Advanced Backend Integration
+
 ### 1. Bulk Data Ingestion (బల్క్ డేటా ఇంజెక్షన్)
 
 లక్షల/కోట్ల రికార్డులను డేటాబేస్, ఫైల్స్, లేదా external APIs నుండి Elasticsearch లోకి పంపేటప్పుడు ఒక్కో డాక్యుమెంట్‌కు విడివిడిగా `client.index()` కాల్ చేయకుండా, **నిర్దిష్ట బ్యాచ్ సైజులలో (`500–5,000` docs లేదా `5–15 MB` పరిధిలో డేటా/షార్డ్‌లకు తగ్గట్టుగా)** **`_bulk`** API ద్వారా పంపడమే **Bulk Data Ingestion**.
@@ -5734,6 +5792,8 @@ export class CachedSearchWrapper {
 # 7 – React, Cluster Administration & DevOps
 
 ---
+
+## 1. React Integration
 
 ### 1. React Fundamentals (రియాక్ట్ ఫండమెంటల్స్)
 
@@ -6068,6 +6128,8 @@ export const ProductSearchView: React.FC<{ apiBaseUrl?: string }> = ({
 ```
 
 ---
+
+## 2. Search UI
 
 ### 1. Search Input (సెర్చ్ ఇన్‌పుట్)
 
@@ -6601,6 +6663,8 @@ export const AdvancedSearchUI: React.FC<{ apiBaseUrl?: string }> = ({
 
 ---
 
+## 3. Cluster Administration
+
 ### 1. Cluster Settings (క్లస్టర్ సెట్టింగ్స్)
 
 Elasticsearch క్లస్టర్ ప్రవర్తనను (ఉదాహరణకు shard allocation, recovery/throttling, routing, లేదా circuit breakers) నియంత్రించే కాన్ఫిగరేషన్లు **Cluster Settings** (`GET /_cluster/settings`, `PUT /_cluster/settings`).
@@ -6740,6 +6804,8 @@ node.attr.zone: zone-a
 
 ---
 
+## 4. Backup & Recovery
+
 ### 1. Snapshot API (`_snapshot` — స్నాప్‌షాట్ ఏపీఐ)
 
 Elasticsearch క్లస్టర్‌లోని ఇండెక్స్‌లు, డేటా స్ట్రీమ్స్, మరియు క్లస్టర్ స్టేట్ యొక్క **బ్యాకప్‌లను (Snapshots)** క్రియేట్ చేయడానికి, తనిఖీ చేయడానికి, మరియు తొలగించడానికి ఉపయోగించే API **Snapshot API**.
@@ -6857,6 +6923,8 @@ POST /_snapshot/prod_s3_repo/manual_backup_2026_11_22/_restore
 ```
 
 ---
+
+## 5. Docker & Linux
 
 ### 1. Docker Fundamentals (డాకర్ ఫండమెంటల్స్)
 
@@ -7035,6 +7103,8 @@ docker stats --no-stream
 
 # 8 – Performance, Security & Advanced Elasticsearch
 
+## 1. Performance Tuning
+
 ### 1. JVM Heap (`-Xms` / `-Xmx`)
 
 Elasticsearch Java Virtual Machine (JVM) పై నడుస్తుంది కాబట్టి, క్లస్టర్ స్టేట్, field data/caches, segment metadata, మరియు running queries/aggregations కోసం కేటాయించే మెమరీని **JVM Heap** అంటారు.
@@ -7197,6 +7267,8 @@ GET /_nodes/stats/jvm,indices/search,indices/indexing,thread_pool
 
 ---
 
+## 2. Troubleshooting
+
 ### 1. Red and Yellow Clusters (రెడ్ మరియు ఎల్లో క్లస్టర్లు)
 
 Elasticsearch క్లస్టర్ ఆరోగ్యం షార్డ్ కేటాయింపు (shard allocation) పై ఆధారపడి ఉంటుంది:
@@ -7340,6 +7412,8 @@ PUT /_all/_settings
 ```
 
 ---
+
+## 3. Security
 
 ### 1. Authentication (అథెంటికేషన్)
 
@@ -7515,6 +7589,8 @@ xpack.security.audit.enabled: true
 
 ---
 
+## 4. Monitoring
+
 ### 1. Elasticsearch Monitoring (ఎలాస్టిక్‌సెర్చ్ మానిటరింగ్)
 
 Elasticsearch క్లస్టర్ ఆరోగ్యం (`green`, `yellow`, `red`), షార్డ్ కేటాయింపు, ఇండెక్సింగ్/సెర్చ్ throughput మరియు latency, డిస్క్ వినియోగం, మరియు నోడ్/JVM స్థితిని నిరంతరం గమనించడమే **Elasticsearch Monitoring**.
@@ -7603,6 +7679,8 @@ GET /_cat/indices?v&s=store.size:desc
 ```
 
 ---
+
+## 5. Advanced Search
 
 ### 1. Vector Fundamentals (వెక్టర్ ఫండమెంటల్స్)
 

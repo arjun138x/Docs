@@ -32,6 +32,7 @@ PLAN:
     - db/MySQL_basics.pdf
     - db/mongodb_tel.md
     - db/sqlQuestions.MD
+    - db/elasticSearch_tel.md
 
 
   - other 
